@@ -27,3 +27,8 @@ Every step has two glass panes, each carrying a coin logo: one Avalanche coin an
 - `MODE` in the footer cycles MIXED / AVAX ONLY / ROBINHOOD ONLY.
 - `$SUPER` is pinned into the pool. Set `SUPER_CHAIN` near the top of the coin block in `index.html` (`'avax'` or `'hood'`) to match where it lives.
 - Perf: glass no longer uses transmission (it forced a second scene render), lighter environment, capped pixel ratio, and adaptive resolution/bloom that backs off if FPS drops. Jumps are faster (0.4s) and one input is buffered during the landing.
+
+## Home page and zoom
+
+- The game opens on a home page (play, chain mode picker, how to play, best score, live/offline logo status). `HOME` in the footer returns to it.
+- `ZOOM` button or `Z`: cinematic swoop onto the next two panes (FOV tighten, slight roll, letterbox bars), then eases back to the default chase camera. Press again to leave early; jumping also exits it.
