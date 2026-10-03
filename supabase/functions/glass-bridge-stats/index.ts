@@ -132,7 +132,6 @@ export default {
         if (!Number.isInteger(runId) || runId <= 0) return json({ error: 'Invalid runId' }, 400)
 
         const won = Boolean(body.won)
-        const durationMs = Math.max(0, Math.min(24 * 60 * 60 * 1000, Math.round(Number(body.durationMs) || 0)))
         const stagesCompleted = Math.max(0, Math.min(12, Math.round(Number(body.stagesCompleted) || 0)))
         const score = Math.max(0, Math.min(12, Math.round(Number(body.score) || stagesCompleted)))
         const endedReason = body.endedReason ? String(body.endedReason).slice(0, 64) : (won ? 'completed' : 'failed')
