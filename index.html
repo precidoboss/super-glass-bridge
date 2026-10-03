@@ -107,7 +107,7 @@ header:after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;
 /* ===== SGB: Grotto identity + Supabase scoring. Non-blocking; every failure is silent so the game always runs. ===== */
 (function(){
 'use strict';
-const API_BASE=''; // '' = same origin as this page. If the game is served from another origin, set your Vercel URL here, e.g. 'https://your-app.vercel.app'
+const API_BASE='https://super-glass-bridge.vercel.app'; // Vercel project that hosts /api (the game itself may be served from The Grotto)
 const SDK_URL='https://api.enterthegrotto.xyz/sdk/grotto-game-runtime.v1.js';
 const q=s=>document.querySelector(s);
 let grotto=null,run=null,profile=null,stats=null,lbOpen=false,lbToken=0,lastFocus=null;

@@ -53,4 +53,4 @@ Every step has two glass panes, each carrying a coin logo: one Avalanche coin an
    - `SUPABASE_URL` - Supabase Project Settings -> API -> Project URL
    - `SUPABASE_SERVICE_ROLE_KEY` - the `service_role` / secret key (server only, never put it in `index.html`)
    - `GROTTO_GAME_ID` - this game's Grotto game id (recommended; rejects sessions from other Grotto games)
-3. Redeploy. The API lives in `/api` and needs Vercel (GitHub Pages cannot run it). If the game page is served from a different origin than the API, set `API_BASE` at the top of the SGB script in `index.html`.
+3. Redeploy. The API lives in `/api` and needs Vercel (GitHub Pages cannot run it). `API_BASE` at the top of the SGB script in `index.html` points at the Vercel domain, so the game can also run on The Grotto.
