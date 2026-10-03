@@ -102,7 +102,24 @@ header:after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;
 .sgb-foot{margin-top:12px;font:9px 'DM Mono';letter-spacing:.14em;color:#7f9585;text-align:center;min-height:12px}
 .sgb-res{margin:0 0 18px;font:10px 'DM Mono';letter-spacing:.16em;color:#c7ced8;line-height:1.9}.sgb-res b{color:var(--lime);font-size:16px;letter-spacing:.06em}.sgb-lbbtn{margin-left:10px;padding:16px 20px}
 @media(max-width:650px){.sgb-lbbtn{margin:10px 0 0}}
-</style></head><body><div class="app home-on"><header><div class="brand"><div class="brandmark">✳</div><div>SUPERCYCLE<small>GLASS BRIDGE // AVAX × ROBINHOOD</small></div></div><div class="tags"><span class="tag av"><i></i>AVAX</span><span class="tag rh"><i></i>ROBINHOOD</span><span class="live">THE CYCLE IS REAL</span></div></header><main><div id="scene"></div><div class="hud"><div class="stat"><div class="label">STAGE</div><div class="value"><em id="stage">01</em><span style="color:#788393;font-size:13px"> / 12</span></div><div class="pips" id="pips"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div><div class="stat" style="text-align:right"><div class="label">RUN BEST</div><div class="value" id="best">00</div></div></div><div class="center"><div class="label">CHOOSE YOUR FATE</div><strong id="status">THE NEXT TILE IS UNKNOWN</strong><div class="target" id="target"></div></div><section class="intro hidden" id="intro"><div class="eyebrow">✳ &nbsp; A SUPERCYCLE TRIAL</div><h1>TRUST THE<br>REAL ONE.</h1><p>Every step, two coins. One lives on Avalanche, one on Robinhood Chain. Jump on the coin from the chain you're told to find. Pick wrong and the glass breaks.</p><button class="btn" id="start">ENTER THE BRIDGE&nbsp; ↗</button><div class="sub">12 STEPS · ONE LIFE · NO SECOND GUESS</div></section><section class="home" id="home"><div class="home-in"><div class="eyebrow">✳ &nbsp; SUPERCYCLE × AVALANCHE × ROBINHOOD CHAIN</div><h1>GLASS<br><span>BRIDGE.</span></h1><p>Twelve steps. Two coins every step. One lives on Avalanche, one on Robinhood Chain. Find the right chain or the glass gives way.</p><div class="chains"><span class="chip av"><i></i>AVALANCHE</span><span class="chip rh"><i></i>ROBINHOOD CHAIN</span></div><div class="lbl">CHOOSE YOUR CHAIN MODE</div><div class="modes" id="modes"><button data-m="mixed" class="on">MIXED</button><button data-m="avax">AVAX ONLY</button><button data-m="hood">ROBINHOOD ONLY</button></div><div class="cta"><button class="btn" id="play">PLAY &nbsp;↗</button><button class="ghost" id="howbtn">HOW TO PLAY</button><button class="ghost" id="sgbLbBtn">LEADERBOARD</button></div><div class="sgb-me" id="sgbMe"></div><div class="how" id="how"><ol><li>The prompt up top names a chain.</li><li>Each step has two coins. Land on the one that lives on that chain.</li><li><b>← →</b> or <b>A D</b> to jump. <b>SPACE</b> is a blind guess.</li><li><b>Z</b> or the ZOOM button swoops in on the next panes.</li></ol></div><div class="stats"><div><b id="hBest">00</b><span>BEST / 12</span></div><div><b>12</b><span>STAGES</span></div><div><b id="hCoins">–</b><span id="hLive">COINS</span></div></div><div class="ticker" id="ticker"></div></div></section><section class="sgb-lb sgb-hide" id="sgbLb" role="dialog" aria-modal="true" aria-label="Leaderboard"><div class="sgb-card"><div class="sgb-head"><div><div class="eyebrow">✳ &nbsp; FASTEST CROSSINGS</div><h2>LEADERBOARD</h2></div><button class="ghost sgb-x" id="sgbLbClose" aria-label="Close leaderboard">✕</button></div><div class="sgb-cols"><span>#</span><span>PLAYER</span><span>TIME</span></div><ol class="sgb-list" id="sgbList"></ol><div class="sgb-foot" id="sgbFoot"></div></div></section><button class="zoombtn" id="zoom">◎ ZOOM</button></main><footer class="bottom"><div class="controls"><span class="key">←</span><span class="key">→</span><span>choose pane</span><span class="key">SPACE</span><span>jump</span><span class="key">Z</span><span>zoom</span></div><div class="hint">DON'T FADE THE SUPERCYCLE</div><div class="mobile"><button id="left" aria-label="Jump left">←</button><button id="right" aria-label="Jump right">→</button></div><div style="display:flex;gap:8px"><button class="sound" id="homeFoot">HOME</button><button class="sound" id="mode">MODE: MIXED</button><button class="sound" id="sound">SOUND: ON</button></div></footer></div>
+
+.rl-entry{display:none;align-items:center;gap:12px;width:fit-content;max-width:100%;margin:0 0 14px;padding:11px 16px 11px 12px;border-radius:14px;border:1px solid #ff4d4f55;background:linear-gradient(100deg,rgba(255,77,79,.14),rgba(212,255,58,.10));color:#fff;cursor:pointer;text-align:left;transition:transform .18s,border-color .18s,background .18s}.rl-entry.ready{display:flex}.rl-entry:hover{transform:translateY(-2px);border-color:#d4ff3a99}
+.rl-dot{display:flex;flex-direction:column;gap:4px}.rl-dot i{width:11px;height:11px;border-radius:50%;background:#ff4d4f;box-shadow:0 0 12px #ff4d4f}.rl-dot i+i{background:#7dff3a;box-shadow:0 0 12px #7dff3a}
+.rl-tx b{display:block;font:700 12px 'Space Grotesk';letter-spacing:.14em}.rl-tx small{display:block;margin-top:3px;font:8px 'DM Mono';letter-spacing:.2em;color:#9fb4a4}.rl-go{margin-left:6px;font:700 16px 'Space Grotesk';color:var(--lime)}
+.rl{position:absolute;inset:0;z-index:8;background:#040a06;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;overflow:hidden}.rl.rl-off{display:none}
+.rl canvas{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0}
+.rl:after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,0) 0 2px,rgba(0,0,0,.10) 2px 3px)}
+.rl .hud{z-index:2}.rl-light{align-self:flex-start;margin-top:6px;padding:10px 18px;border-radius:999px;font:700 clamp(11px,3.3vw,15px) 'Space Grotesk';letter-spacing:.18em;border:1px solid;background:#06100acc;white-space:nowrap;transition:color .12s,border-color .12s,box-shadow .12s}
+.rl-light.g{color:#d4ff3a;border-color:#d4ff3a88;box-shadow:0 0 28px #7ddc1f33}.rl-light.w{color:#ffc83d;border-color:#ffc83d99;box-shadow:0 0 28px #ffc83d33}.rl-light.r{color:#ff5a5c;border-color:#ff4d4faa;box-shadow:0 0 34px #ff4d4f66}
+.rl .value.low{color:#ff5a5c}
+.rl-prog{position:absolute;z-index:2;left:clamp(14px,4vw,58px);right:clamp(14px,4vw,58px);top:98px;height:6px;border-radius:99px;background:#ffffff18;overflow:hidden}.rl-prog i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#7ddc1f,#e0ff4a)}
+.rl-count{position:absolute;inset:0;z-index:3;display:flex;align-items:center;justify-content:center;pointer-events:none;font:700 clamp(80px,22vw,180px) 'Space Grotesk';letter-spacing:-.06em;color:var(--lime);text-shadow:0 0 60px #7ddc1f}
+.rl .intro{z-index:4}.rl-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:6px}
+.rl-run{position:absolute;z-index:5;left:50%;bottom:max(14px,env(safe-area-inset-bottom));transform:translateX(-50%);width:min(260px,calc(100% - 150px));padding:20px 14px;border:0;border-radius:18px;font:700 13px 'Space Grotesk';letter-spacing:.22em;color:#0a1405;background:linear-gradient(110deg,#e0ff4a,#8fe321 60%,#7ddc1f);box-shadow:0 14px 40px #7ddc1f40;cursor:pointer;touch-action:none;transition:filter .1s,background .12s}
+.rl-run.on{transform:translateX(-50%) scale(.97);filter:brightness(1.15)}.rl.is-red .rl-run{background:linear-gradient(110deg,#ff7b7b,#ff3b3b);color:#fff;box-shadow:0 14px 40px #ff3b3b55}
+.rl-exit{position:absolute;z-index:5;left:max(12px,env(safe-area-inset-left));bottom:max(14px,env(safe-area-inset-bottom));padding:14px 16px;border-radius:14px}
+@media(max-width:650px){.rl-prog{top:76px;left:12px;right:12px}}
+</style></head><body><div class="app home-on"><header><div class="brand"><div class="brandmark">✳</div><div>SUPERCYCLE<small>GLASS BRIDGE // AVAX × ROBINHOOD</small></div></div><div class="tags"><span class="tag av"><i></i>AVAX</span><span class="tag rh"><i></i>ROBINHOOD</span><span class="live">THE CYCLE IS REAL</span></div></header><main><div id="scene"></div><div class="hud"><div class="stat"><div class="label">STAGE</div><div class="value"><em id="stage">01</em><span style="color:#788393;font-size:13px"> / 12</span></div><div class="pips" id="pips"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div><div class="stat" style="text-align:right"><div class="label">RUN BEST</div><div class="value" id="best">00</div></div></div><div class="center"><div class="label">CHOOSE YOUR FATE</div><strong id="status">THE NEXT TILE IS UNKNOWN</strong><div class="target" id="target"></div></div><section class="intro hidden" id="intro"><div class="eyebrow">✳ &nbsp; A SUPERCYCLE TRIAL</div><h1>TRUST THE<br>REAL ONE.</h1><p>Every step, two coins. One lives on Avalanche, one on Robinhood Chain. Jump on the coin from the chain you're told to find. Pick wrong and the glass breaks.</p><button class="btn" id="start">ENTER THE BRIDGE&nbsp; ↗</button><div class="sub">12 STEPS · ONE LIFE · NO SECOND GUESS</div></section><section class="home" id="home"><div class="home-in"><div class="eyebrow">✳ &nbsp; SUPERCYCLE × AVALANCHE × ROBINHOOD CHAIN</div><h1>GLASS<br><span>BRIDGE.</span></h1><p>Twelve steps. Two coins every step. One lives on Avalanche, one on Robinhood Chain. Find the right chain or the glass gives way.</p><div class="chains"><span class="chip av"><i></i>AVALANCHE</span><span class="chip rh"><i></i>ROBINHOOD CHAIN</span></div><div class="lbl">CHOOSE YOUR CHAIN MODE</div><div class="modes" id="modes"><button data-m="mixed" class="on">MIXED</button><button data-m="avax">AVAX ONLY</button><button data-m="hood">ROBINHOOD ONLY</button></div><div class="cta"><button class="btn" id="play">PLAY &nbsp;↗</button><button class="ghost" id="howbtn">HOW TO PLAY</button><button class="ghost" id="sgbLbBtn">LEADERBOARD</button></div><button class="rl-entry" id="rlEnter"><span class="rl-dot"><i></i><i></i></span><span class="rl-tx"><b>RED LIGHT · GREEN LIGHT</b><small id="rlEnterSub">NEW · 5 ROUNDS</small></span><span class="rl-go">↗</span></button><div class="sgb-me" id="sgbMe"></div><div class="how" id="how"><ol><li>The prompt up top names a chain.</li><li>Each step has two coins. Land on the one that lives on that chain.</li><li><b>← →</b> or <b>A D</b> to jump. <b>SPACE</b> is a blind guess.</li><li><b>Z</b> or the ZOOM button swoops in on the next panes.</li></ol></div><div class="stats"><div><b id="hBest">00</b><span>BEST / 12</span></div><div><b>12</b><span>STAGES</span></div><div><b id="hCoins">–</b><span id="hLive">COINS</span></div></div><div class="ticker" id="ticker"></div></div></section><section class="rl rl-off" id="rl" aria-label="Red Light Green Light"><canvas id="rlCanvas"></canvas><div class="hud"><div class="stat"><div class="label">ROUND</div><div class="value"><em id="rlRound">1</em><span style="color:#788393;font-size:13px"> / 5</span></div></div><div class="rl-light g" id="rlLight">GREEN LIGHT</div><div class="stat" style="text-align:right"><div class="label">TIME</div><div class="value" id="rlTime">40</div></div></div><div class="rl-prog"><i id="rlProgBar"></i></div><div class="rl-count" id="rlCount"></div><section class="intro hidden" id="rlCard"></section><button class="rl-run" id="rlRun">HOLD TO RUN</button><button class="ghost rl-exit" id="rlExit" aria-label="Exit to home">✕</button></section><section class="sgb-lb sgb-hide" id="sgbLb" role="dialog" aria-modal="true" aria-label="Leaderboard"><div class="sgb-card"><div class="sgb-head"><div><div class="eyebrow">✳ &nbsp; FASTEST CROSSINGS</div><h2>LEADERBOARD</h2></div><button class="ghost sgb-x" id="sgbLbClose" aria-label="Close leaderboard">✕</button></div><div class="sgb-cols"><span>#</span><span>PLAYER</span><span>TIME</span></div><ol class="sgb-list" id="sgbList"></ol><div class="sgb-foot" id="sgbFoot"></div></div></section><button class="zoombtn" id="zoom">◎ ZOOM</button></main><footer class="bottom"><div class="controls"><span class="key">←</span><span class="key">→</span><span>choose pane</span><span class="key">SPACE</span><span>jump</span><span class="key">Z</span><span>zoom</span></div><div class="hint">DON'T FADE THE SUPERCYCLE</div><div class="mobile"><button id="left" aria-label="Jump left">←</button><button id="right" aria-label="Jump right">→</button></div><div style="display:flex;gap:8px"><button class="sound" id="homeFoot">HOME</button><button class="sound" id="mode">MODE: MIXED</button><button class="sound" id="sound">SOUND: ON</button></div></footer></div>
 <script>
 /* ===== SGB: Grotto identity + Supabase scoring. Non-blocking; every failure is silent so the game always runs. ===== */
 (function(){
@@ -726,7 +743,7 @@ function frameIdx(){
   if(landT>0)return 3;return 0;
 }
 function animate(){
-  requestAnimationFrame(animate);{const nt=performance.now(),d=(nt-perf.last)/1000;perf.last=nt;if(d<.25){perf.acc+=d;perf.n++}if(perf.acc>2.5){const fps=perf.n/perf.acc;perf.acc=0;perf.n=0;if(fps<44&&pr>1){pr=Math.max(1,pr-.25);renderer.setPixelRatio(pr);composer.setPixelRatio(pr);resize()}else if(fps<28&&bloom.enabled)bloom.enabled=false}}
+  requestAnimationFrame(animate);if(window.__rlOn){clock.getDelta();return}{const nt=performance.now(),d=(nt-perf.last)/1000;perf.last=nt;if(d<.25){perf.acc+=d;perf.n++}if(perf.acc>2.5){const fps=perf.n/perf.acc;perf.acc=0;perf.n=0;if(fps<44&&pr>1){pr=Math.max(1,pr-.25);renderer.setPixelRatio(pr);composer.setPixelRatio(pr);resize()}else if(fps<28&&bloom.enabled)bloom.enabled=false}}
   const dt=Math.min(clock.getDelta(),.05),time=clock.elapsedTime;
   skyU.time.value=time;abyssU.time.value=time;streakTex.offset.x=(time*.1)%1;
 
@@ -771,4 +788,308 @@ function animate(){
   composer.render();
 }
 animate();
+
+/* RL:BEGIN ============ RED LIGHT · GREEN LIGHT (local only, nothing is sent to Supabase) ============ */
+let RL=null;
+try{RL=(()=>{
+const el=$('#rl'),cv=$('#rlCanvas'),c=cv.getContext('2d');
+const ui={round:$('#rlRound'),time:$('#rlTime'),light:$('#rlLight'),bar:$('#rlProgBar'),card:$('#rlCard'),count:$('#rlCount'),run:$('#rlRun'),sub:$('#rlEnterSub'),enter:$('#rlEnter')};
+const L=100,ROAD=3.2,ZH=4.2,ACC=46,DEC=140,SENT_BACK=8;
+const ROUNDS=[
+  {time:38,speed:11,  green:[2.4,3.8],red:[1.5,2.3],warn:.70,snapW:.12,grace:.42,fake:0,  snap:0},
+  {time:34,speed:11.5,green:[2.0,3.4],red:[1.5,2.5],warn:.55,snapW:.12,grace:.38,fake:.12,snap:0},
+  {time:30,speed:12,  green:[1.6,3.0],red:[1.4,2.7],warn:.42,snapW:.12,grace:.34,fake:.22,snap:.12},
+  {time:27,speed:12.5,green:[1.3,2.6],red:[1.3,2.9],warn:.32,snapW:.09,grace:.30,fake:.30,snap:.20},
+  {time:24,speed:13,  green:[1.1,2.3],red:[1.2,3.1],warn:.26,snapW:.06,grace:.27,fake:.38,snap:.28}
+];
+const N=ROUNDS.length;
+const HINTS=['shorter greens and a faster tell.','some warnings are fakes. Trust nothing.','the sentinel can snap with almost no warning.','tighter windows, more fakes. Last one.'];
+const RUNKEYS=['arrowright','arrowup','d','w',' '];
+const GREEN=[200,255,67],AMBER=[255,200,61],RED=[255,77,79];
+const mixc=(a,b,t)=>a.map((v,i)=>Math.round(v+(b[i]-v)*t));
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const imgs=SPRITE_URIS.map(u=>{const i=new Image();i.src=u;return i});
+const stars=Array.from({length:70},(_,i)=>({x:(Math.sin(i*12.9898)*43758.5453%1+1)%1,y:(Math.sin(i*78.233)*12345.6789%1+1)%1*.9,r:.6+(i%3)*.5,p:i*1.7}));
+const ridge=Array.from({length:48},(_,i)=>.35+.65*Math.abs(Math.sin(i*1.7)*Math.cos(i*.63)));
+
+let on=false,raf=0,lastT=0,phase='idle',round=0,pos=0,v=0,tLeft=0,light='green',lightT=0,lightDur=3,warnReal=true,face=0;
+let redK=0,warnK=0,shake=0,flashA=0,deadT=0,clearT=0,cdT=0,cdShown=0,animT=0,stride=0,dustT=0,totalT=0,reason='',cardUp=true,primary=null,goT=0,final=false;
+let W=300,H=300,dpr=1;
+let best=0;try{best=Number(localStorage.getItem('superbridge-rl-best')||0)||0}catch{}
+const keys=new Set();let ptr=false,cvPtr=false,footPtr=false;
+const parts=[];
+const holding=()=>keys.size>0||ptr||cvPtr||footPtr;
+const fmt=ms=>{const cs=Math.round(ms*100),m=Math.floor(cs/6000),r=cs%6000;return m+':'+String(Math.floor(r/100)).padStart(2,'0')+'.'+String(r%100).padStart(2,'0')};
+
+/* ---------- layout ---------- */
+function resize(){const r=el.getBoundingClientRect();dpr=Math.min(window.devicePixelRatio||1,2);W=Math.max(2,r.width||el.clientWidth||300);H=Math.max(2,r.height||el.clientHeight||300);cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr)}
+function G(){const horizon=H*.36,heroY=H*.79,heroH=Math.min(H*.30,230);return{horizon,heroY,heroH,A:(heroY-horizon)*ZH,P:heroH*ZH/1.7,cxm:W/2}}
+const gyf=(g,z)=>g.horizon+g.A/z, uxf=(g,z)=>g.P/z;
+
+/* ---------- round flow ---------- */
+const card=(eb,h1,p,btns,sub)=>`<div class="eyebrow">${eb}</div><h1>${h1}</h1><p class="result">${p}</p><div class="rl-btns">${btns}</div><div class="sub">${sub}</div>`;
+function showCard(html,pri){ui.card.innerHTML=html;ui.card.classList.remove('hidden');cardUp=true;primary=pri}
+function updateSub(){if(ui.sub)ui.sub.textContent=best>0?'BEST · ROUND '+best+' / '+N+' CLEARED':'NEW · '+N+' ROUNDS'}
+function showIntro(){showCard(card('✳ &nbsp; SUPERCYCLE TRIAL 02','RED LIGHT<br><span>GREEN LIGHT.</span>','Hold to run while the sentinel looks away. The moment the lamp turns red, <b>let go</b>. Move on red and you are out. '+N+' rounds, each one meaner.'+(best>0?'<br>BEST · ROUND '+best+' / '+N+' CLEARED':''),'<button class="btn" data-act="start">START&nbsp; ↗</button><button class="ghost" data-act="home">HOME</button>','HOLD SPACE · → · D — OR HOLD THE RUN BUTTON'),'start')}
+function startRound(r){
+  round=r;const cfg=ROUNDS[r];pos=0;v=0;tLeft=cfg.time;light='green';lightT=0;lightDur=rnd(cfg.green[0],cfg.green[1])+1.0;warnReal=true;face=0;redK=0;warnK=0;stride=0;deadT=0;clearT=0;shake=0;flashA=0;final=false;parts.length=0;
+  if(r===0)totalT=0;
+  phase='count';cdT=3;cdShown=0;goT=0;ui.count.textContent='';
+  ui.card.classList.add('hidden');cardUp=false;primary=null;bgm.volume=.45;
+}
+function act(a){
+  try{if(document.activeElement&&document.activeElement.blur)document.activeElement.blur()}catch{}
+  if(a==='home'){exit();return}
+  if(a==='start'){kick();startRound(0)}
+  else if(a==='next'){kick();startRound(round+1)}
+}
+function eliminate(why){
+  if(phase!=='play')return;
+  phase='dead';deadT=0;v=0;reason=why;shake=.9;flashA=.55;crash();bgm.volume=.16;cardUp=false;
+  const g=G();burst(g.cxm,g.heroY-g.heroH*.5,30,'255,70,70',280);burst(g.cxm,g.heroY-g.heroH*.5,14,'255,255,255',170);
+  if(round>best){best=round;try{localStorage.setItem('superbridge-rl-best',best)}catch{}updateSub()}
+}
+function showDead(){
+  const pct=Math.min(99,Math.floor(pos/L*100));
+  showCard(card('✕ &nbsp; ELIMINATED',reason==='TIME UP'?'TIME’S<br>UP.':'YOU<br>MOVED.','Round '+(round+1)+' of '+N+' · '+pct+'% of the way'+(best>0?' · best: round '+best+' cleared':''),'<button class="btn" data-act="start">RUN IT BACK&nbsp; ↗</button><button class="ghost" data-act="home">HOME</button>','THE SENTINEL SEES EVERYTHING'),'start');
+}
+function clearRound(){
+  if(phase!=='play')return;
+  phase='clear';clearT=0;final=round===N-1;light='green';flashA=.25;chime();
+  const g=G();burst(g.cxm,g.heroY-g.heroH*.5,40,'200,255,67',300);burst(g.cxm,g.heroY-g.heroH*.5,16,'255,255,255',200);
+  if(round+1>best){best=round+1;try{localStorage.setItem('superbridge-rl-best',best)}catch{}updateSub()}
+}
+function showClear(){
+  if(final){showCard(card('✳ &nbsp; ALL ROUNDS CLEARED','STILL<br>STANDING.',N+' of '+N+' cleared in '+fmt(totalT)+'.','<button class="btn" data-act="start">PLAY AGAIN&nbsp; ↗</button><button class="ghost" data-act="home">HOME</button>','BUILT DIFFERENT. (REAL)'),'start')}
+  else{showCard(card('✳ &nbsp; ROUND '+(round+1)+' CLEARED','KEEP<br>MOVING.','Round '+(round+2)+' of '+N+': '+HINTS[round],'<button class="btn" data-act="next">NEXT ROUND&nbsp; ↗</button><button class="ghost" data-act="home">HOME</button>','PRESS ENTER'),'next')}
+}
+function advanceLight(cfg){
+  if(light==='green'){
+    light='warn';lightT=0;
+    if(Math.random()<cfg.fake){warnReal=false;lightDur=cfg.warn*.9}
+    else{warnReal=true;lightDur=Math.random()<cfg.snap?cfg.snapW:cfg.warn}
+    beep(300,.07,'square',.04);
+  }else if(light==='warn'){
+    lightT=0;
+    if(warnReal){light='red';lightDur=rnd(cfg.red[0],cfg.red[1]);beep(150,.35,'sawtooth',.07);shake=Math.max(shake,.15)}
+    else{light='green';lightDur=rnd(cfg.green[0]*.6,cfg.green[1]*.8);beep(560,.08,'triangle',.04)}
+  }else{
+    light='green';lightT=0;lightDur=rnd(cfg.green[0],cfg.green[1]);beep(560,.1,'triangle',.05);
+  }
+}
+
+/* ---------- particles ---------- */
+function burst(x,y,n,col,sp){for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,s=sp*(.3+Math.random()*.7);parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-sp*.25,l:.7+Math.random()*.6,m:1.2,c:col,s:2+Math.random()*4,g:420})}}
+function updateParts(dt){for(let i=parts.length-1;i>=0;i--){const p=parts[i];p.l-=dt;if(p.l<=0){parts.splice(i,1);continue}p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=p.g*dt}}
+
+/* ---------- simulation ---------- */
+function update(dt){
+  animT+=dt;
+  redK+=((light==='red'?1:0)-redK)*Math.min(1,dt*16);
+  warnK+=((light==='warn'?1:0)-warnK)*Math.min(1,dt*16);
+  shake=Math.max(0,shake-dt*1.8);flashA=Math.max(0,flashA-dt*1.4);
+  updateParts(dt);
+  if(phase==='count'){
+    cdT-=dt;const n=Math.max(0,Math.ceil(cdT));
+    if(n!==cdShown){cdShown=n;if(n>0){ui.count.textContent=String(n);beep(440,.12,'triangle',.06)}else{ui.count.textContent='GO';beep(880,.2,'triangle',.07);goT=.6}}
+    if(cdT<=0)phase='play';
+  }else if(phase==='play'){
+    const cfg=ROUNDS[round];
+    if(goT>0){goT-=dt;if(goT<=0)ui.count.textContent=''}
+    totalT+=dt;tLeft-=dt;lightT+=dt;
+    if(lightT>=lightDur)advanceLight(cfg);
+    const target=holding()?cfg.speed:0;
+    v=v<target?Math.min(target,v+ACC*dt):Math.max(target,v-DEC*dt);
+    pos+=v*dt;stride+=dt*v*.3;
+    dustT-=dt;if(v>3&&dustT<=0){dustT=.06;const g=G();parts.push({x:g.cxm+(Math.random()-.5)*30,y:g.heroY+3,vx:(Math.random()-.5)*40,vy:-20-Math.random()*40,l:.45,m:.45,c:'200,255,90',s:3+Math.random()*3,g:30})}
+    if(pos>=L)clearRound();
+    else if(light==='red'&&lightT>cfg.grace&&v>.9)eliminate('MOVED');
+    else if(tLeft<=0){tLeft=0;eliminate('TIME UP')}
+  }else if(phase==='dead'){
+    deadT+=dt;if(deadT>1.25&&!cardUp)showDead();
+  }else if(phase==='clear'){
+    clearT+=dt;v=Math.max(0,v-DEC*.25*dt);pos+=v*dt;stride+=dt*v*.3;
+    if(clearT>.9&&!cardUp)showClear();
+  }
+  const ft=light==='red'?1:light==='warn'?.28+.08*Math.sin(animT*38):0;
+  const sp=ft>face?(light==='red'?11:6):5,d=ft-face;
+  face+=clamp(d,-sp*dt,sp*dt);
+}
+
+/* ---------- drawing ---------- */
+function render(){
+  const g=G();
+  c.setTransform(dpr,0,0,dpr,0,0);
+  c.save();
+  if(shake>0)c.translate((Math.random()-.5)*shake*16,(Math.random()-.5)*shake*16);
+  const rgb=mixc(mixc(GREEN,AMBER,warnK),RED,redK).join(',');
+  const quad=(z1,z2,xl,xr,fill)=>{const y1=gyf(g,z1),y2=gyf(g,z2),s1=uxf(g,z1),s2=uxf(g,z2);c.beginPath();c.moveTo(g.cxm+xl*s1,y1);c.lineTo(g.cxm+xr*s1,y1);c.lineTo(g.cxm+xr*s2,y2);c.lineTo(g.cxm+xl*s2,y2);c.closePath();c.fillStyle=fill;c.fill()};
+  const zOf=w=>ZH+w-pos,ZN=1.15,wEnd=L+12;
+
+  // sky
+  let gr=c.createLinearGradient(0,0,0,g.horizon);gr.addColorStop(0,'#030805');gr.addColorStop(.75,'#0a1c10');gr.addColorStop(1,'rgb('+mixc([20,52,26],[70,14,18],redK).join(',')+')');
+  c.fillStyle=gr;c.fillRect(-30,-30,W+60,g.horizon+30);
+  c.fillStyle='#fff';for(const s of stars){c.globalAlpha=.2+.35*Math.abs(Math.sin(animT*1.6+s.p));c.fillRect(s.x*W,s.y*g.horizon,s.r,s.r)}c.globalAlpha=1;
+  {const mr=Math.min(W,H)*.11,mx=g.cxm,my=g.horizon*.5;
+   const mg=c.createRadialGradient(mx,my,mr*.2,mx,my,mr*2.4);mg.addColorStop(0,'rgba('+rgb+',.20)');mg.addColorStop(1,'rgba('+rgb+',0)');c.fillStyle=mg;c.fillRect(mx-mr*2.5,my-mr*2.5,mr*5,mr*5);
+   c.strokeStyle='rgba('+rgb+',.33)';c.lineWidth=2;c.beginPath();c.arc(mx,my,mr,0,Math.PI*2);c.stroke();
+   for(let k=0;k<3;k++){const a=k*Math.PI/3+animT*.05;c.beginPath();c.moveTo(mx-Math.cos(a)*mr*.8,my-Math.sin(a)*mr*.8);c.lineTo(mx+Math.cos(a)*mr*.8,my+Math.sin(a)*mr*.8);c.stroke()}}
+  c.fillStyle='#06120a';c.beginPath();c.moveTo(-30,g.horizon);
+  for(let i=0;i<ridge.length;i++)c.lineTo(i/(ridge.length-1)*(W+60)-30,g.horizon-ridge[i]*H*.06);
+  c.lineTo(W+30,g.horizon);c.closePath();c.fill();
+  c.fillStyle='#050d08';c.fillRect(-30,g.horizon,W+60,H-g.horizon+30);
+  {c.save();c.translate(g.cxm,g.horizon);c.scale(1,.3);const hg=c.createRadialGradient(0,0,0,0,0,W*.62);hg.addColorStop(0,'rgba('+rgb+',.30)');hg.addColorStop(1,'rgba('+rgb+',0)');c.fillStyle=hg;c.fillRect(-W,-W,2*W,2*W);c.restore()}
+
+  // road
+  const wLo=Math.floor((pos-ZH+1)/4)*4;
+  for(let w=wLo;w<wEnd;w+=4){const z1=Math.max(ZN,zOf(w)),z2=zOf(w+4);if(z2<=z1)continue;quad(z1,z2,-ROAD,ROAD,Math.round(w/4)%2?'#0b1a10':'#0f2315')}
+  const edge='rgba('+rgb+',.9)';
+  quad(ZN,zOf(wEnd),-ROAD-.10,-ROAD+.06,edge);quad(ZN,zOf(wEnd),ROAD-.06,ROAD+.10,edge);
+  for(let w=Math.ceil((pos-ZH+1)/3)*3;w<L;w+=3){const z1=zOf(w),z2=zOf(w+1.2);if(z1<ZN)continue;quad(z1,z2,-.05,.05,'rgba(255,255,255,.22)')}
+  if(zOf(0)>ZN)quad(zOf(0),zOf(.6),-ROAD,ROAD,'rgba(255,255,255,.45)');
+  if(zOf(L+1.2)>ZN){for(let r=0;r<2;r++)for(let k=0;k<12;k++){const z1=Math.max(ZN,zOf(L+r*.6)),z2=zOf(L+r*.6+.6);if(z2<=z1)continue;quad(z1,z2,-ROAD+k*ROAD/6,-ROAD+(k+1)*ROAD/6,(r+k)%2?'#f3f7ea':'#0a120c')}}
+
+  // sentinel (behind the finish gate)
+  sentinel(g,rgb);
+
+  // pylons + finish gate, far to near
+  for(let w=Math.floor((L-1)/10)*10;w>=Math.floor((pos-ZH)/10)*10;w-=10){
+    const z=zOf(w);if(z<1.3)continue;const s=uxf(g,z),yb=gyf(g,z);
+    for(const sd of[-1,1]){const x=g.cxm+sd*(ROAD+1)*s,ph=1.7*s,pw=.34*s;c.fillStyle='#0d2414';c.fillRect(x-pw/2,yb-ph,pw,ph);c.fillStyle='rgba('+rgb+',.9)';c.fillRect(x-pw/2,yb-ph,pw,Math.max(1,.06*s));
+      const lg=c.createRadialGradient(x,yb-ph-.1*s,0,x,yb-ph-.1*s,.9*s);lg.addColorStop(0,'rgba('+rgb+',.65)');lg.addColorStop(1,'rgba('+rgb+',0)');c.fillStyle=lg;c.fillRect(x-s,yb-ph-s,2*s,2*s)}
+  }
+  {const z=zOf(L);if(z>=1.2){const s=uxf(g,z),yb=gyf(g,z),th=3.8*s;
+    for(const sd of[-1,1]){c.fillStyle='#10301b';c.fillRect(g.cxm+sd*(ROAD+.35)*s-.16*s,yb-th,.32*s,th);c.fillStyle='rgba('+rgb+',.9)';c.fillRect(g.cxm+sd*(ROAD+.35)*s-.16*s,yb-th,.32*s,Math.max(1,.05*s))}
+    const bg=c.createLinearGradient(0,yb-th,0,yb-th+.6*s);bg.addColorStop(0,'#d4ff3a');bg.addColorStop(1,'#7ddc1f');c.fillStyle=bg;c.fillRect(g.cxm-(ROAD+.5)*s,yb-th,(2*ROAD+1)*s,.6*s);
+    if(.38*s>6){c.fillStyle='#0a1405';c.font='700 '+(.38*s)+'px "Space Grotesk",sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('F I N I S H',g.cxm,yb-th+.3*s)}}}
+
+  // scan beam
+  if(redK>.04){const zS=Math.max(zOf(L)+SENT_BACK,ZH+3),hy=gyf(g,zS)-4.35*sentU(g,zS);
+    const sweep=Math.sin(animT*2.6)*W*.2,half=W*.34;c.save();c.globalCompositeOperation='lighter';
+    const bgf=c.createLinearGradient(0,hy,0,H);bgf.addColorStop(0,'rgba(255,60,60,'+(.34*redK)+')');bgf.addColorStop(1,'rgba(255,60,60,0)');
+    c.fillStyle=bgf;c.beginPath();c.moveTo(g.cxm,hy);c.lineTo(g.cxm+sweep-half,H+20);c.lineTo(g.cxm+sweep+half,H+20);c.closePath();c.fill();c.restore()}
+
+  // hero
+  drawHero(g);
+
+  // laser on elimination
+  if(phase==='dead'&&deadT<.4){const zS=Math.max(zOf(L)+SENT_BACK,ZH+3),hy=gyf(g,zS)-4.35*sentU(g,zS);
+    c.save();c.globalCompositeOperation='lighter';c.strokeStyle='rgba(255,70,70,'+(1-deadT/.4)+')';c.lineWidth=6;c.lineCap='round';c.beginPath();c.moveTo(g.cxm,hy);c.lineTo(g.cxm,g.heroY-g.heroH*.5);c.stroke();
+    c.lineWidth=2;c.strokeStyle='rgba(255,255,255,'+(1-deadT/.4)+')';c.stroke();c.restore()}
+
+  // particles
+  for(const p of parts){c.globalAlpha=clamp(p.l/p.m,0,1);c.fillStyle='rgb('+p.c+')';c.fillRect(p.x-p.s/2,p.y-p.s/2,p.s,p.s)}c.globalAlpha=1;
+
+  // vignette by state
+  {const va=.10+.36*redK+.14*warnK,vg=c.createRadialGradient(g.cxm,H*.5,Math.min(W,H)*.25,g.cxm,H*.5,Math.max(W,H)*.75);vg.addColorStop(0,'rgba('+rgb+',0)');vg.addColorStop(1,'rgba('+rgb+','+(va*(redK>.5?.8+.2*Math.sin(animT*14):1))+')');c.fillStyle=vg;c.fillRect(-30,-30,W+60,H+60)}
+  if(flashA>0){c.fillStyle=phase==='dead'?'rgba(255,80,80,'+flashA+')':'rgba(255,255,255,'+flashA+')';c.fillRect(-30,-30,W+60,H+60)}
+  c.restore();
+}
+const sentU=(g,z)=>uxf(g,Math.max(9,11.4+(z-12.2)*.264));
+function sentinel(g,rgb){
+  const z=Math.max(zOfL()+SENT_BACK,ZH+3),u=sentU(g,z),y0=gyf(g,z);
+  c.save();c.translate(g.cxm,y0);c.scale(u,u);
+  const col=rgb;
+  c.fillStyle='rgba(0,0,0,.45)';c.beginPath();c.ellipse(0,0,1.7,.32,0,0,Math.PI*2);c.fill();
+  // skirt
+  let sg=c.createLinearGradient(0,-2.4,0,0);sg.addColorStop(0,'#1e5c2b');sg.addColorStop(1,'#0b2814');
+  c.fillStyle=sg;c.beginPath();c.moveTo(-1.15,0);c.lineTo(1.15,0);c.lineTo(.72,-2.4);c.lineTo(-.72,-2.4);c.closePath();c.fill();
+  c.strokeStyle='rgba('+col+',.9)';c.lineWidth=.09;c.beginPath();c.moveTo(-1.15,-.02);c.lineTo(1.15,-.02);c.stroke();
+  // torso + arms + neck
+  c.fillStyle='#134a22';c.fillRect(-.7,-3.55,1.4,1.2);c.fillStyle='#0d3418';c.fillRect(-.7,-2.55,1.4,.12);
+  c.fillStyle='#134a22';c.fillRect(-.98,-3.4,.26,1.25);c.fillRect(.72,-3.4,.26,1.25);
+  c.fillStyle='#e9f4c7';c.fillRect(-.18,-3.8,.36,.3);
+  // head turns: cos(face*PI)  (+1 back of head, -1 face)
+  const hc=Math.cos(face*Math.PI),ah=Math.abs(hc);
+  c.save();c.translate(0,-4.4);
+  c.fillStyle=hc>0?'#0b2a12':'#e4f5bd';c.beginPath();c.ellipse(0,0,Math.max(.02,.86*ah),.86,0,0,Math.PI*2);c.fill();
+  c.strokeStyle='rgba('+col+',.75)';c.lineWidth=.06;c.stroke();
+  c.save();c.scale(Math.max(.02,ah),1);
+  if(hc>0){c.strokeStyle='#d4ff3a';c.lineWidth=.09;c.lineCap='round';for(let k=0;k<3;k++){const a=k*Math.PI/3;c.beginPath();c.moveTo(-Math.cos(a)*.42,-Math.sin(a)*.42);c.lineTo(Math.cos(a)*.42,Math.sin(a)*.42);c.stroke()}}
+  else{const ec=redK>.3?'#ff2a2a':warnK>.3?'#ffc83d':'#2a5a30';
+    for(const sd of[-1,1]){if(redK>.2){const eg=c.createRadialGradient(sd*.32,-.05,0,sd*.32,-.05,.6);eg.addColorStop(0,'rgba(255,40,40,.75)');eg.addColorStop(1,'rgba(255,40,40,0)');c.fillStyle=eg;c.fillRect(sd*.32-.6,-.65,1.2,1.2)}
+      c.fillStyle=ec;c.beginPath();c.ellipse(sd*.32,-.05,.13,.19,0,0,Math.PI*2);c.fill()}
+    c.strokeStyle='#1a2a14';c.lineWidth=.07;c.lineCap='round';c.beginPath();c.moveTo(-.2,.3);c.lineTo(.2,.3);c.stroke()}
+  c.restore();c.restore();
+  // lamp
+  c.strokeStyle='#9fb4a4';c.lineWidth=.07;c.beginPath();c.moveTo(0,-5.25);c.lineTo(0,-5.55);c.stroke();
+  const lc=redK>.5?'255,59,59':warnK>.5?'255,200,61':'125,255,58',pulse=.75+.25*Math.sin(animT*(redK>.5?16:6));
+  const lg=c.createRadialGradient(0,-5.7,0,0,-5.7,1.7);lg.addColorStop(0,'rgba('+lc+','+(.6*pulse)+')');lg.addColorStop(1,'rgba('+lc+',0)');c.fillStyle=lg;c.fillRect(-1.8,-7.5,3.6,3.6);
+  c.fillStyle='rgb('+lc+')';c.beginPath();c.arc(0,-5.7,.27,0,Math.PI*2);c.fill();
+  c.restore();
+}
+const zOfL=()=>ZH+L-pos;
+function drawHero(g){
+  const x=g.cxm,y=g.heroY,hh=g.heroH*1.15,hw=hh*224/256;
+  const moving=(phase==='play'||phase==='clear')&&v>1.2;
+  let idx=0,bob=0;
+  if(moving){const p=stride%1;idx=p<.22?1:p<.5?2:p<.78?3:0;bob=-Math.abs(Math.sin(p*Math.PI))*g.heroH*.07}
+  const img=imgs[idx];
+  c.fillStyle='rgba(0,0,0,.5)';c.beginPath();c.ellipse(x,y+2,hw*.26,hw*.06,0,0,Math.PI*2);c.fill();
+  c.save();c.translate(x,y+bob);
+  if(phase==='dead'){const k=Math.min(1,deadT/.5);c.rotate(k*1.5);c.translate(0,k*hh*.05);c.globalAlpha=1-.4*k}
+  else if(!moving)c.scale(1,1+.012*Math.sin(animT*3.2));
+  if(img&&img.complete&&img.naturalWidth)c.drawImage(img,-hw/2,-hh+hh*4/256,hw,hh);
+  c.restore();c.globalAlpha=1;
+}
+
+/* ---------- HUD ---------- */
+const cache={};
+function hud(){
+  const lt=phase==='count'?['GET READY','w']:phase==='dead'?['ELIMINATED','r']:phase==='clear'?[final?'SURVIVED':'ROUND CLEARED','g']:light==='red'?['RED LIGHT','r']:light==='warn'?['· · ·','w']:['GREEN LIGHT','g'];
+  if(cache.lt!==lt[0]){cache.lt=lt[0];ui.light.textContent=lt[0];ui.light.className='rl-light '+lt[1]}
+  const tm=String(Math.max(0,Math.ceil(tLeft)));if(cache.tm!==tm){cache.tm=tm;ui.time.textContent=tm}
+  const low=tLeft<=8&&phase==='play';if(cache.low!==low){cache.low=low;ui.time.classList.toggle('low',low)}
+  const pw=Math.min(100,pos/L*100).toFixed(1);if(cache.pw!==pw){cache.pw=pw;ui.bar.style.width=pw+'%'}
+  const rd=String(round+1);if(cache.rd!==rd){cache.rd=rd;ui.round.textContent=rd}
+  const rr=light==='red'&&phase==='play';if(cache.rr!==rr){cache.rr=rr;el.classList.toggle('is-red',rr)}
+}
+
+/* ---------- loop / enter / exit ---------- */
+function step(dt){update(dt);render();hud()}
+function loop(now){raf=requestAnimationFrame(loop);const dt=clamp((now-lastT)/1000,0,.05);lastT=now;step(dt)}
+function enter(){
+  if(on)return;
+  on=true;window.__rlOn=true;el.classList.remove('rl-off');
+  try{if(document.activeElement&&document.activeElement.blur)document.activeElement.blur()}catch{}
+  resize();phase='idle';round=0;pos=0;v=0;tLeft=ROUNDS[0].time;light='green';face=0;redK=0;warnK=0;parts.length=0;final=false;
+  for(const k in cache)delete cache[k];
+  showIntro();lastT=performance.now();raf=requestAnimationFrame(loop);
+}
+function exit(){
+  if(!on)return;
+  on=false;window.__rlOn=false;cancelAnimationFrame(raf);el.classList.add('rl-off');
+  keys.clear();ptr=cvPtr=footPtr=false;ui.count.textContent='';ui.run.classList.remove('on');el.classList.remove('is-red');
+  bgm.volume=.45;phase='idle';
+}
+
+/* ---------- input (captured so the bridge game never sees keys/taps while this is open) ---------- */
+const kname=e=>e.code==='Space'?' ':String(e.key).toLowerCase();
+addEventListener('keydown',e=>{
+  if(!on)return;
+  const k=kname(e);
+  if(k==='escape'){exit();e.stopImmediatePropagation();e.preventDefault();return}
+  if(k==='enter'){if(primary)act(primary);e.stopImmediatePropagation();e.preventDefault();return}
+  if(RUNKEYS.includes(k)){keys.add(k);e.preventDefault()}
+  e.stopImmediatePropagation();
+},true);
+addEventListener('keyup',e=>{if(!on)return;const k=kname(e);if(RUNKEYS.includes(k)||k==='enter')e.preventDefault();keys.delete(k);e.stopImmediatePropagation()},true);
+addEventListener('blur',()=>{keys.clear();ptr=cvPtr=footPtr=false;ui.run.classList.remove('on')});
+const hold=(node,set,cls)=>{node.addEventListener('pointerdown',e=>{set(true);try{node.setPointerCapture(e.pointerId)}catch{}if(cls)ui.run.classList.add('on');e.preventDefault()});
+  for(const ev of['pointerup','pointercancel','lostpointercapture'])node.addEventListener(ev,()=>{set(false);if(cls)ui.run.classList.remove('on')})};
+hold(ui.run,f=>{ptr=f},true);hold(cv,f=>{cvPtr=f},false);
+document.addEventListener('pointerdown',e=>{if(on&&e.target.closest&&e.target.closest('.bottom .mobile button')){footPtr=true;e.preventDefault()}},true);
+addEventListener('pointerup',()=>{footPtr=false},true);addEventListener('pointercancel',()=>{footPtr=false},true);
+document.addEventListener('click',e=>{if(on&&e.target.closest&&e.target.closest('.bottom .mobile button')){e.stopPropagation();e.preventDefault()}},true);
+el.addEventListener('contextmenu',e=>e.preventDefault());
+ui.card.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('button[data-act]');if(b&&on)act(b.dataset.act)});
+$('#rlExit').onclick=exit;$('#homeFoot').addEventListener('click',exit);
+ui.enter.onclick=enter;
+addEventListener('resize',()=>{if(on)resize()});
+if(typeof ResizeObserver!=='undefined')new ResizeObserver(()=>{if(on)resize()}).observe(el);
+updateSub();ui.enter.classList.add('ready');
+
+return{enter,exit,act,_step:step,_t:{start:r=>startRound(r),get:()=>({on,phase,round,pos,v,tLeft,light,lightT,lightDur,warnReal,face,deadT,clearT,cdT,best,reason,final,primary,cardUp,totalT,keys:[...keys]}),set:o=>{if('pos'in o)pos=o.pos;if('light'in o)light=o.light;if('lightT'in o)lightT=o.lightT;if('lightDur'in o)lightDur=o.lightDur;if('warnReal'in o)warnReal=o.warnReal;if('tLeft'in o)tLeft=o.tLeft;if('v'in o)v=o.v}}};
+})()}catch(err){console.warn('Red Light Green Light failed to start',err)}
+/* RL:END */
 </script></body></html>

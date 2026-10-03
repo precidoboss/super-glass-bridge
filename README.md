@@ -54,3 +54,7 @@ Every step has two glass panes, each carrying a coin logo: one Avalanche coin an
    - `SUPABASE_SERVICE_ROLE_KEY` - the `service_role` / secret key (server only, never put it in `index.html`)
    - `GROTTO_GAME_ID` - this game's Grotto game id (recommended; rejects sessions from other Grotto games)
 3. Redeploy. The API lives in `/api` and needs Vercel (GitHub Pages cannot run it). `API_BASE` at the top of the SGB script in `index.html` points at the Vercel domain, so the game can also run on The Grotto.
+
+## Red Light · Green Light
+
+A second mode, opened from the home page (RED LIGHT · GREEN LIGHT). Hold Space / → / D (or the on-screen RUN button) while the sentinel looks away; let go the moment the lamp turns red. Five rounds, each with shorter greens, fake warnings and snap reds. It reuses the hero sprite frames and runs entirely in the browser: nothing is sent to Supabase yet (only the best round is kept in `localStorage`).
