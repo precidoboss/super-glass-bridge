@@ -15,7 +15,7 @@ function json(data: unknown, status = 200) {
 function getRuntime(input: unknown): RuntimeInput {
   if (!input || typeof input !== 'object') throw new Error('Missing runtime')
   const value = input as Record<string, unknown>
-  const apiBaseUrl = String(value.apiBaseUrl || '').replace(/\\/+$/, '')
+  const apiBaseUrl = String(value.apiBaseUrl || '').replace(/\/+$/, '')
   const sessionId = String(value.sessionId || '')
   const gameId = String(value.gameId || '')
   let url: URL
