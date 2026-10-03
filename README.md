@@ -58,3 +58,17 @@ Every step has two glass panes, each carrying a coin logo: one Avalanche coin an
 ## Red Light · Green Light
 
 A second mode, opened from the home page (RED LIGHT · GREEN LIGHT). Hold Space / → / D (or the on-screen RUN button) while the sentinel looks away; let go the moment the lamp turns red. Five rounds, each with shorter greens, fake warnings and snap reds. It reuses the hero sprite frames and runs entirely in the browser: nothing is sent to Supabase yet (only the best round is kept in `localStorage`).
+
+## Super Games (hub)
+
+`index.html` now opens on the **Super Games** hub (logo: `assets/super-games-logo.webp`). Each card opens that game's own home page:
+
+1. **Glass Bridge** (existing home page, leaderboard and Grotto login untouched)
+2. **Red Light · Green Light**
+3. **Mingle** (new, `mingle.js`, loaded on demand)
+
+Everything stays in one document, so the Grotto runtime session and the Supabase leaderboard keep working. The header logo (and `◂ ALL GAMES` on the Glass Bridge home) returns to the hub. Keys `1` / `2` / `3` open a game from the hub. Hub preview images live in `assets/previews/`.
+
+### Mingle
+
+Thirty players (you + 29 bots). Music plays (`Avalanche_Route.mp3`), everyone mingles, the music stops, a number is called and group circles appear. Fill a circle with exactly that many players before it locks. Anyone without a seat is eliminated. Last 4 standing survive. Controls: WASD / arrows, or the on-screen joystick on touch. Uses the **front-view** sprite frames, cut from the sheet into hue-shifted atlases (`assets/mingle/p0..p7.webp`, 8 frames each: 4 moving right, 4 moving left). Best round and survivals are kept in `localStorage`.
