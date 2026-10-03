@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#080b12"><title>SUPERCYCLE — Glass Bridge</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"><style>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#040704"><title>SUPERCYCLE — Glass Bridge</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"><style>
 :root{color-scheme:dark;--lime:#c8ff43;--muted:#88909f}*{box-sizing:border-box}body{margin:0;background:#080b12;color:#f5f7fa;font-family:'Space Grotesk',sans-serif;overflow:hidden}.app{height:100dvh;display:grid;grid-template-rows:70px 1fr 76px;background:radial-gradient(ellipse at 50% 45%,#17202c 0,#080b12 65%)}header{display:flex;align-items:center;justify-content:space-between;padding:0 30px;border-bottom:1px solid #ffffff12;z-index:2}.brand{display:flex;gap:12px;align-items:center;font-weight:700;letter-spacing:.16em}.brandmark{width:34px;height:34px;border:1px solid #c8ff4370;border-radius:11px;display:grid;place-items:center;color:var(--lime);font-size:19px;box-shadow:0 0 24px #c8ff431c}.brand small{display:block;font:10px 'DM Mono';color:var(--muted);letter-spacing:.2em;margin-top:2px}.live{font:10px 'DM Mono';color:var(--lime);letter-spacing:.16em}.live:before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--lime);margin-right:9px;box-shadow:0 0 10px var(--lime)}main{position:relative;min-height:0;overflow:hidden}#scene{position:absolute;inset:0}#scene canvas{width:100%;height:100%;display:block}.hud{position:absolute;z-index:1;top:22px;left:30px;right:30px;display:flex;justify-content:space-between;pointer-events:none}.stat{background:#10151edb;border:1px solid #ffffff14;border-radius:14px;padding:12px 16px;backdrop-filter:blur(12px);min-width:112px}.label{font:9px 'DM Mono';color:#8993a2;letter-spacing:.18em}.value{font-size:22px;font-weight:700;margin-top:3px}.value em{font-style:normal;color:var(--lime)}.center{position:absolute;top:24px;left:50%;transform:translateX(-50%);text-align:center;z-index:1;pointer-events:none}.center .label{color:#b2bac5}.center strong{font-size:13px;letter-spacing:.12em}.intro{position:absolute;z-index:2;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;width:min(440px,calc(100% - 36px));padding:28px 30px 26px;background:linear-gradient(145deg,#151d29ed,#0b1019eF);border:1px solid #ffffff20;border-radius:22px;box-shadow:0 25px 100px #0009;backdrop-filter:blur(18px);transition:opacity .25s,transform .25s}.intro.hidden{opacity:0;pointer-events:none;transform:translate(-50%,-46%)}.eyebrow{font:10px 'DM Mono';letter-spacing:.24em;color:var(--lime);margin-bottom:12px}.intro h1{font-size:clamp(28px,5vw,43px);line-height:.98;letter-spacing:-.055em;margin:0 0 13px}.intro p{font-size:13px;line-height:1.65;color:#a9b2c0;margin:0 auto 22px;max-width:330px}.btn{border:0;border-radius:11px;background:var(--lime);color:#10150b;padding:13px 24px;font:700 12px 'Space Grotesk';letter-spacing:.12em;cursor:pointer;box-shadow:0 8px 28px #c8ff432b;transition:transform .15s,filter .15s}.btn:hover{transform:translateY(-2px);filter:brightness(1.08)}.sub{font:9px 'DM Mono';color:#758092;margin-top:14px;letter-spacing:.12em}.result{font-size:12px;color:#c7ced8;margin:0 0 17px}.bottom{display:flex;align-items:center;justify-content:space-between;padding:0 30px;border-top:1px solid #ffffff12;z-index:2;background:#090d14}.controls{display:flex;gap:8px;align-items:center;color:#929baa;font-size:11px}.key{border:1px solid #ffffff26;background:#151b25;border-radius:6px;padding:5px 8px;color:#e9edf4;font:10px 'DM Mono';box-shadow:0 2px 0 #ffffff13}.mobile{display:none}.hint{font:10px 'DM Mono';letter-spacing:.12em;color:#7f8998}.sound{border:1px solid #ffffff20;background:#111721;color:#c6ced9;border-radius:9px;padding:9px 12px;font:10px 'DM Mono';cursor:pointer}
 @media(max-width:650px){header{height:60px;padding:0 16px}.app{grid-template-rows:60px 1fr 82px}.hud{top:14px;left:12px;right:12px}.stat{padding:9px 11px;min-width:84px;border-radius:11px}.value{font-size:18px}.center{top:80px}.intro{padding:24px 20px}.bottom{padding:0 14px}.hint{display:none}.controls{font-size:10px}.mobile{display:flex;gap:9px}.mobile button{width:54px;height:48px;border-radius:13px;border:1px solid #ffffff25;background:#151c27;color:#fff;font-size:18px;touch-action:manipulation}.mobile button:active{background:#c8ff4333;border-color:var(--lime)}}
 
@@ -42,7 +42,52 @@ main{isolation:isolate}
 .target{margin-top:8px;font-weight:700;font-size:14px;letter-spacing:.14em;padding:8px 16px;border-radius:999px;border:1px solid transparent;background:#070c14cc;display:inline-block;min-height:0}.target:empty{display:none}@media(max-width:650px){.target{font-size:11px;padding:6px 11px}}
 .home{position:absolute;inset:0;z-index:3;display:flex;align-items:center;padding:0 clamp(18px,6vw,96px);background:linear-gradient(90deg,#05070cf2 0%,#05070cc4 40%,#05070c40 72%,transparent 100%);transition:opacity .45s,transform .45s}.home.hidden{opacity:0;pointer-events:none;transform:translateX(-26px)}.home-in{max-width:560px;max-height:100%;overflow:auto;padding:18px 0;scrollbar-width:none}.home h1{font-size:clamp(52px,8.5vw,98px);line-height:.88;letter-spacing:-.07em;margin:0 0 18px;text-shadow:0 10px 50px #000a}.home h1 span{color:var(--lime);text-shadow:0 0 40px #c8ff4340}.home p{font-size:14px;line-height:1.7;color:#b4c0cf;max-width:430px;margin:0 0 18px}.chains{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}.chip{display:inline-flex;align-items:center;gap:8px;font:9px 'DM Mono';letter-spacing:.2em;padding:8px 12px;border-radius:999px;border:1px solid #ffffff22;background:#0b121cb0}.chip i{width:8px;height:8px;border-radius:50%}.chip.av i{background:#ff5a5b;box-shadow:0 0 10px #ff5a5b}.chip.rh i{background:#ccff00;box-shadow:0 0 10px #ccff00}.lbl{font:8px 'DM Mono';letter-spacing:.26em;color:#8492a5;margin-bottom:8px}.modes{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:22px}.modes button{font:700 10px 'Space Grotesk';letter-spacing:.12em;padding:10px 14px;border-radius:10px;border:1px solid #a8c9ec2a;background:#0f1824b0;color:#c6d2e0;cursor:pointer;transition:.18s}.modes button.on{border-color:var(--lime);color:var(--lime);background:#c8ff4312}.cta{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}.ghost{border:1px solid #a8c9ec3a;background:#0f1824b0;color:#d6e2f0;border-radius:12px;padding:16px 22px;font:700 11px 'Space Grotesk';letter-spacing:.16em;cursor:pointer}.ghost:hover{border-color:#d6ff4570}.how{max-height:0;overflow:hidden;transition:max-height .35s;font-size:12px;line-height:1.7;color:#aab6c6}.how.open{max-height:220px;margin-bottom:16px}.how ol{margin:0;padding-left:18px}.how b{color:#e9f3ff}.stats{display:flex;gap:26px;margin-bottom:16px}.stats b{display:block;font-size:26px;letter-spacing:-.05em;color:#f2f7ff}.stats span{font:8px 'DM Mono';letter-spacing:.22em;color:#8492a5}.ticker{white-space:nowrap;overflow:hidden;font:9px 'DM Mono';letter-spacing:.14em;color:#6f8096;max-width:520px;-webkit-mask-image:linear-gradient(90deg,#000 65%,transparent);mask-image:linear-gradient(90deg,#000 65%,transparent)}.app.home-on .hud,.app.home-on .center,.app.home-on .zoombtn{opacity:0;pointer-events:none}.zoombtn{position:absolute;z-index:2;right:clamp(14px,4vw,58px);bottom:18px;border:1px solid #a8c9ec3a;background:#0d1522d9;color:#dce7f5;border-radius:999px;padding:12px 18px;font:700 10px 'Space Grotesk';letter-spacing:.18em;cursor:pointer;backdrop-filter:blur(14px);transition:opacity .3s,border-color .2s,color .2s}.zoombtn:hover,.zoombtn.on{border-color:var(--lime);color:var(--lime)}@media(max-width:650px){.home{align-items:flex-end;padding-bottom:14px;background:linear-gradient(0deg,#05070cf7 0%,#05070cdd 58%,#05070c50 100%)}.home h1{font-size:50px}.home p{font-size:12px}#mode{display:none}.zoombtn{bottom:12px;padding:10px 14px}}
 @media(max-height:700px){.home h1{font-size:clamp(40px,7vw,64px);margin-bottom:10px}.home p{margin-bottom:12px;font-size:12px}.chains{margin-bottom:12px}.modes{margin-bottom:14px}.stats,.ticker{display:none}}.center{min-width:0!important;padding:8px 16px!important}.center .label{display:none}.center strong{display:block;font-size:9px!important}.target{margin-top:6px;font-size:13px}
-</style></head><body><div class="app home-on"><header><div class="brand"><div class="brandmark">✳</div><div>SUPERCYCLE<small>GLASS BRIDGE // REAL OR REKT</small></div></div><div class="live">THE CYCLE IS REAL</div></header><main><div id="scene"></div><div class="hud"><div class="stat"><div class="label">STAGE</div><div class="value"><em id="stage">01</em><span style="color:#788393;font-size:13px"> / 12</span></div></div><div class="stat" style="text-align:right"><div class="label">RUN BEST</div><div class="value" id="best">00</div></div></div><div class="center"><div class="label">CHOOSE YOUR FATE</div><strong id="status">THE NEXT TILE IS UNKNOWN</strong><div class="target" id="target"></div></div><section class="intro hidden" id="intro"><div class="eyebrow">✳ &nbsp; A SUPERCYCLE TRIAL</div><h1>TRUST THE<br>REAL ONE.</h1><p>Every step, two coins. One lives on Avalanche, one on Robinhood Chain. Jump on the coin from the chain you're told to find. Pick wrong and the glass breaks.</p><button class="btn" id="start">ENTER THE BRIDGE&nbsp; ↗</button><div class="sub">12 STEPS · ONE LIFE · NO SECOND GUESS</div></section><section class="home" id="home"><div class="home-in"><div class="eyebrow">✳ &nbsp; SUPERCYCLE × AVALANCHE × ROBINHOOD CHAIN</div><h1>GLASS<br><span>BRIDGE.</span></h1><p>Twelve steps. Two coins every step. One lives on Avalanche, one on Robinhood Chain. Find the right chain or the glass gives way.</p><div class="chains"><span class="chip av"><i></i>AVALANCHE</span><span class="chip rh"><i></i>ROBINHOOD CHAIN</span></div><div class="lbl">CHOOSE YOUR CHAIN MODE</div><div class="modes" id="modes"><button data-m="mixed" class="on">MIXED</button><button data-m="avax">AVAX ONLY</button><button data-m="hood">ROBINHOOD ONLY</button></div><div class="cta"><button class="btn" id="play">PLAY &nbsp;↗</button><button class="ghost" id="howbtn">HOW TO PLAY</button></div><div class="how" id="how"><ol><li>The prompt up top names a chain.</li><li>Each step has two coins. Land on the one that lives on that chain.</li><li><b>← →</b> or <b>A D</b> to jump. <b>SPACE</b> is a blind guess.</li><li><b>Z</b> or the ZOOM button swoops in on the next panes.</li></ol></div><div class="stats"><div><b id="hBest">00</b><span>BEST / 12</span></div><div><b>12</b><span>STAGES</span></div><div><b id="hCoins">–</b><span id="hLive">COINS</span></div></div><div class="ticker" id="ticker"></div></div></section><button class="zoombtn" id="zoom">◎ ZOOM</button></main><footer class="bottom"><div class="controls"><span class="key">←</span><span class="key">→</span><span>choose pane</span><span class="key">SPACE</span><span>jump</span><span class="key">Z</span><span>zoom</span></div><div class="hint">DON'T FADE THE SUPERCYCLE</div><div class="mobile"><button id="left" aria-label="Jump left">←</button><button id="right" aria-label="Jump right">→</button></div><div style="display:flex;gap:8px"><button class="sound" id="homeFoot">HOME</button><button class="sound" id="mode">MODE: MIXED</button><button class="sound" id="sound">SOUND: ON</button></div></footer></div>
+
+/* ===== SUPERCYCLE × AVAX × ROBINHOOD CHAIN — brand skin ===== */
+:root{--lime:#d4ff3a;--leaf:#7ddc1f;--avax:#ff4d4f;--rh:#ccff00;--line:rgba(190,255,90,.16);--panel:rgba(7,15,9,.8);--muted:#93aa98}
+body{background:#040704}
+.app{background:radial-gradient(ellipse at 50% 44%,#15341b 0%,#0a170d 38%,#040704 80%)}
+.app:before{background-image:linear-gradient(#9bff6a16 1px,transparent 1px),linear-gradient(90deg,#9bff6a16 1px,transparent 1px);opacity:.14}
+header{background:linear-gradient(90deg,#050c07ec,#0c1d11b0,#050c07ec);border-bottom:1px solid var(--line);position:relative}
+header:after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:linear-gradient(90deg,transparent 0,var(--avax) 16%,var(--leaf) 50%,var(--rh) 84%,transparent 100%);opacity:.95;box-shadow:0 0 18px #7ddc1f55}
+.brandmark{border-color:#d4ff3a8c;background:linear-gradient(145deg,#7ddc1f40,#07140a);color:var(--lime);box-shadow:0 0 34px #7ddc1f4d,inset 0 0 16px #d4ff3a1a}
+.brand small{color:#9bb7a0}
+.tags{display:flex;gap:8px;align-items:center}
+.tag{display:inline-flex;align-items:center;gap:7px;font:9px 'DM Mono';letter-spacing:.18em;padding:8px 11px;border-radius:999px;border:1px solid #ffffff1f;background:#07110acc;color:#dbe8dd}
+.tag i{width:7px;height:7px;border-radius:50%}.tag.av i{background:var(--avax);box-shadow:0 0 10px var(--avax)}.tag.rh i{background:var(--rh);box-shadow:0 0 10px var(--rh)}
+.tag.av{border-color:#ff4d4f45}.tag.rh{border-color:#ccff0045}
+.live{border-color:#7ddc1f55;background:#7ddc1f12;color:var(--lime)}
+.stat{border-color:var(--line);background:linear-gradient(145deg,#10261598,#060e08e6);box-shadow:0 12px 34px #0007,inset 0 1px #d4ff3a10}
+.stat:after{background:linear-gradient(var(--lime),var(--leaf));opacity:1;width:3px}
+.stat[style*="text-align:right"]:after{background:linear-gradient(var(--avax),#b42b30)}
+.label{color:#8fa896}
+.value em{color:var(--lime);text-shadow:0 0 20px #7ddc1f77}
+.pips{display:flex;gap:3px;margin-top:9px}.pips i{flex:1;height:4px;min-width:7px;border-radius:2px;background:#ffffff14;transition:background .25s,box-shadow .25s}.pips i.on{background:linear-gradient(90deg,var(--leaf),var(--lime));box-shadow:0 0 8px #b6ff3a88}
+.center{border-color:var(--line)!important;background:#07110ad0!important}
+.center strong{color:#e8f7ea}
+.target{background:#07110acc;box-shadow:0 0 24px #0006}
+.intro,.home{--x:0}
+.intro{border-color:#d4ff3a2b;background:linear-gradient(145deg,rgba(18,42,24,.94),rgba(5,11,7,.95));box-shadow:0 35px 110px #000b,0 0 80px #7ddc1f14,inset 0 1px #d4ff3a14}
+.eyebrow{color:var(--lime)}
+.intro p,.home p{color:#b3c7b8}
+.btn{background:linear-gradient(110deg,#e0ff4a,#8fe321 60%,#7ddc1f);box-shadow:0 9px 32px #7ddc1f44,inset 0 1px #ffffffa6;color:#0a1405}
+.btn:hover{filter:brightness(1.1)}
+.sub,.hint{color:#7f9885}
+.bottom{background:linear-gradient(90deg,#050c07f4,#0c1d11ee,#050c07f4);border-top:1px solid var(--line)}
+.controls{color:#a5bba9}
+.key{border-color:#b9ff5a30;background:linear-gradient(#17301c,#0b1810);box-shadow:0 3px 0 #040904;color:#f0fbe8}
+.sound{border-color:#b9ff5a2e;background:#0c1a10;color:#cfe5d2}.sound:hover{border-color:#d4ff3a80;color:var(--lime)}
+.mobile button{background:linear-gradient(145deg,#17301c,#08130b);border-color:#b9ff5a3a}.mobile button:active{background:#7ddc1f40;border-color:var(--lime)}
+.zoombtn{border-color:#b9ff5a3a;background:#07110ae0}.zoombtn:hover,.zoombtn.on{border-color:var(--lime);color:var(--lime);box-shadow:0 0 22px #7ddc1f40}
+.home{background:linear-gradient(90deg,#040a06f4 0%,#050d08c8 40%,#050d0838 72%,transparent 100%)}
+.home h1 span{background:linear-gradient(100deg,var(--lime),var(--leaf) 55%,#4fb312);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none;filter:drop-shadow(0 0 28px #7ddc1f55)}
+.chip.av{border-color:#ff4d4f55;background:#ff4d4f12}.chip.rh{border-color:#ccff0055;background:#ccff0010}
+.modes button{border-color:#b9ff5a2a;background:#0b160eb8;color:#cfe3d2}.modes button.on{border-color:var(--lime);color:var(--lime);background:#d4ff3a14;box-shadow:0 0 18px #7ddc1f30}
+.ghost{border-color:#b9ff5a3a;background:#0b160eb8}.ghost:hover{border-color:var(--lime);color:var(--lime)}
+.stats b{background:linear-gradient(var(--lime),var(--leaf));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lbl,.stats span{color:#8ba592}.ticker{color:#6d8873}
+@media(max-width:650px){.tags .tag{display:none}.live{display:none}.home{background:linear-gradient(0deg,#040a06f8 0%,#050d08de 58%,#050d0850 100%)}}
+</style></head><body><div class="app home-on"><header><div class="brand"><div class="brandmark">✳</div><div>SUPERCYCLE<small>GLASS BRIDGE // AVAX × ROBINHOOD</small></div></div><div class="tags"><span class="tag av"><i></i>AVAX</span><span class="tag rh"><i></i>ROBINHOOD</span><span class="live">THE CYCLE IS REAL</span></div></header><main><div id="scene"></div><div class="hud"><div class="stat"><div class="label">STAGE</div><div class="value"><em id="stage">01</em><span style="color:#788393;font-size:13px"> / 12</span></div><div class="pips" id="pips"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div><div class="stat" style="text-align:right"><div class="label">RUN BEST</div><div class="value" id="best">00</div></div></div><div class="center"><div class="label">CHOOSE YOUR FATE</div><strong id="status">THE NEXT TILE IS UNKNOWN</strong><div class="target" id="target"></div></div><section class="intro hidden" id="intro"><div class="eyebrow">✳ &nbsp; A SUPERCYCLE TRIAL</div><h1>TRUST THE<br>REAL ONE.</h1><p>Every step, two coins. One lives on Avalanche, one on Robinhood Chain. Jump on the coin from the chain you're told to find. Pick wrong and the glass breaks.</p><button class="btn" id="start">ENTER THE BRIDGE&nbsp; ↗</button><div class="sub">12 STEPS · ONE LIFE · NO SECOND GUESS</div></section><section class="home" id="home"><div class="home-in"><div class="eyebrow">✳ &nbsp; SUPERCYCLE × AVALANCHE × ROBINHOOD CHAIN</div><h1>GLASS<br><span>BRIDGE.</span></h1><p>Twelve steps. Two coins every step. One lives on Avalanche, one on Robinhood Chain. Find the right chain or the glass gives way.</p><div class="chains"><span class="chip av"><i></i>AVALANCHE</span><span class="chip rh"><i></i>ROBINHOOD CHAIN</span></div><div class="lbl">CHOOSE YOUR CHAIN MODE</div><div class="modes" id="modes"><button data-m="mixed" class="on">MIXED</button><button data-m="avax">AVAX ONLY</button><button data-m="hood">ROBINHOOD ONLY</button></div><div class="cta"><button class="btn" id="play">PLAY &nbsp;↗</button><button class="ghost" id="howbtn">HOW TO PLAY</button></div><div class="how" id="how"><ol><li>The prompt up top names a chain.</li><li>Each step has two coins. Land on the one that lives on that chain.</li><li><b>← →</b> or <b>A D</b> to jump. <b>SPACE</b> is a blind guess.</li><li><b>Z</b> or the ZOOM button swoops in on the next panes.</li></ol></div><div class="stats"><div><b id="hBest">00</b><span>BEST / 12</span></div><div><b>12</b><span>STAGES</span></div><div><b id="hCoins">–</b><span id="hLive">COINS</span></div></div><div class="ticker" id="ticker"></div></div></section><button class="zoombtn" id="zoom">◎ ZOOM</button></main><footer class="bottom"><div class="controls"><span class="key">←</span><span class="key">→</span><span>choose pane</span><span class="key">SPACE</span><span>jump</span><span class="key">Z</span><span>zoom</span></div><div class="hint">DON'T FADE THE SUPERCYCLE</div><div class="mobile"><button id="left" aria-label="Jump left">←</button><button id="right" aria-label="Jump right">→</button></div><div style="display:flex;gap:8px"><button class="sound" id="homeFoot">HOME</button><button class="sound" id="mode">MODE: MIXED</button><button class="sound" id="sound">SOUND: ON</button></div></footer></div>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <script type="module">
 import * as THREE from 'three';
@@ -62,7 +107,7 @@ const V3=THREE.Vector3;
 
 /* ============ RENDERER / SCENE ============ */
 const scene=new THREE.Scene();
-scene.fog=new THREE.FogExp2(0x0a1420,.021);
+scene.fog=new THREE.FogExp2(0x07140c,.021);
 const camera=new THREE.PerspectiveCamera(50,1,.1,400);
 const renderer=new THREE.WebGLRenderer({antialias:false,powerPreference:'high-performance'});
 let pr=Math.min(devicePixelRatio,1.5);renderer.setPixelRatio(pr);
@@ -90,11 +135,11 @@ const skyMat=new THREE.ShaderMaterial({uniforms:skyU,side:THREE.BackSide,depthWr
   vertexShader:`varying vec3 vP;void main(){vP=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
   fragmentShader:`varying vec3 vP;uniform float time;
   void main(){float h=vP.y;
-    vec3 hor=vec3(.035,.09,.13),mid=vec3(.012,.03,.07),top=vec3(.002,.006,.02),low=vec3(.01,.02,.035);
+    vec3 hor=vec3(.03,.11,.07),mid=vec3(.008,.04,.035),top=vec3(.002,.01,.012),low=vec3(.01,.025,.02);
     vec3 c=mix(hor,mid,smoothstep(0.,.4,h));c=mix(c,top,smoothstep(.35,1.,h));c=mix(c,low,smoothstep(0.,-.3,h));
     float a=smoothstep(.12,.4,h)*(1.-smoothstep(.5,.85,h));
     float w=.5+.5*sin(vP.x*7.+time*.25+sin(vP.z*5.+time*.15)*2.);
-    c+=vec3(.05,.45,.2)*a*w*.35;
+    c+=vec3(.05,.45,.2)*a*w*.35+vec3(.4,.05,.08)*a*(1.-w)*.12;
     c+=vec3(.2,.1,.35)*pow(max(0.,1.-abs(h-.02)*6.),2.)*.25;
     gl_FragColor=vec4(c,1.);}`});
 const sky=new THREE.Mesh(new THREE.SphereGeometry(180,32,16),skyMat);sky.renderOrder=-10;scene.add(sky);
@@ -116,16 +161,16 @@ const envScene=new THREE.Scene();
 envScene.add(new THREE.Mesh(new THREE.SphereGeometry(50,32,16),skyMat));
 const panel=(w,h,col,pos,look)=>{const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({color:col,side:THREE.DoubleSide}));m.position.set(...pos);m.lookAt(...look);envScene.add(m)};
 panel(30,6,new THREE.Color(2.2,2.4,2.8),[0,22,-10],[0,0,0]);
-panel(14,14,new THREE.Color(.6,1.8,3),[-26,6,6],[0,0,0]);
+panel(14,14,new THREE.Color(3,.5,.55),[-26,6,6],[0,0,0]);
 panel(14,14,new THREE.Color(1.6,3,.5),[26,5,-8],[0,0,0]);
 panel(40,4,new THREE.Color(.8,1.2,1.8),[0,-12,0],[0,0,0]);
 const envTex=pmrem.fromScene(envScene,.02).texture;
 
 /* ============ LIGHTS ============ */
-scene.add(new THREE.HemisphereLight(0x6f8fd0,0x0a0f18,.9));
-const moonLight=new THREE.DirectionalLight(0x8fb2ff,2.2);moonLight.position.set(-18,26,12);scene.add(moonLight);
+scene.add(new THREE.HemisphereLight(0x7fd08f,0x08120c,.9));
+const moonLight=new THREE.DirectionalLight(0xa6e8b8,2.2);moonLight.position.set(-18,26,12);scene.add(moonLight);
 const rimLight=new THREE.DirectionalLight(0xc8ff43,.7);rimLight.position.set(14,6,-20);scene.add(rimLight);
-const underLight=new THREE.PointLight(0x35cfff,9,9,2);scene.add(underLight);
+const underLight=new THREE.PointLight(0x7bff3a,9,9,2);scene.add(underLight);
 const gateLight=new THREE.PointLight(0xc8ff43,22,22,2);gateLight.position.set(0,3.2,-16.5);scene.add(gateLight);
 
 /* ============ ABYSS ============ */
@@ -135,22 +180,22 @@ const abyss=new THREE.Mesh(new THREE.PlaneGeometry(500,500),new THREE.ShaderMate
   fragmentShader:`varying vec3 vW;uniform float time;
   void main(){vec2 p=vW.xz/3.;vec2 g=abs(fract(p-.5)-.5)/fwidth(p);float line=1.-min(min(g.x,g.y),1.);
     float d=length(vW.xz-vec2(0.,-8.));float pulse=.5+.5*sin(d*.25-time*1.2);
-    vec3 col=vec3(.008,.02,.035)+vec3(.35,1.,.3)*line*(.2+.5*pulse)*exp(-d*.02);
-    col+=vec3(0.,.22,.32)*exp(-d*.045)*.7;gl_FragColor=vec4(col,1.);}`}));
+    vec3 col=vec3(.004,.02,.012)+vec3(.45,1.,.2)*line*(.2+.5*pulse)*exp(-d*.02);
+    col+=vec3(.02,.3,.1)*exp(-d*.045)*.7;gl_FragColor=vec4(col,1.);}`}));
 abyss.rotation.x=-Math.PI/2;abyss.position.y=-30;scene.add(abyss);
 
 // mist banks
-const mist=[];for(let i=0;i<8;i++){const s=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,color:i%3?0x2a5578:0x2f6a5a,opacity:rnd(.1,.2),depthWrite:false,fog:false}));
+const mist=[];for(let i=0;i<8;i++){const s=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,color:i%3?0x1f5a34:0x2f6a2a,opacity:rnd(.1,.2),depthWrite:false,fog:false}));
   s.scale.setScalar(rnd(18,30));s.position.set(rnd(-26,26),rnd(-14,-4),rnd(8,-45));s.userData={sp:rnd(.1,.35)*(Math.random()<.5?-1:1),x:s.position.x};scene.add(s);mist.push(s)}
 
 /* ============ CANYON ============ */
-const rockMat=new THREE.MeshStandardMaterial({color:0x101c2c,roughness:.95,flatShading:true});
+const rockMat=new THREE.MeshStandardMaterial({color:0x0d1a12,roughness:.95,flatShading:true});
 {const geo=new THREE.CylinderGeometry(.55,1.2,1,6,1),N=70,im=new THREE.InstancedMesh(geo,rockMat,N),d=new THREE.Object3D();
  for(let i=0;i<N;i++){const side=i%2?1:-1,x=side*(7+Math.random()*30),z=18-Math.random()*105,top=-8+Math.random()*28,h=top+34,r=1.2+Math.random()*3.4;
   d.position.set(x,top-h/2,z);d.scale.set(r,h,r);d.rotation.y=Math.random()*6;d.updateMatrix();im.setMatrixAt(i,d.matrix)}
  scene.add(im);}
 // glowing crystals
-const crystalMats=[new THREE.MeshBasicMaterial({color:new THREE.Color(.8,2.8,.4)}),new THREE.MeshBasicMaterial({color:new THREE.Color(.3,1.6,3)})];
+const crystalMats=[new THREE.MeshBasicMaterial({color:new THREE.Color(.8,2.8,.4)}),new THREE.MeshBasicMaterial({color:new THREE.Color(3,.4,.45)})];
 for(let i=0;i<34;i++){const c=new THREE.Mesh(new THREE.OctahedronGeometry(1),crystalMats[i%2]);const side=Math.random()<.5?-1:1;
   c.scale.set(rnd(.12,.3),rnd(.5,1.5),rnd(.12,.3));c.position.set(side*rnd(5.5,16),rnd(-5,6),rnd(10,-50));c.rotation.set(rnd(-.4,.4),Math.random()*6,rnd(-.4,.4));scene.add(c)}
 // floating rocks
@@ -165,9 +210,9 @@ const floaters=[];for(let i=0;i<8;i++){const m=new THREE.Mesh(new THREE.Icosahed
  scene.add(im);}
 
 /* ============ BRIDGE STRUCTURE ============ */
-const metal=new THREE.MeshStandardMaterial({color:0x1b2735,roughness:.35,metalness:.85,envMap:envTex,envMapIntensity:1.1});
+const metal=new THREE.MeshStandardMaterial({color:0x17261c,roughness:.35,metalness:.85,envMap:envTex,envMapIntensity:1.1});
 const ledLime=new THREE.MeshBasicMaterial({color:new THREE.Color(.9,3,.4)});
-const ledCyan=new THREE.MeshBasicMaterial({color:new THREE.Color(.3,1.8,3)});
+const ledCyan=new THREE.MeshBasicMaterial({color:new THREE.Color(.5,2.6,.8)});const ledRed=new THREE.MeshBasicMaterial({color:new THREE.Color(3,.35,.4)});
 const count=12,startZ=3.5,step=1.55,TX=.88,TOPY=.07;
 const endZ=startZ-(count+1)*step;
 const zA=startZ+1.9,zB=endZ-.9,len=zA-zB,cz=(zA+zB)/2;
@@ -178,7 +223,7 @@ for(const s of[-1,1]){
   add(new THREE.BoxGeometry(.03,.03,len),ledCyan,s*1.77,.0,cz);
   add(new THREE.BoxGeometry(.06,.06,len),metal,s*1.85,1.0,cz);
   add(new THREE.BoxGeometry(.025,.025,len),ledLime,s*1.85,.955,cz);
-  for(let i=0;i<=14;i++){const z=zA-.5-i*1.5;add(new THREE.BoxGeometry(.07,1,.07),metal,s*1.85,.5,z);add(new THREE.SphereGeometry(.06,10,8),ledCyan,s*1.85,1.07,z)}
+  for(let i=0;i<=14;i++){const z=zA-.5-i*1.5;add(new THREE.BoxGeometry(.07,1,.07),metal,s*1.85,.5,z);add(new THREE.SphereGeometry(.06,10,8),i%2?ledRed:ledLime,s*1.85,1.07,z)}
 }
 for(let i=0;i<=count+1;i++)add(new THREE.BoxGeometry(3.7,.1,.1),metal,0,-.3,startZ-i*step);
 for(let k=0;k<7;k++){const z=3.5-k*3.4;add(new THREE.CylinderGeometry(.18,.32,60,10),metal,0,-30.3,z);add(new THREE.BoxGeometry(2.4,.16,.3),metal,0,-.7,z)}
@@ -210,7 +255,7 @@ const emblem=new THREE.Sprite(new THREE.SpriteMaterial({map:goodTex,fog:false,de
 emblem.scale.set(4.2,4.2,1);emblem.position.set(0,4.5,zB-.2);scene.add(emblem);
 
 /* ============ GLASS ============ */
-const glassMat=new THREE.MeshPhysicalMaterial({color:0xaee8ff,metalness:.05,roughness:.05,transparent:true,opacity:.38,clearcoat:1,clearcoatRoughness:.03,envMap:envTex,envMapIntensity:2.4,depthWrite:false});
+const glassMat=new THREE.MeshPhysicalMaterial({color:0xc4ffd6,metalness:.05,roughness:.05,transparent:true,opacity:.38,clearcoat:1,clearcoatRoughness:.03,envMap:envTex,envMapIntensity:2.4,depthWrite:false});
 const paneGeo=new RoundedBoxGeometry(1.5,.14,1.34,4,.05);
 const barX=new THREE.BoxGeometry(1.62,.07,.07),barZ=new THREE.BoxGeometry(.07,.07,1.34);
 const iconGeo=new THREE.PlaneGeometry(.55,.55),ringGeo=new THREE.TorusGeometry(.37,.012,8,48);
@@ -251,7 +296,7 @@ function drawCoin(sym,img){
   x.save();x.beginPath();x.arc(128,108,92,0,6.283);x.clip();
   if(img)x.drawImage(img,36,16,184,184);
   else{let h=0;for(const ch of sym)h+=ch.charCodeAt(0)*47;h%=360;const g=x.createLinearGradient(0,16,0,200);g.addColorStop(0,`hsl(${h},80%,58%)`);g.addColorStop(1,`hsl(${(h+40)%360},80%,30%)`);x.fillStyle=g;x.fillRect(0,0,256,256);
-    x.fillStyle='#fff';x.textAlign='center';x.textBaseline='middle';x.font='bold '+(sym==='SUPER'?90:sym.length>4?46:60)+'px sans-serif';x.fillText(sym==='SUPER'?'✳':sym.slice(0,6),128,112)}
+    x.fillStyle='#fff';x.textAlign='center';x.textBaseline='middle';x.font='bold '+(sym==='SUPER'?90:Math.round(Math.min(64,150/(Math.min(sym.length,8)*.64))))+'px sans-serif';x.fillText(sym==='SUPER'?'✳':sym.slice(0,8),128,112)}
   x.restore();
   x.fillStyle='#fff';x.font='bold 34px sans-serif';x.textAlign='center';x.textBaseline='middle';x.shadowColor='#000';x.shadowBlur=6;x.fillText('$'+sym.slice(0,8),128,232);
   const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=4;return t;
@@ -286,7 +331,7 @@ async function loadRemote(){
 }
 seedFallback();
 
-const frameMat=new THREE.MeshStandardMaterial({color:0x22313f,roughness:.3,metalness:.85,envMap:envTex,emissive:0x0c3448,emissiveIntensity:.8});
+const frameMat=new THREE.MeshStandardMaterial({color:0x22313f,roughness:.3,metalness:.85,envMap:envTex,emissive:0x0c3a1a,emissiveIntensity:.8});
 const logoGeo=new THREE.PlaneGeometry(1.05,1.05);
 function makeTile(x,z,coin,index,good){
   const g=new THREE.Group();g.position.set(x,0,z);tileGroup.add(g);
@@ -313,7 +358,7 @@ function build(){
 }
 function showTarget(){
   const el=$('#target');if(!rows[stage]||state==='won'||state==='winning'||state==='dead'||state==='ready'){el.textContent='';return}
-  const c=CHAINS[rows[stage].target];el.textContent='FIND THE '+c.name+' COIN';el.style.color=c.col;el.style.borderColor=c.col+'99';
+  const c=CHAINS[rows[stage].target];el.textContent='FIND THE '+c.name+' COIN';el.style.color=c.col;el.style.borderColor=c.col+'99';el.style.background=c.col+'1f';el.style.boxShadow='0 0 26px '+c.col+'55';
 }
 build();loadRemote();
 
@@ -344,7 +389,7 @@ const motes=new THREE.Points(mGeo,new THREE.PointsMaterial({size:.12,map:glowTex
 
 /* ============ SHATTER SHARDS ============ */
 const shardGeos=[];for(let i=0;i<8;i++){const s=new THREE.Shape(),a=rnd(.15,.4),b=rnd(.12,.34);s.moveTo(0,0);s.lineTo(a,rnd(-.08,.08));s.lineTo(rnd(0,a),b);s.closePath();shardGeos.push(new THREE.ExtrudeGeometry(s,{depth:.03,bevelEnabled:false}))}
-const shardMat=new THREE.MeshPhysicalMaterial({color:0xbfefff,transparent:true,opacity:.55,roughness:.05,metalness:.1,envMap:envTex,envMapIntensity:2.4,clearcoat:1,side:THREE.DoubleSide});
+const shardMat=new THREE.MeshPhysicalMaterial({color:0xcaffdc,transparent:true,opacity:.55,roughness:.05,metalness:.1,envMap:envTex,envMapIntensity:2.4,clearcoat:1,side:THREE.DoubleSide});
 const shards=[];
 function shatter(tile){
   const p=tile.g.position;tile.g.visible=false;
@@ -385,7 +430,7 @@ function chime(){beep(660,.18,'triangle',.06);setTimeout(()=>beep(880,.22,'trian
 
 function resetHero(){heroPos.set(0,TOPY,startZ);hero.visible=true;shadow.visible=true;heroMat.rotation=0;fall=null;jump=null;landT=0;lean=0;crackTile=null;crackT=0}
 function begin(){
-  build();stage=0;queued=null;resetHero();state='playing';showTarget();
+  build();stage=0;queued=null;resetHero();state='playing';showTarget();bgm.volume=.45;
   $('#intro').classList.add('hidden');$('#stage').textContent='01';setStatus('PICK A SIDE · TAKE THE LEAP');beep(520,.1,'triangle')
 }
 function startJump(to,cb,dur=.4,h=1.2){jump={from:heroPos.clone(),to:to.clone(),t:0,dur,h,cb}}
@@ -412,12 +457,12 @@ function ring(tile){const m=new THREE.Mesh(new THREE.RingGeometry(.3,.36,48),new
   m.rotation.x=-Math.PI/2;m.position.set(tile.x,.09,tile.z);scene.add(m);ripples.push({m,t:0})}
 function die(){
   state='dead';saveBest(stage);crash();flash.style.transition='none';flash.style.opacity=.55;requestAnimationFrame(()=>{flash.style.transition='opacity .6s ease-out';flash.style.opacity=0});
-  shake=.7;shatter(crackTile);shadow.visible=false;
+  shake=.7;bgm.volume=.16;shatter(crackTile);shadow.visible=false;
   fall={v:0,spin:(Math.random()<.5?-1:1)*rnd(1.5,3)};setStatus('WRONG · $'+crackTile.coin.sym+' IS ON '+CHAINS[crackTile.coin.chain].name);$('#target').textContent='';
   setTimeout(()=>{if(state!=='dead')return;$('#intro').innerHTML='<div class="eyebrow">✕ &nbsp; RUN ENDED</div><h1>YOU GOT<br>REKT.</h1><p class="result">The wrong pane shattered beneath you.<br> You made it to stage '+(stage+1)+' of 12.</p><button class="btn" id="again">RUN IT BACK ↗</button><div class="sub">THE CYCLE DOESN’T WAIT</div>';$('#intro').classList.remove('hidden');$('#again').onclick=begin},1500);
 }
 function win(){
-  state='winning';setStatus('THE SUPERCYCLE IS REAL');saveBest(12);$('#target').textContent='';
+  state='winning';setStatus('THE SUPERCYCLE IS REAL');saveBest(12);$('#target').textContent='';bgm.volume=.6;
   startJump(new V3(0,TOPY,endZ),()=>{
     state='won';winT=0;fireT=0;chime();shake=.1;flash.style.transition='none';flash.style.opacity=.3;requestAnimationFrame(()=>{flash.style.transition='opacity .9s ease-out';flash.style.opacity=0});
     setTimeout(()=>{if(state!=='won')return;$('#intro').innerHTML='<div class="eyebrow">✳ &nbsp; BRIDGE CONQUERED</div><h1>YOU ARE<br>THE REAL ONE.</h1><p class="result">12 perfect jumps. The Supercycle lives on.</p><button class="btn" id="again">PLAY AGAIN ↗</button><div class="sub">BUILT DIFFERENT. (REAL)</div>';$('#intro').classList.remove('hidden');$('#again').onclick=()=>{resetToIntro();begin()}},2600)
@@ -434,7 +479,7 @@ window.addEventListener('keydown',e=>{
   if(e.code==='Space'){if(state==='ready')startFromHome();else if(state==='playing')doJump(Math.random()<.5?-1:1)}
 });
 $('#start').onclick=begin;$('#left').onclick=()=>choose(-1);$('#right').onclick=()=>choose(1);
-$('#sound').onclick=()=>{soundOn=!soundOn;$('#sound').textContent='SOUND: '+(soundOn?'ON':'OFF')};
+$('#sound').onclick=()=>{soundOn=!soundOn;$('#sound').textContent='SOUND: '+(soundOn?'ON':'OFF');soundOn?bgm.play().catch(()=>{}):bgm.pause()};
 
 /* ============ HOME + ZOOM ============ */
 const MODES=['mixed','avax','hood'],MODE_LABEL={mixed:'MIXED',avax:'AVAX ONLY',hood:'ROBINHOOD ONLY'};
@@ -467,6 +512,14 @@ function zoomToggle(){
 }
 zbtn.onclick=zoomToggle;
 
+/* ============ MUSIC + PIPS ============ */
+const bgm=new Audio('Avalanche_Route.mp3');bgm.loop=true;bgm.volume=.45;bgm.preload='auto';
+const kick=()=>{if(soundOn)bgm.play().catch(()=>{})};
+addEventListener('pointerdown',kick,{once:true});addEventListener('keydown',kick,{once:true});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)bgm.pause();else kick()});
+const pipEls=[...document.querySelectorAll('#pips i')];let pipN=-1;
+function syncPips(){if(pipN===stage)return;pipN=stage;pipEls.forEach((p,i)=>p.classList.toggle('on',i<stage))}
+
 /* ============ POST-PROCESSING ============ */
 const composer=new EffectComposer(renderer,new THREE.WebGLRenderTarget(4,4,{type:THREE.HalfFloatType,samples:2}));
 composer.addPass(new RenderPass(scene,camera));
@@ -485,8 +538,8 @@ function updateCamera(dt,time){
   else{const fy=Math.min(0,heroPos.y);tp.set(heroPos.x*.35,4.1+fy*.35,heroPos.z+7.4);tl2.set(heroPos.x*.2,1.3+fy*.7,heroPos.z-5.5)}
   let zk=0;
   if(zoom.on){if(!rows[stage]||!(state==='playing'||state==='jumping')){zoom.on=false}else{zoom.t+=dt;const t=zoom.t;zk=t<.55?ease(t/.55):t<2?1:t<2.8?1-ease((t-2)/.8):0;if(t>=2.8)zoom.on=false}}
-  if(zk>0){const rz=rows[stage][0].z,zf=baseFov*.62,d=THREE.MathUtils.clamp(2.7/(Math.tan(zf*.5*Math.PI/180)*camera.aspect),3.6,12);
-    tp.lerp(zp.set(Math.sin(zoom.t*1.1)*.3,d*.5+.5,rz+d*.86),zk);tl2.lerp(zl.set(0,.05,rz-.2),zk)}
+  if(zk>0){const rz=rows[stage][0].z,zf=baseFov*.62,dist=THREE.MathUtils.clamp(2.5/(Math.tan(zf*.5*Math.PI/180)*camera.aspect),3.4,12),cosP=Math.min(.45,.9/dist),sinP=Math.sqrt(1-cosP*cosP);
+    tp.lerp(zp.set(Math.sin(zoom.t*1.1)*.3,dist*sinP,rz-.1+dist*cosP),zk);tl2.lerp(zl.set(0,0,rz-.1),zk)}
   const k=1-Math.exp(-dt*(5+zk*4));camPos.lerp(tp,k);camLook.lerp(tl2,k*1.3);
   const fv=baseFov*(1-.38*zk);if(Math.abs(camera.fov-fv)>.02){camera.fov=fv;camera.updateProjectionMatrix()}
   camera.up.set(Math.sin(.05*zk),Math.cos(.05*zk),0);zoom.k=zk;setBars(zk);
@@ -516,7 +569,7 @@ function animate(){
 
   // hero visuals
   const sq=landT>0?1-.1*Math.sin((landT/.15)*Math.PI):1;
-  heroMat.map=frames[frameIdx()];
+  heroMat.map=frames[frameIdx()];heroMat.opacity=1-.7*zoom.k;
   if(!fall)heroMat.rotation=jump?-lean*.12*Math.sin(Math.min(jump.t/jump.dur,1)*Math.PI):0;
   const breathe=(state==='playing'||state==='ready')&&!jump?1+.012*Math.sin(time*3):1;
   hero.scale.set(heroW*(2-sq),heroH*sq*breathe,1);
@@ -531,7 +584,7 @@ function animate(){
   // ripples
   for(let i=ripples.length-1;i>=0;i--){const r=ripples[i];r.t+=dt;const s=1+r.t*5;r.m.scale.set(s,s,s);r.m.material.opacity=Math.max(0,.9*(1-r.t/.8));if(r.t>.8){scene.remove(r.m);r.m.geometry.dispose();r.m.material.dispose();ripples.splice(i,1)}}
   // win fireworks
-  if(state==='won'){winT+=dt;fireT-=dt;if(fireT<=0&&winT<8){fireT=.32;const cols=[0xc8ff43,0x35cfff,0xffffff,0xff7ac8];emit(rnd(-4,4),rnd(3,7),endZ-rnd(0,3),70,cols[Math.floor(Math.random()*4)],5.5,.3,2.5,1.6);beep(rnd(300,700),.15,'triangle',.02)}}
+  if(state==='won'){winT+=dt;fireT-=dt;if(fireT<=0&&winT<8){fireT=.32;const cols=[0xc8ff43,0xff4d4f,0xffffff,0x7ddc1f];emit(rnd(-4,4),rnd(3,7),endZ-rnd(0,3),70,cols[Math.floor(Math.random()*4)],5.5,.3,2.5,1.6);beep(rnd(300,700),.15,'triangle',.02)}}
   emblem.scale.setScalar(4.2+Math.sin(time*2)*.25);gateRing.rotation.z=time*.3;gateLight.intensity=22+Math.sin(time*2.4)*5;
 
   // environment
@@ -540,7 +593,7 @@ function animate(){
   for(let i=0;i<NM;i++){const j=i*3;mPos[j+1]+=dt*(.25+(i%5)*.06);mPos[j]+=Math.sin(time*.5+i)*dt*.12;if(mPos[j+1]>9)mPos[j+1]=-3}
   mGeo.attributes.position.needsUpdate=true;
 
-  updateParticles(dt);updateShards(dt);updateCamera(dt,time);
+  syncPips();updateParticles(dt);updateShards(dt);updateCamera(dt,time);
   composer.render();
 }
 animate();

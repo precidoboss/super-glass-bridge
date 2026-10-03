@@ -32,3 +32,9 @@ Every step has two glass panes, each carrying a coin logo: one Avalanche coin an
 
 - The game opens on a home page (play, chain mode picker, how to play, best score, live/offline logo status). `HOME` in the footer returns to it.
 - `ZOOM` button or `Z`: cinematic swoop onto the next two panes (FOV tighten, slight roll, letterbox bars), then eases back to the default chase camera. Press again to leave early; jumping also exits it.
+
+## Music, zoom, skin
+
+- In-game music: `Avalanche_Route.mp3` loops from the first click/keypress, ducks when you fall and swells on a win. The SOUND button mutes both music and effects.
+- Zoom camera now sits ahead of the hero looking down at the next two panes, so the character never blocks the view (the hero also fades while zoomed).
+- UI skin: Supercycle green with Avalanche red and Robinhood Chain neon-lime accents, 12-pip progress bar, chain-tinted prompt pill, brand gradient rail under the header.
