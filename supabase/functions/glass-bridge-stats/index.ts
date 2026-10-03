@@ -75,6 +75,29 @@ export default {
 
     try {
       const body = await req.json()
+      const action = String(body.action || '')
+
+      if (action === 'leaderboard') {
+        const limit = Math.max(1, Math.min(50, Math.round(Number(body.limit) || 10)))
+        const { data, error } = await ctx.supabaseAdmin
+          .from('glass_bridge_leaderboard')
+          .select('player_id, display_name, avatar_url, best_time_ms, best_score, total_runs')
+          .order('best_time_ms', { ascending: true })
+          .limit(limit)
+        if (error) throw error
+        return json({
+          entries: (data || []).map((entry: any, index: number) => ({
+            rank: index + 1,
+            playerId: entry.player_id,
+            displayName: entry.display_name || 'Anonymous Runner',
+            avatar: entry.avatar_url,
+            bestTimeMs: entry.best_time_ms,
+            bestScore: entry.best_score,
+            totalRuns: entry.total_runs
+          }))
+        })
+      }
+
       const runtime = getRuntime(body.runtime)
       const identity = await authenticateRuntime(runtime)
       await upsertPlayer(ctx.supabaseAdmin, identity.player)
