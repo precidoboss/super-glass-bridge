@@ -102,8 +102,6 @@ export default {
       const identity = await authenticateRuntime(runtime)
       await upsertPlayer(ctx.supabaseAdmin, identity.player)
 
-      const action = String(body.action || '')
-
       if (action === 'start') {
         const mode = ['mixed', 'avax', 'hood'].includes(body.mode) ? body.mode : 'mixed'
         const { data, error } = await ctx.supabaseAdmin
