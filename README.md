@@ -18,3 +18,12 @@ The hero is the green-caped back-view sprite, cut from the sprite sheet (`sprite
 Press **MARKS** in the footer to hide the ✳/× marks and play with identical-looking panes (hard mode).
 
 The previous note about the avatar: it was formerly built from Three.js geometry. The referenced X profile is linked in the game context; its images could not be reliably fetched here, so no profile image is represented as an official asset.
+
+## Chain coins mode
+
+Every step has two glass panes, each carrying a coin logo: one Avalanche coin and one Robinhood Chain coin. The HUD tells you which chain to find (`FIND THE AVALANCHE COIN` / `FIND THE ROBINHOOD CHAIN COIN`). Land on the right chain's coin to advance; the wrong one shatters.
+
+- Logos are fetched at page load from GeckoTerminal's public API (networks `avax` and `robinhood`) and re-randomized every run. If the fetch or an image is blocked, drawn badges are used instead.
+- `MODE` in the footer cycles MIXED / AVAX ONLY / ROBINHOOD ONLY.
+- `$SUPER` is pinned into the pool. Set `SUPER_CHAIN` near the top of the coin block in `index.html` (`'avax'` or `'hood'`) to match where it lives.
+- Perf: glass no longer uses transmission (it forced a second scene render), lighter environment, capped pixel ratio, and adaptive resolution/bloom that backs off if FPS drops. Jumps are faster (0.4s) and one input is buffered during the landing.

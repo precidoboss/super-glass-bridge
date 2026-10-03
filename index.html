@@ -39,7 +39,8 @@ main{isolation:isolate}
 @media(min-width:651px){.intro{transform:translate(-50%,-46%)}.intro.hidden{transform:translate(-50%,-42%)}}
 @media(prefers-reduced-motion:reduce){.btn,.sound{transition:none}}
 @media(max-width:650px){.controls{display:none}.bottom{justify-content:space-between}}
-</style></head><body><div class="app"><header><div class="brand"><div class="brandmark">✳</div><div>SUPERCYCLE<small>GLASS BRIDGE // REAL OR REKT</small></div></div><div class="live">THE CYCLE IS REAL</div></header><main><div id="scene"></div><div class="hud"><div class="stat"><div class="label">STAGE</div><div class="value"><em id="stage">01</em><span style="color:#788393;font-size:13px"> / 12</span></div></div><div class="stat" style="text-align:right"><div class="label">RUN BEST</div><div class="value" id="best">00</div></div></div><div class="center"><div class="label">CHOOSE YOUR FATE</div><strong id="status">THE NEXT TILE IS UNKNOWN</strong></div><section class="intro" id="intro"><div class="eyebrow">✳ &nbsp; A SUPERCYCLE TRIAL</div><h1>TRUST THE<br>REAL ONE.</h1><p>Two panes. One is real. One is a setup. Jump across the glass bridge and find the Supercycle mark. One wrong move and it's a long way down.</p><button class="btn" id="start">ENTER THE BRIDGE&nbsp; ↗</button><div class="sub">12 STEPS · ONE LIFE · NO SECOND GUESS</div></section></main><footer class="bottom"><div class="controls"><span class="key">←</span><span class="key">→</span><span>choose pane</span><span class="key">SPACE</span><span>jump</span></div><div class="hint">DON'T FADE THE SUPERCYCLE</div><div class="mobile"><button id="left" aria-label="Jump left">←</button><button id="right" aria-label="Jump right">→</button></div><div style="display:flex;gap:8px"><button class="sound" id="marks">MARKS: ON</button><button class="sound" id="sound">SOUND: ON</button></div></footer></div>
+.target{margin-top:8px;font-weight:700;font-size:14px;letter-spacing:.14em;padding:8px 16px;border-radius:999px;border:1px solid transparent;background:#070c14cc;display:inline-block;min-height:0}.target:empty{display:none}@media(max-width:650px){.target{font-size:11px;padding:6px 11px}}
+</style></head><body><div class="app"><header><div class="brand"><div class="brandmark">✳</div><div>SUPERCYCLE<small>GLASS BRIDGE // REAL OR REKT</small></div></div><div class="live">THE CYCLE IS REAL</div></header><main><div id="scene"></div><div class="hud"><div class="stat"><div class="label">STAGE</div><div class="value"><em id="stage">01</em><span style="color:#788393;font-size:13px"> / 12</span></div></div><div class="stat" style="text-align:right"><div class="label">RUN BEST</div><div class="value" id="best">00</div></div></div><div class="center"><div class="label">CHOOSE YOUR FATE</div><strong id="status">THE NEXT TILE IS UNKNOWN</strong><div class="target" id="target"></div></div><section class="intro" id="intro"><div class="eyebrow">✳ &nbsp; A SUPERCYCLE TRIAL</div><h1>TRUST THE<br>REAL ONE.</h1><p>Every step, two coins. One lives on Avalanche, one on Robinhood Chain. Jump on the coin from the chain you're told to find. Pick wrong and the glass breaks.</p><button class="btn" id="start">ENTER THE BRIDGE&nbsp; ↗</button><div class="sub">12 STEPS · ONE LIFE · NO SECOND GUESS</div></section></main><footer class="bottom"><div class="controls"><span class="key">←</span><span class="key">→</span><span>choose pane</span><span class="key">SPACE</span><span>jump</span></div><div class="hint">DON'T FADE THE SUPERCYCLE</div><div class="mobile"><button id="left" aria-label="Jump left">←</button><button id="right" aria-label="Jump right">→</button></div><div style="display:flex;gap:8px"><button class="sound" id="mode">MODE: MIXED</button><button class="sound" id="sound">SOUND: ON</button></div></footer></div>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <script type="module">
 import * as THREE from 'three';
@@ -62,7 +63,7 @@ const scene=new THREE.Scene();
 scene.fog=new THREE.FogExp2(0x0a1420,.021);
 const camera=new THREE.PerspectiveCamera(50,1,.1,400);
 const renderer=new THREE.WebGLRenderer({antialias:false,powerPreference:'high-performance'});
-renderer.setPixelRatio(Math.min(devicePixelRatio,1.75));
+let pr=Math.min(devicePixelRatio,1.5);renderer.setPixelRatio(pr);
 renderer.toneMapping=THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure=1.15;
 host.appendChild(renderer.domElement);
@@ -137,12 +138,12 @@ const abyss=new THREE.Mesh(new THREE.PlaneGeometry(500,500),new THREE.ShaderMate
 abyss.rotation.x=-Math.PI/2;abyss.position.y=-30;scene.add(abyss);
 
 // mist banks
-const mist=[];for(let i=0;i<22;i++){const s=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,color:i%3?0x2a5578:0x2f6a5a,opacity:rnd(.1,.2),depthWrite:false,fog:false}));
-  s.scale.setScalar(rnd(22,40));s.position.set(rnd(-26,26),rnd(-14,-4),rnd(8,-45));s.userData={sp:rnd(.1,.35)*(Math.random()<.5?-1:1),x:s.position.x};scene.add(s);mist.push(s)}
+const mist=[];for(let i=0;i<8;i++){const s=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,color:i%3?0x2a5578:0x2f6a5a,opacity:rnd(.1,.2),depthWrite:false,fog:false}));
+  s.scale.setScalar(rnd(18,30));s.position.set(rnd(-26,26),rnd(-14,-4),rnd(8,-45));s.userData={sp:rnd(.1,.35)*(Math.random()<.5?-1:1),x:s.position.x};scene.add(s);mist.push(s)}
 
 /* ============ CANYON ============ */
 const rockMat=new THREE.MeshStandardMaterial({color:0x101c2c,roughness:.95,flatShading:true});
-{const geo=new THREE.CylinderGeometry(.55,1.2,1,6,1),N=110,im=new THREE.InstancedMesh(geo,rockMat,N),d=new THREE.Object3D();
+{const geo=new THREE.CylinderGeometry(.55,1.2,1,6,1),N=70,im=new THREE.InstancedMesh(geo,rockMat,N),d=new THREE.Object3D();
  for(let i=0;i<N;i++){const side=i%2?1:-1,x=side*(7+Math.random()*30),z=18-Math.random()*105,top=-8+Math.random()*28,h=top+34,r=1.2+Math.random()*3.4;
   d.position.set(x,top-h/2,z);d.scale.set(r,h,r);d.rotation.y=Math.random()*6;d.updateMatrix();im.setMatrixAt(i,d.matrix)}
  scene.add(im);}
@@ -151,7 +152,7 @@ const crystalMats=[new THREE.MeshBasicMaterial({color:new THREE.Color(.8,2.8,.4)
 for(let i=0;i<34;i++){const c=new THREE.Mesh(new THREE.OctahedronGeometry(1),crystalMats[i%2]);const side=Math.random()<.5?-1:1;
   c.scale.set(rnd(.12,.3),rnd(.5,1.5),rnd(.12,.3));c.position.set(side*rnd(5.5,16),rnd(-5,6),rnd(10,-50));c.rotation.set(rnd(-.4,.4),Math.random()*6,rnd(-.4,.4));scene.add(c)}
 // floating rocks
-const floaters=[];for(let i=0;i<16;i++){const m=new THREE.Mesh(new THREE.IcosahedronGeometry(1,0),rockMat);const side=i%2?1:-1;
+const floaters=[];for(let i=0;i<8;i++){const m=new THREE.Mesh(new THREE.IcosahedronGeometry(1,0),rockMat);const side=i%2?1:-1;
   m.scale.set(rnd(.4,1.5),rnd(.3,.9),rnd(.4,1.5));m.position.set(side*rnd(5.5,10),rnd(-5,5),rnd(8,-35));m.userData={y:m.position.y,ph:rnd(0,6),sp:rnd(.3,.8)};scene.add(m);floaters.push(m)}
 // distant city
 {const c=document.createElement('canvas');c.width=64;c.height=128;const x=c.getContext('2d');x.fillStyle='#0a1118';x.fillRect(0,0,64,128);
@@ -207,10 +208,7 @@ const emblem=new THREE.Sprite(new THREE.SpriteMaterial({map:goodTex,fog:false,de
 emblem.scale.set(4.2,4.2,1);emblem.position.set(0,4.5,zB-.2);scene.add(emblem);
 
 /* ============ GLASS ============ */
-const glassBase={metalness:0,roughness:.04,transmission:1,thickness:.55,ior:1.52,iridescence:.55,iridescenceIOR:1.3,iridescenceThicknessRange:[120,420],
-  clearcoat:1,clearcoatRoughness:.03,envMap:envTex,envMapIntensity:1.8,specularIntensity:1,attenuationDistance:1.1};
-const glassMat=new THREE.MeshPhysicalMaterial({...glassBase,color:0xd3f6ff,attenuationColor:new THREE.Color(0x7fd8ff)});
-const goodGlass=new THREE.MeshPhysicalMaterial({...glassBase,color:0xe2ffc2,attenuationColor:new THREE.Color(0x9dff4a),emissive:0x2a5a00,emissiveIntensity:.35});
+const glassMat=new THREE.MeshPhysicalMaterial({color:0xaee8ff,metalness:.05,roughness:.05,transparent:true,opacity:.38,clearcoat:1,clearcoatRoughness:.03,envMap:envTex,envMapIntensity:2.4,depthWrite:false});
 const paneGeo=new RoundedBoxGeometry(1.5,.14,1.34,4,.05);
 const barX=new THREE.BoxGeometry(1.62,.07,.07),barZ=new THREE.BoxGeometry(.07,.07,1.34);
 const iconGeo=new THREE.PlaneGeometry(.55,.55),ringGeo=new THREE.TorusGeometry(.37,.012,8,48);
@@ -234,35 +232,86 @@ const tileGroup=new THREE.Group();scene.add(tileGroup);
 let tiles=[],rows=[],marksOn=true;
 try{marksOn=localStorage.getItem('superbridge-marks')!=='off'}catch{}
 
-function makeTile(x,z,good,index){
-  const g=new THREE.Group();g.position.set(x,0,z);tileGroup.add(g);
-  const glass=new THREE.Mesh(paneGeo,glassMat);g.add(glass);
-  const frameMat=new THREE.MeshStandardMaterial({color:0x22313f,roughness:.3,metalness:.85,envMap:envTex,emissive:0x0c3448,emissiveIntensity:.8});
-  for(const sz of[-1,1]){const b=new THREE.Mesh(barX,frameMat);b.position.set(0,-.01,sz*.7);g.add(b);const c=new THREE.Mesh(barZ,frameMat);c.position.set(sz*.78,-.01,0);g.add(c)}
-  const streak=new THREE.Mesh(streakPlane.clone(),streakMat);streak.rotation.x=-Math.PI/2;streak.position.y=.073;
-  const uv=streak.geometry.attributes.uv;for(let i=0;i<uv.count;i++)uv.setX(i,uv.getX(i)+index*.17+(x>0?.3:0));g.add(streak);
-  const icon=new THREE.Mesh(iconGeo,good?iconMats.good:iconMats.bad);icon.rotation.x=-Math.PI/2;icon.position.y=.08;g.add(icon);
-  const ring=new THREE.Mesh(ringGeo,ringMat);ring.rotation.x=Math.PI/2;ring.position.y=.085;ring.visible=good;g.add(ring);
-  const crack=new THREE.Mesh(crackPlane,crackMat);crack.rotation.x=-Math.PI/2;crack.position.y=.078;crack.visible=false;g.add(crack);
-  return {g,glass,frameMat,icon,ring,crack,good,index,x,z,py:0,vy:0};
+/* ============ CHAIN COINS (Avalanche vs Robinhood Chain) ============ */
+// Logos are pulled live from GeckoTerminal's public API at page load; drawn badges are the offline fallback.
+const SUPER_CHAIN='avax'; // set to 'hood' if $SUPER is on Robinhood Chain
+const CHAINS={avax:{name:'AVALANCHE',net:'avax',col:'#ff5a5b'},hood:{name:'ROBINHOOD CHAIN',net:'robinhood',col:'#ccff00'}};
+const FALLBACK={avax:['AVAX','JOE','GMX','BTC.b','QI','COQ','KIMBO','PNG','SAVAX','BLAZE'],hood:['CASHCAT','PIPEDOG','TENDIES','PONS','BRODIE','YOLO']};
+const SKIP=/^(USDC|USDT|USDG|DAI|WETH|WAVAX|USDT\.E|USDC\.E|ETH)$/i;
+const coinPool={avax:[],hood:[]};
+let mode='mixed',queued=null;
+const perf={acc:0,n:0,last:performance.now()};
+function drawCoin(sym,img){
+  const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');
+  x.fillStyle='rgba(8,14,22,.8)';x.beginPath();x.arc(128,108,104,0,6.283);x.fill();
+  x.lineWidth=5;x.strokeStyle='rgba(220,245,255,.9)';x.beginPath();x.arc(128,108,104,0,6.283);x.stroke();
+  x.save();x.beginPath();x.arc(128,108,92,0,6.283);x.clip();
+  if(img)x.drawImage(img,36,16,184,184);
+  else{let h=0;for(const ch of sym)h+=ch.charCodeAt(0)*47;h%=360;const g=x.createLinearGradient(0,16,0,200);g.addColorStop(0,`hsl(${h},80%,58%)`);g.addColorStop(1,`hsl(${(h+40)%360},80%,30%)`);x.fillStyle=g;x.fillRect(0,0,256,256);
+    x.fillStyle='#fff';x.textAlign='center';x.textBaseline='middle';x.font='bold '+(sym==='SUPER'?90:sym.length>4?46:60)+'px sans-serif';x.fillText(sym==='SUPER'?'✳':sym.slice(0,6),128,112)}
+  x.restore();
+  x.fillStyle='#fff';x.font='bold 34px sans-serif';x.textAlign='center';x.textBaseline='middle';x.shadowColor='#000';x.shadowBlur=6;x.fillText('$'+sym.slice(0,8),128,232);
+  const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=4;return t;
 }
-function applyMarks(){
-  for(const t of tiles){
-    t.glass.material=marksOn&&t.good?goodGlass:glassMat;
-    t.icon.visible=marksOn;t.ring.visible=marksOn&&t.good;
-    t.frameMat.emissive.set(marksOn&&t.good?0x2f6a00:0x0c3448);
+function makeCoin(sym,chain,img,pinned){const tex=drawCoin(sym,img);return{sym,chain,pinned,tex,mat:new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false})}}
+function seedFallback(){
+  for(const k of['avax','hood'])coinPool[k]=FALLBACK[k].map(s=>makeCoin(s,k,null));
+  coinPool[SUPER_CHAIN].unshift(makeCoin('SUPER',SUPER_CHAIN,null,true));
+}
+const loadImg=url=>new Promise(res=>{if(!url)return res(null);const i=new Image();i.crossOrigin='anonymous';const to=setTimeout(()=>res(null),5000);i.onload=()=>{clearTimeout(to);res(i)};i.onerror=()=>{clearTimeout(to);res(null)};i.src=url});
+async function fetchChainTokens(key){
+  const net=CHAINS[key].net,out=[],seen=new Set();
+  for(const ep of['trending_pools?include=base_token','pools?page=1&include=base_token','pools?page=2&include=base_token']){
+    try{const r=await fetch(`https://api.geckoterminal.com/api/v2/networks/${net}/${ep}`);if(!r.ok)continue;const j=await r.json();
+      for(const t of j.included||[]){if(t.type!=='token')continue;const a=t.attributes||{};const sym=String(a.symbol||'').toUpperCase().slice(0,8);
+        if(!sym||seen.has(sym)||SKIP.test(sym))continue;seen.add(sym);out.push({sym,url:a.image_url&&!/missing/.test(a.image_url)?a.image_url:null})}
+    }catch{}
+    if(out.length>=16)break;
   }
-  $('#marks').textContent='MARKS: '+(marksOn?'ON':'OFF');
+  return out.slice(0,16);
+}
+async function loadRemote(){
+  await Promise.all(['avax','hood'].map(async key=>{
+    const found=await fetchChainTokens(key);if(found.length<4)return;
+    const coins=await Promise.all(found.map(async f=>makeCoin(f.sym,key,await loadImg(f.url))));
+    const pins=coinPool[key].filter(c=>c.pinned&&!coins.some(r=>r.sym===c.sym));
+    coinPool[key]=[...pins,...coins];
+  }));
+  const dup=new Set(coinPool.avax.map(c=>c.sym));coinPool.hood=coinPool.hood.filter(c=>!dup.has(c.sym));
+  if(state==='ready')build();
+}
+seedFallback();
+
+const frameMat=new THREE.MeshStandardMaterial({color:0x22313f,roughness:.3,metalness:.85,envMap:envTex,emissive:0x0c3448,emissiveIntensity:.8});
+const logoGeo=new THREE.PlaneGeometry(1.05,1.05);
+function makeTile(x,z,coin,index,good){
+  const g=new THREE.Group();g.position.set(x,0,z);tileGroup.add(g);
+  const glass=new THREE.Mesh(paneGeo,glassMat);glass.renderOrder=1;g.add(glass);
+  for(const sz of[-1,1]){const b=new THREE.Mesh(barX,frameMat);b.position.set(0,-.01,sz*.7);g.add(b);const c=new THREE.Mesh(barZ,frameMat);c.position.set(sz*.78,-.01,0);g.add(c)}
+  const streak=new THREE.Mesh(streakPlane,streakMat);streak.rotation.x=-Math.PI/2;streak.position.y=.073;streak.renderOrder=2;g.add(streak);
+  const icon=new THREE.Mesh(logoGeo,coin.mat);icon.rotation.x=-Math.PI/2;icon.position.y=.08;icon.renderOrder=3;g.add(icon);
+  const crack=new THREE.Mesh(crackPlane,crackMat);crack.rotation.x=-Math.PI/2;crack.position.y=.078;crack.renderOrder=4;crack.visible=false;g.add(crack);
+  return {g,glass,icon,crack,good,coin,index,x,z,py:0,vy:0};
+}
+function pickCoin(key,used){
+  const pool=coinPool[key];if(used.size>=pool.length)used.clear();let c;
+  for(let k=0;k<16;k++){c=pool[Math.floor(Math.random()*pool.length)];if(!used.has(c.sym))break}
+  used.add(c.sym);return c;
 }
 function build(){
-  while(tileGroup.children.length){const c=tileGroup.children[0];c.traverse(o=>{if(o.material&&o.material.isMeshStandardMaterial&&o.material.emissive&&o.material!==rockMat&&o.material!==metal&&o.material!==glassMat&&o.material!==goodGlass&&o.material!==shardMat)o.material.dispose()});tileGroup.remove(c)}
-  tiles=[];rows=[];
-  for(let i=0;i<count;i++){const safe=Math.random()<.5?0:1;const row=[];
-    for(let s=0;s<2;s++){const t=makeTile(s===0?-TX:TX,startZ-(i+1)*step,s===safe,i);row.push(t);tiles.push(t)}
-    rows.push(row)}
-  applyMarks();
+  while(tileGroup.children.length)tileGroup.remove(tileGroup.children[0]);
+  tiles=[];rows=[];const uA=new Set(),uH=new Set();
+  for(let i=0;i<count;i++){
+    const target=mode==='avax'?'avax':mode==='hood'?'hood':(Math.random()<.5?'avax':'hood');
+    const ca=pickCoin('avax',uA),chh=pickCoin('hood',uH),aLeft=Math.random()<.5,L=aLeft?ca:chh,R=aLeft?chh:ca,z=startZ-(i+1)*step;
+    const row=[makeTile(-TX,z,L,i,L.chain===target),makeTile(TX,z,R,i,R.chain===target)];row.target=target;rows.push(row);tiles.push(...row);
+  }
 }
-build();
+function showTarget(){
+  const el=$('#target');if(!rows[stage]||state==='won'||state==='winning'||state==='dead'||state==='ready'){el.textContent='';return}
+  const c=CHAINS[rows[stage].target];el.textContent='FIND THE '+c.name+' COIN';el.style.color=c.col;el.style.borderColor=c.col+'99';
+}
+build();loadRemote();
 
 /* ============ PARTICLES ============ */
 const MAXP=700,pPos=new Float32Array(MAXP*3),pCol=new Float32Array(MAXP*3),pVel=new Float32Array(MAXP*3),pLife=new Float32Array(MAXP),pMax=new Float32Array(MAXP),pBase=new Float32Array(MAXP*3),pGrav=new Float32Array(MAXP);
@@ -310,7 +359,7 @@ const tl=new THREE.TextureLoader();
 const frames=SPRITE_URIS.map(u=>{const t=tl.load(u);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=8;return t});
 const heroH=2.35,heroW=heroH*224/256,heroCenter=heroH*(128-4)/256; // cell is 224x256, feet 4px above bottom
 const heroMat=new THREE.SpriteMaterial({map:frames[0],transparent:true,alphaTest:.02,fog:false,color:new THREE.Color(.62,.62,.62)});
-const hero=new THREE.Sprite(heroMat);hero.scale.set(heroW,heroH,1);scene.add(hero);
+const hero=new THREE.Sprite(heroMat);hero.scale.set(heroW,heroH,1);hero.renderOrder=6;scene.add(hero);
 const shadow=new THREE.Mesh(new THREE.PlaneGeometry(1.2,1.2),new THREE.MeshBasicMaterial({map:blobTex,transparent:true,depthWrite:false}));shadow.rotation.x=-Math.PI/2;scene.add(shadow);
 const heroPos=new V3(0,TOPY,startZ);
 
@@ -332,11 +381,12 @@ function chime(){beep(660,.18,'triangle',.06);setTimeout(()=>beep(880,.22,'trian
 
 function resetHero(){heroPos.set(0,TOPY,startZ);hero.visible=true;shadow.visible=true;heroMat.rotation=0;fall=null;jump=null;landT=0;lean=0;crackTile=null;crackT=0}
 function begin(){
-  build();stage=0;resetHero();state='playing';
+  build();stage=0;queued=null;resetHero();state='playing';showTarget();
   $('#intro').classList.add('hidden');$('#stage').textContent='01';setStatus('PICK A SIDE · TAKE THE LEAP');beep(520,.1,'triangle')
 }
-function startJump(to,cb,dur=.62,h=1.5){jump={from:heroPos.clone(),to:to.clone(),t:0,dur,h,cb}}
+function startJump(to,cb,dur=.4,h=1.2){jump={from:heroPos.clone(),to:to.clone(),t:0,dur,h,cb}}
 function doJump(side){
+  if(state==='jumping'&&jump&&jump.t/jump.dur>.5){queued=side;return}
   if(state!=='playing')return;
   const tile=rows[stage][side<0?0:1];state='jumping';lean=side;setStatus('IN THE AIR…');beep(360,.08,'triangle');
   startJump(new V3(tile.x,TOPY,tile.z),()=>land(tile));
@@ -347,7 +397,7 @@ function land(tile){
     stage++;$('#stage').textContent=pad2(Math.min(stage+1,12));
     emit(tile.x,.12,tile.z,26,0xc8ff43,3.2,1,7,.9);emit(tile.x,.12,tile.z,12,0xffffff,2,1,7,.6);shake=.08;beep(540,.1,'triangle');
     ring(tile);
-    if(stage===count)win();else{state='playing';setStatus('GOOD PANE · KEEP MOVING')}
+    if(stage===count)win();else{state='playing';setStatus('RIGHT CHAIN · KEEP MOVING');showTarget();if(queued!==null){const q=queued;queued=null;doJump(q)}}
   }else{
     state='cracking';crackTile=tile;crackT=0;tile.crack.visible=true;setStatus('…IT\'S CRACKING');beep(200,.3,'sawtooth',.05);shake=.25;
   }
@@ -358,15 +408,15 @@ function ring(tile){const m=new THREE.Mesh(new THREE.RingGeometry(.3,.36,48),new
 function die(){
   state='dead';saveBest(stage);crash();flash.style.transition='none';flash.style.opacity=.55;requestAnimationFrame(()=>{flash.style.transition='opacity .6s ease-out';flash.style.opacity=0});
   shake=.7;shatter(crackTile);shadow.visible=false;
-  fall={v:0,spin:(Math.random()<.5?-1:1)*rnd(1.5,3)};setStatus('THE GLASS WAS A LIE');
+  fall={v:0,spin:(Math.random()<.5?-1:1)*rnd(1.5,3)};setStatus('WRONG · $'+crackTile.coin.sym+' IS ON '+CHAINS[crackTile.coin.chain].name);$('#target').textContent='';
   setTimeout(()=>{if(state!=='dead')return;$('#intro').innerHTML='<div class="eyebrow">✕ &nbsp; RUN ENDED</div><h1>YOU GOT<br>REKT.</h1><p class="result">The wrong pane shattered beneath you.<br> You made it to stage '+(stage+1)+' of 12.</p><button class="btn" id="again">RUN IT BACK ↗</button><div class="sub">THE CYCLE DOESN’T WAIT</div>';$('#intro').classList.remove('hidden');$('#again').onclick=begin},1500);
 }
 function win(){
-  state='winning';setStatus('THE SUPERCYCLE IS REAL');saveBest(12);
+  state='winning';setStatus('THE SUPERCYCLE IS REAL');saveBest(12);$('#target').textContent='';
   startJump(new V3(0,TOPY,endZ),()=>{
     state='won';winT=0;fireT=0;chime();shake=.1;flash.style.transition='none';flash.style.opacity=.3;requestAnimationFrame(()=>{flash.style.transition='opacity .9s ease-out';flash.style.opacity=0});
     setTimeout(()=>{if(state!=='won')return;$('#intro').innerHTML='<div class="eyebrow">✳ &nbsp; BRIDGE CONQUERED</div><h1>YOU ARE<br>THE REAL ONE.</h1><p class="result">12 perfect jumps. The Supercycle lives on.</p><button class="btn" id="again">PLAY AGAIN ↗</button><div class="sub">BUILT DIFFERENT. (REAL)</div>';$('#intro').classList.remove('hidden');$('#again').onclick=()=>{resetToIntro();begin()}},2600)
-  },.8,1.7);
+  },.6,1.5);
 }
 function resetToIntro(){}
 
@@ -379,10 +429,10 @@ window.addEventListener('keydown',e=>{
 });
 $('#start').onclick=begin;$('#left').onclick=()=>choose(-1);$('#right').onclick=()=>choose(1);
 $('#sound').onclick=()=>{soundOn=!soundOn;$('#sound').textContent='SOUND: '+(soundOn?'ON':'OFF')};
-$('#marks').onclick=()=>{if(['playing','jumping','cracking','winning'].includes(state))return;marksOn=!marksOn;try{localStorage.setItem('superbridge-marks',marksOn?'on':'off')}catch{}applyMarks()};
+const MODES=['mixed','avax','hood'],MODE_LABEL={mixed:'MIXED',avax:'AVAX ONLY',hood:'ROBINHOOD ONLY'};$('#mode').onclick=()=>{if(['playing','jumping','cracking','winning'].includes(state))return;mode=MODES[(MODES.indexOf(mode)+1)%3];$('#mode').textContent='MODE: '+MODE_LABEL[mode]};
 
 /* ============ POST-PROCESSING ============ */
-const composer=new EffectComposer(renderer,new THREE.WebGLRenderTarget(4,4,{type:THREE.HalfFloatType,samples:4}));
+const composer=new EffectComposer(renderer,new THREE.WebGLRenderTarget(4,4,{type:THREE.HalfFloatType,samples:2}));
 composer.addPass(new RenderPass(scene,camera));
 const bloom=new UnrealBloomPass(new THREE.Vector2(256,256),.55,.65,1.05);composer.addPass(bloom);
 composer.addPass(new OutputPass());
@@ -397,7 +447,7 @@ function updateCamera(dt,time){
   if(state==='ready'){const a=time*.25;tp.set(Math.sin(a)*5,5.6+Math.sin(time*.4)*.6,heroPos.z+11+Math.cos(a)*2);tl2.set(0,1.6,heroPos.z-7)}
   else if(state==='won'||state==='winning'){tp.set(Math.sin(time*.3)*4,4.6,heroPos.z+8.5);tl2.set(0,2.6,heroPos.z-3)}
   else{const fy=Math.min(0,heroPos.y);tp.set(heroPos.x*.35,4.1+fy*.35,heroPos.z+7.4);tl2.set(heroPos.x*.2,1.3+fy*.7,heroPos.z-5.5)}
-  const k=1-Math.exp(-dt*3);camPos.lerp(tp,k);camLook.lerp(tl2,k*1.3);
+  const k=1-Math.exp(-dt*5);camPos.lerp(tp,k);camLook.lerp(tl2,k*1.3);
   camera.position.copy(camPos);
   if(shake>.001){camera.position.x+=rnd(-1,1)*shake;camera.position.y+=rnd(-1,1)*shake;shake*=Math.exp(-dt*5)}
   camera.lookAt(camLook);
@@ -407,23 +457,23 @@ function frameIdx(){
   if(landT>0)return 3;return 0;
 }
 function animate(){
-  requestAnimationFrame(animate);
+  requestAnimationFrame(animate);{const nt=performance.now(),d=(nt-perf.last)/1000;perf.last=nt;if(d<.25){perf.acc+=d;perf.n++}if(perf.acc>2.5){const fps=perf.n/perf.acc;perf.acc=0;perf.n=0;if(fps<44&&pr>1){pr=Math.max(1,pr-.25);renderer.setPixelRatio(pr);composer.setPixelRatio(pr);resize()}else if(fps<28&&bloom.enabled)bloom.enabled=false}}
   const dt=Math.min(clock.getDelta(),.05),time=clock.elapsedTime;
   skyU.time.value=time;abyssU.time.value=time;streakTex.offset.x=(time*.1)%1;
 
   // jump
   if(jump){jump.t+=dt;const u=Math.min(jump.t/jump.dur,1);heroPos.x=jump.from.x+(jump.to.x-jump.from.x)*u;heroPos.z=jump.from.z+(jump.to.z-jump.from.z)*u;
     heroPos.y=TOPY+Math.sin(u*Math.PI)*jump.h;
-    if(u>=1){const cb=jump.cb;heroPos.copy(jump.to);jump=null;landT=.22;cb()}}
+    if(u>=1){const cb=jump.cb;heroPos.copy(jump.to);jump=null;landT=.15;cb()}}
   if(landT>0)landT-=dt;
 
   // cracking → shatter
-  if(state==='cracking'){crackT+=dt;crackTile.glass.position.set(rnd(-1,1)*.012,0,rnd(-1,1)*.012);crackTile.crack.material.opacity=.5+.5*Math.sin(crackT*40);if(crackT>.38)die()}
+  if(state==='cracking'){crackT+=dt;crackTile.glass.position.set(rnd(-1,1)*.012,0,rnd(-1,1)*.012);crackTile.crack.material.opacity=.5+.5*Math.sin(crackT*40);if(crackT>.22)die()}
   // falling
   if(fall){fall.v+=24*dt;heroPos.y-=fall.v*dt;heroMat.rotation+=fall.spin*dt;if(heroPos.y<-34){hero.visible=false}}
 
   // hero visuals
-  const sq=landT>0?1-.1*Math.sin((landT/.22)*Math.PI):1;
+  const sq=landT>0?1-.1*Math.sin((landT/.15)*Math.PI):1;
   heroMat.map=frames[frameIdx()];
   if(!fall)heroMat.rotation=jump?-lean*.12*Math.sin(Math.min(jump.t/jump.dur,1)*Math.PI):0;
   const breathe=(state==='playing'||state==='ready')&&!jump?1+.012*Math.sin(time*3):1;
@@ -435,8 +485,7 @@ function animate(){
   underLight.position.set(heroPos.x,-1.4,heroPos.z);
 
   // tiles spring
-  for(const t of tiles){if(Math.abs(t.py)>.0004||Math.abs(t.vy)>.002){t.vy+=(-70*t.py-8*t.vy)*dt;t.py+=t.vy*dt;t.g.position.y=t.py}
-    if(t.good&&marksOn)t.ring.rotation.z+=dt*.8}
+  for(const t of tiles){if(Math.abs(t.py)>.0004||Math.abs(t.vy)>.002){t.vy+=(-70*t.py-8*t.vy)*dt;t.py+=t.vy*dt;t.g.position.y=t.py}}
   // ripples
   for(let i=ripples.length-1;i>=0;i--){const r=ripples[i];r.t+=dt;const s=1+r.t*5;r.m.scale.set(s,s,s);r.m.material.opacity=Math.max(0,.9*(1-r.t/.8));if(r.t>.8){scene.remove(r.m);r.m.geometry.dispose();r.m.material.dispose();ripples.splice(i,1)}}
   // win fireworks
