@@ -244,7 +244,7 @@ function create(){
   function ripple(x,z,color){const m=new THREE.Mesh(new THREE.RingGeometry(.3,.4,40),new THREE.MeshBasicMaterial({color:new THREE.Color(color),transparent:true,opacity:.9,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending}));m.rotation.x=-Math.PI/2;m.position.set(x,.12,z);scene.add(m);ripples.push({m,t:0})}
 
   /* ---------- audio ---------- */
-  let actx=null;const music=new Audio(BASE+'Avalanche_Route.mp3');music.loop=true;music.volume=.5;music.preload='auto';
+  let actx=null;const music=new Audio(BASE+'Four_Seats_Total.mp3');music.loop=true;music.volume=.5;music.preload='auto';
   const ac=()=>actx??=new (window.AudioContext||window.webkitAudioContext)();
   function tone(f,d,type='sine',v=.06,f2){if(!soundOn)return;try{const a=ac(),o=a.createOscillator(),g=a.createGain();o.type=type;o.frequency.setValueAtTime(f,a.currentTime);if(f2)o.frequency.exponentialRampToValueAtTime(f2,a.currentTime+d);g.gain.setValueAtTime(v,a.currentTime);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+d);o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+d)}catch{}}
   function thud(){if(!soundOn)return;try{const a=ac(),n=Math.floor(a.sampleRate*.4),b=a.createBuffer(1,n,a.sampleRate),d=b.getChannelData(0);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/n,2);const s=a.createBufferSource();s.buffer=b;const f=a.createBiquadFilter();f.type='lowpass';f.frequency.value=700;const g=a.createGain();g.gain.value=.5;s.connect(f);f.connect(g);g.connect(a.destination);s.start();tone(140,.35,'sine',.12,40)}catch{}}

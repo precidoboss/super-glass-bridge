@@ -72,3 +72,10 @@ Everything stays in one document, so the Grotto runtime session and the Supabase
 ### Mingle
 
 Thirty players (you + 29 bots). Music plays (`Avalanche_Route.mp3`), everyone mingles, the music stops, a number is called and group circles appear. Fill a circle with exactly that many players before it locks. Anyone without a seat is eliminated. Last 4 standing survive. Controls: WASD / arrows, or the on-screen joystick on touch. Uses the **front-view** sprite frames, cut from the sheet into hue-shifted atlases (`assets/mingle/p0..p7.webp`, 8 frames each: 4 moving right, 4 moving left). Best round and survivals are kept in `localStorage`.
+
+## Update: Red Light home, audio, Glass Bridge design
+
+- **Red Light · Green Light** now has its own home page (play, how to play, best round, all games), same layout as Mingle and Glass Bridge. It runs full-screen and plays `Locked_In_The_Green.mp3` (home and game). Leaving it returns to the Super Games hub.
+- **Mingle** music is now `Four_Seats_Total.mp3`. Glass Bridge keeps `Avalanche_Route.mp3`.
+- **Glass Bridge logos:** coin logos now load direct, then through CORS-enabled image proxies (wsrv.nl, weserv) so they actually reach WebGL; panes prefer coins that have a logo.
+- **Glass Bridge design:** neon under-bridge glow, checkpoint arches every 3 stages, rail row numbers, canyon light shafts, giant halo rings and a glow behind the finish, meteors, hero aura and jump trail, FOV kick on jumps, death slow-mo, the unchosen pane shatters after a correct jump, a victory light beam, and a vignette/chromatic/grain grade pass.
