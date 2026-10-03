@@ -479,8 +479,8 @@ const coinPool={avax:[],hood:[]};
 let mode='mixed',queued=null,coinsLive=false,baseFov=50,lastBar=-1;
 const zp=new V3(),zl=new V3(),zoom={on:false,t:0,k:0},ease=x=>x*x*(3-2*x);
 const perf={acc:0,n:0,last:performance.now()};
-function drawCoin(sym,img){
-  const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');
+function paintCoin(c,img){
+  const x=c.canvas.getContext('2d'),sym=c.sym;x.clearRect(0,0,256,256);
   x.fillStyle='rgba(8,14,22,.8)';x.beginPath();x.arc(128,108,104,0,6.283);x.fill();
   x.lineWidth=5;x.strokeStyle='rgba(220,245,255,.9)';x.beginPath();x.arc(128,108,104,0,6.283);x.stroke();
   x.save();x.beginPath();x.arc(128,108,92,0,6.283);x.clip();
@@ -489,33 +489,62 @@ function drawCoin(sym,img){
     x.fillStyle='#fff';x.textAlign='center';x.textBaseline='middle';x.font='bold '+(sym==='SUPER'?90:Math.round(Math.min(64,150/(Math.min(sym.length,8)*.64))))+'px sans-serif';x.fillText(sym==='SUPER'?'✳':sym.slice(0,8),128,112)}
   x.restore();
   x.fillStyle='#fff';x.font='bold 34px sans-serif';x.textAlign='center';x.textBaseline='middle';x.shadowColor='#000';x.shadowBlur=6;x.fillText('$'+sym.slice(0,8),128,232);
-  const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=4;return t;
 }
-function makeCoin(sym,chain,img,pinned){const tex=drawCoin(sym,img);return{sym,chain,pinned,tex,mat:new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false})}}
+// coins are cheap descriptors; canvas/texture/material are created lazily when a pane actually uses them
+const makeCoin=(sym,chain,url,pinned)=>({sym,chain,url:url||null,pinned});
+function coinMat(c){
+  if(c.mat)return c.mat;
+  c.canvas=document.createElement('canvas');c.canvas.width=c.canvas.height=256;paintCoin(c,null);
+  c.tex=new THREE.CanvasTexture(c.canvas);c.tex.colorSpace=THREE.SRGBColorSpace;c.tex.anisotropy=4;
+  c.mat=new THREE.MeshBasicMaterial({map:c.tex,transparent:true,depthWrite:false});
+  if(c.url)loadImg(c.url).then(img=>{if(img){paintCoin(c,img);c.tex.needsUpdate=true}});
+  return c.mat;
+}
 function seedFallback(){
   for(const k of['avax','hood'])coinPool[k]=FALLBACK[k].map(s=>makeCoin(s,k,null));
   coinPool[SUPER_CHAIN].unshift(makeCoin('SUPER',SUPER_CHAIN,null,true));
 }
-const loadImg=url=>new Promise(res=>{if(!url)return res(null);const i=new Image();i.crossOrigin='anonymous';const to=setTimeout(()=>res(null),5000);i.onload=()=>{clearTimeout(to);res(i)};i.onerror=()=>{clearTimeout(to);res(null)};i.src=url});
-async function fetchChainTokens(key){
-  const net=CHAINS[key].net,out=[],seen=new Set();
-  for(const ep of['trending_pools?include=base_token','pools?page=1&include=base_token','pools?page=2&include=base_token']){
-    try{const r=await fetch(`https://api.geckoterminal.com/api/v2/networks/${net}/${ep}`);if(!r.ok)continue;const j=await r.json();
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const loadImg=url=>new Promise(res=>{if(!url)return res(null);const i=new Image();i.crossOrigin='anonymous';const to=setTimeout(()=>res(null),6000);i.onload=()=>{clearTimeout(to);res(i)};i.onerror=()=>{clearTimeout(to);res(null)};i.src=url});
+const CACHE_KEY='sgb-coins-v2',WANT=100;
+async function getJson(url){
+  for(let i=0;i<3;i++){try{const r=await fetch(url);if(r.status===429){await sleep(1800*(i+1));continue}if(!r.ok)return null;return await r.json()}catch{await sleep(400)}}
+  return null;
+}
+// Top pools by 24h volume (then by tx count) -> unique base/quote tokens with logos. 10 pages x 20 pools per sort.
+async function fetchChain(key,onProgress){
+  const net=CHAINS[key].net,seen=new Set(),out=[];
+  outer:for(const sort of['h24_volume_usd_desc','h24_tx_count_desc']){
+    for(let pg=1;pg<=10;pg++){
+      const j=await getJson(`https://api.geckoterminal.com/api/v2/networks/${net}/pools?page=${pg}&sort=${sort}&include=base_token,quote_token`);
+      if(!j)break;
       for(const t of j.included||[]){if(t.type!=='token')continue;const a=t.attributes||{};const sym=String(a.symbol||'').toUpperCase().slice(0,8);
         if(!sym||seen.has(sym)||SKIP.test(sym))continue;seen.add(sym);out.push({sym,url:a.image_url&&!/missing/.test(a.image_url)?a.image_url:null})}
-    }catch{}
-    if(out.length>=16)break;
+      onProgress([...out.filter(o=>o.url),...out.filter(o=>!o.url)]);
+      if(out.length>=150)break outer;
+      await sleep(260);
+    }
+    if(out.length>=WANT+10)break;
   }
-  return out.slice(0,16);
+  return [...out.filter(o=>o.url),...out.filter(o=>!o.url)];
+}
+function setPool(key,list){
+  const old=new Map(coinPool[key].map(c=>[c.sym,c]));
+  const avaxSyms=new Set(coinPool.avax.map(c=>c.sym));
+  const coins=list.filter(f=>key==='avax'||!avaxSyms.has(f.sym)).map(f=>{const o=old.get(f.sym);return o&&!o.pinned?o:makeCoin(f.sym,key,f.url)});
+  const pins=coinPool[key].filter(c=>c.pinned&&!coins.some(r=>r.sym===c.sym));
+  coinPool[key]=[...pins,...coins];
 }
 async function loadRemote(){
+  await sleep(0);
+  try{const c=JSON.parse(localStorage.getItem(CACHE_KEY)||'null');
+    if(c&&Date.now()-c.t<20*60*1000&&c.avax?.length>=20&&c.hood?.length>=20){setPool('avax',c.avax);setPool('hood',c.hood);coinsLive=true;if(state==='ready')build();refreshHome();return}}catch{}
+  const res={};let first={avax:true,hood:true};
   await Promise.all(['avax','hood'].map(async key=>{
-    const found=await fetchChainTokens(key);if(found.length<4)return;
-    const coins=await Promise.all(found.map(async f=>makeCoin(f.sym,key,await loadImg(f.url))));
-    const pins=coinPool[key].filter(c=>c.pinned&&!coins.some(r=>r.sym===c.sym));
-    coinPool[key]=[...pins,...coins];coinsLive=true;
+    res[key]=await fetchChain(key,list=>{if(list.length>=6){setPool(key,list);coinsLive=true;refreshHome();if(first[key]&&state==='ready'){first[key]=false;build()}}});
   }));
-  const dup=new Set(coinPool.avax.map(c=>c.sym));coinPool.hood=coinPool.hood.filter(c=>!dup.has(c.sym));
+  for(const k of['avax','hood'])if(res[k].length>=6)setPool(k,res[k]);
+  try{localStorage.setItem(CACHE_KEY,JSON.stringify({t:Date.now(),avax:res.avax.slice(0,160),hood:res.hood.slice(0,160)}))}catch{}
   if(state==='ready')build();
   refreshHome();
 }
@@ -528,7 +557,7 @@ function makeTile(x,z,coin,index,good){
   const glass=new THREE.Mesh(paneGeo,glassMat);glass.renderOrder=1;g.add(glass);
   for(const sz of[-1,1]){const b=new THREE.Mesh(barX,frameMat);b.position.set(0,-.01,sz*.7);g.add(b);const c=new THREE.Mesh(barZ,frameMat);c.position.set(sz*.78,-.01,0);g.add(c)}
   const streak=new THREE.Mesh(streakPlane,streakMat);streak.rotation.x=-Math.PI/2;streak.position.y=.073;streak.renderOrder=2;g.add(streak);
-  const icon=new THREE.Mesh(logoGeo,coin.mat);icon.rotation.x=-Math.PI/2;icon.position.y=.08;icon.renderOrder=3;g.add(icon);
+  const icon=new THREE.Mesh(logoGeo,coinMat(coin));icon.rotation.x=-Math.PI/2;icon.position.y=.08;icon.renderOrder=3;g.add(icon);
   const crack=new THREE.Mesh(crackPlane,crackMat);crack.rotation.x=-Math.PI/2;crack.position.y=.078;crack.renderOrder=4;crack.visible=false;g.add(crack);
   return {g,glass,icon,crack,good,coin,index,x,z,py:0,vy:0};
 }
@@ -542,7 +571,7 @@ function build(){
   tiles=[];rows=[];const uA=new Set(),uH=new Set();
   for(let i=0;i<count;i++){
     const target=mode==='avax'?'avax':mode==='hood'?'hood':(Math.random()<.5?'avax':'hood');
-    const ca=pickCoin('avax',uA),chh=pickCoin('hood',uH),aLeft=Math.random()<.5,L=aLeft?ca:chh,R=aLeft?chh:ca,z=startZ-(i+1)*step;
+    const ca=pickCoin('avax',uA);let chh=pickCoin('hood',uH);for(let r=0;r<8&&chh.sym===ca.sym;r++)chh=pickCoin('hood',uH);const aLeft=Math.random()<.5,L=aLeft?ca:chh,R=aLeft?chh:ca,z=startZ-(i+1)*step;
     const row=[makeTile(-TX,z,L,i,L.chain===target),makeTile(TX,z,R,i,R.chain===target)];row.target=target;rows.push(row);tiles.push(...row);
   }
 }
@@ -678,8 +707,9 @@ function setMode(m){mode=m;$('#mode').textContent='MODE: '+MODE_LABEL[m];documen
 $('#mode').onclick=()=>{if(['playing','jumping','cracking','winning'].includes(state))return;setMode(MODES[(MODES.indexOf(mode)+1)%3])};
 document.querySelectorAll('#modes button').forEach(b=>b.onclick=()=>setMode(b.dataset.m));
 function refreshHome(){
-  $('#hCoins').textContent=coinPool.avax.length+coinPool.hood.length;$('#hLive').textContent=coinsLive?'LIVE LOGOS':'OFFLINE BADGES';
-  $('#ticker').textContent=[...coinPool.avax,...coinPool.hood].map(c=>'$'+c.sym).join('   ·   ');$('#hBest').textContent=pad2(best);
+  const a=coinPool.avax.length,h=coinPool.hood.length;
+  $('#hCoins').textContent=a+h;$('#hLive').textContent=(coinsLive?'LIVE · ':'OFFLINE · ')+'AVAX '+a+' / ROBINHOOD '+h;
+  $('#ticker').textContent=[...coinPool.avax.slice(0,20),...coinPool.hood.slice(0,20)].map(c=>'$'+c.sym).join('   ·   ');$('#hBest').textContent=pad2(best);
 }
 function startFromHome(){$('.app').classList.remove('home-on');$('#home').classList.add('hidden');begin()}
 function goHome(){
