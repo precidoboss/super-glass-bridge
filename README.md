@@ -38,3 +38,19 @@ Every step has two glass panes, each carrying a coin logo: one Avalanche coin an
 - In-game music: `Avalanche_Route.mp3` loops from the first click/keypress, ducks when you fall and swells on a win. The SOUND button mutes both music and effects.
 - Zoom camera now sits ahead of the hero looking down at the next two panes, so the character never blocks the view (the hero also fades while zoomed).
 - UI skin: Supercycle green with Avalanche red and Robinhood Chain neon-lime accents, 12-pip progress bar, chain-tinted prompt pill, brand gradient rail under the header.
+
+## Leaderboard, runs and profile (Supabase + Grotto Runtime)
+
+- Players are identified by the **Grotto runtime session** (name + avatar come from their Grotto profile). The browser never sends an identity: the server calls Grotto `/session/me` with the session token and trusts only that.
+- Every run is tracked server-side: `POST /api/run-start` starts the clock on the server, `POST /api/run-finish` stops it on win or death. Finish times are therefore measured by the server, not reported by the browser.
+- `GET /api/leaderboard` returns the fastest completed crossing per player (name, avatar, time, wins). `GET /api/me` returns the signed-in player's runs, wins, best time and rank.
+- Outside The Grotto the game plays exactly as before; the leaderboard is viewable but runs are not recorded.
+
+### Setup
+
+1. Run `supabase/schema.sql` once in the Supabase SQL Editor.
+2. In Vercel -> Project -> Settings -> Environment Variables add (Production + Preview):
+   - `SUPABASE_URL` - Supabase Project Settings -> API -> Project URL
+   - `SUPABASE_SERVICE_ROLE_KEY` - the `service_role` / secret key (server only, never put it in `index.html`)
+   - `GROTTO_GAME_ID` - this game's Grotto game id (recommended; rejects sessions from other Grotto games)
+3. Redeploy. The API lives in `/api` and needs Vercel (GitHub Pages cannot run it). If the game page is served from a different origin than the API, set `API_BASE` at the top of the SGB script in `index.html`.
