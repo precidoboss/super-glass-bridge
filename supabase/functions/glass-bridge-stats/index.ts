@@ -116,11 +116,27 @@ export default {
         const score = Math.max(0, Math.min(12, Math.round(Number(body.score) || stagesCompleted)))
         const endedReason = body.endedReason ? String(body.endedReason).slice(0, 64) : (won ? 'completed' : 'failed')
 
+        const { data: existingRun, error: existingRunError } = await ctx.supabaseAdmin
+          .from('glass_bridge_runs')
+          .select('id, started_at, finished_at')
+          .eq('id', runId)
+          .eq('player_id', identity.player.id)
+          .maybeSingle()
+
+        if (existingRunError) throw existingRunError
+        if (!existingRun) return json({ error: 'Run not found for this player' }, 404)
+        if (existingRun.finished_at) return json({ error: 'Run already finished' }, 409)
+
+        // Use server-observed time for the leaderboard. The browser's elapsed
+        // timer is intentionally not trusted for the recorded finish time.
+        const serverFinishedAt = new Date()
+        const serverDurationMs = Math.max(0, serverFinishedAt.getTime() - new Date(existingRun.started_at).getTime())
+
         const { data: run, error: runError } = await ctx.supabaseAdmin
           .from('glass_bridge_runs')
           .update({
-            finished_at: new Date().toISOString(),
-            duration_ms: durationMs,
+            finished_at: serverFinishedAt.toISOString(),
+            duration_ms: serverDurationMs,
             score,
             stages_completed: stagesCompleted,
             won,
@@ -128,11 +144,12 @@ export default {
           })
           .eq('id', runId)
           .eq('player_id', identity.player.id)
+          .is('finished_at', null)
           .select('id, finished_at, duration_ms, score, stages_completed, won, ended_reason')
           .maybeSingle()
 
         if (runError) throw runError
-        if (!run) return json({ error: 'Run not found for this player' }, 404)
+        if (!run) return json({ error: 'Run was already finished' }, 409)
 
         const { data: stats, error: statsError } = await ctx.supabaseAdmin
           .from('glass_bridge_player_stats')
