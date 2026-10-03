@@ -87,7 +87,180 @@ header:after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;
 .stats b{background:linear-gradient(var(--lime),var(--leaf));-webkit-background-clip:text;background-clip:text;color:transparent}
 .lbl,.stats span{color:#8ba592}.ticker{color:#6d8873}
 @media(max-width:650px){.tags .tag{display:none}.live{display:none}.home{background:linear-gradient(0deg,#040a06f8 0%,#050d08de 58%,#050d0850 100%)}}
-</style></head><body><div class="app home-on"><header><div class="brand"><div class="brandmark">✳</div><div>SUPERCYCLE<small>GLASS BRIDGE // AVAX × ROBINHOOD</small></div></div><div class="tags"><span class="tag av"><i></i>AVAX</span><span class="tag rh"><i></i>ROBINHOOD</span><span class="live">THE CYCLE IS REAL</span></div></header><main><div id="scene"></div><div class="hud"><div class="stat"><div class="label">STAGE</div><div class="value"><em id="stage">01</em><span style="color:#788393;font-size:13px"> / 12</span></div><div class="pips" id="pips"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div><div class="stat" style="text-align:right"><div class="label">RUN BEST</div><div class="value" id="best">00</div></div></div><div class="center"><div class="label">CHOOSE YOUR FATE</div><strong id="status">THE NEXT TILE IS UNKNOWN</strong><div class="target" id="target"></div></div><section class="intro hidden" id="intro"><div class="eyebrow">✳ &nbsp; A SUPERCYCLE TRIAL</div><h1>TRUST THE<br>REAL ONE.</h1><p>Every step, two coins. One lives on Avalanche, one on Robinhood Chain. Jump on the coin from the chain you're told to find. Pick wrong and the glass breaks.</p><button class="btn" id="start">ENTER THE BRIDGE&nbsp; ↗</button><div class="sub">12 STEPS · ONE LIFE · NO SECOND GUESS</div></section><section class="home" id="home"><div class="home-in"><div class="eyebrow">✳ &nbsp; SUPERCYCLE × AVALANCHE × ROBINHOOD CHAIN</div><h1>GLASS<br><span>BRIDGE.</span></h1><p>Twelve steps. Two coins every step. One lives on Avalanche, one on Robinhood Chain. Find the right chain or the glass gives way.</p><div class="chains"><span class="chip av"><i></i>AVALANCHE</span><span class="chip rh"><i></i>ROBINHOOD CHAIN</span></div><div class="lbl">CHOOSE YOUR CHAIN MODE</div><div class="modes" id="modes"><button data-m="mixed" class="on">MIXED</button><button data-m="avax">AVAX ONLY</button><button data-m="hood">ROBINHOOD ONLY</button></div><div class="cta"><button class="btn" id="play">PLAY &nbsp;↗</button><button class="ghost" id="howbtn">HOW TO PLAY</button></div><div class="how" id="how"><ol><li>The prompt up top names a chain.</li><li>Each step has two coins. Land on the one that lives on that chain.</li><li><b>← →</b> or <b>A D</b> to jump. <b>SPACE</b> is a blind guess.</li><li><b>Z</b> or the ZOOM button swoops in on the next panes.</li></ol></div><div class="stats"><div><b id="hBest">00</b><span>BEST / 12</span></div><div><b>12</b><span>STAGES</span></div><div><b id="hCoins">–</b><span id="hLive">COINS</span></div></div><div class="ticker" id="ticker"></div></div></section><button class="zoombtn" id="zoom">◎ ZOOM</button></main><footer class="bottom"><div class="controls"><span class="key">←</span><span class="key">→</span><span>choose pane</span><span class="key">SPACE</span><span>jump</span><span class="key">Z</span><span>zoom</span></div><div class="hint">DON'T FADE THE SUPERCYCLE</div><div class="mobile"><button id="left" aria-label="Jump left">←</button><button id="right" aria-label="Jump right">→</button></div><div style="display:flex;gap:8px"><button class="sound" id="homeFoot">HOME</button><button class="sound" id="mode">MODE: MIXED</button><button class="sound" id="sound">SOUND: ON</button></div></footer></div>
+.sgb-me{display:none;align-items:center;gap:10px;margin:0 0 16px;padding:8px 16px 8px 8px;border:1px solid var(--line,#b9ff5a2b);border-radius:999px;background:var(--panel,#0b160eb8);width:fit-content;max-width:100%}.sgb-me.on{display:flex}.sgb-me>div{min-width:0}
+.sgb-av{position:relative;width:30px;height:30px;border-radius:50%;flex:none;overflow:hidden;background:#16301b;border:1px solid #d4ff3a44;display:inline-flex;align-items:center;justify-content:center;font:700 12px 'Space Grotesk';color:var(--lime)}.sgb-av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.sgb-me b{display:block;font:700 12px 'Space Grotesk';letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px}.sgb-me span:not(.sgb-av){display:block;font:9px 'DM Mono';letter-spacing:.14em;color:var(--muted);margin-top:2px}
+.sgb-lb{position:absolute;inset:0;z-index:9;display:flex;align-items:center;justify-content:center;padding:16px;background:#030804d9;backdrop-filter:blur(8px);transition:opacity .2s}.sgb-lb.sgb-hide{opacity:0;pointer-events:none;visibility:hidden}
+.sgb-card{width:min(520px,100%);max-height:100%;display:flex;flex-direction:column;padding:clamp(18px,3vw,28px);border-radius:24px;border:1px solid #d4ff3a2b;background:linear-gradient(145deg,rgba(18,42,24,.96),rgba(5,11,7,.97));box-shadow:0 35px 110px #000b,0 0 80px #7ddc1f14}
+.sgb-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px}.sgb-head h2{margin:0;font-size:clamp(26px,5vw,36px);line-height:.95;letter-spacing:-.06em}.sgb-head .eyebrow{margin-bottom:8px}.sgb-x{padding:9px 13px;border-radius:10px}
+.sgb-cols,.sgb-row{display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:10px}.sgb-cols{font:8px 'DM Mono';letter-spacing:.24em;color:#8aa08f;padding:0 12px 8px}
+.sgb-list{list-style:none;margin:0;padding:0;overflow:auto;display:flex;flex-direction:column;gap:6px;min-height:60px}
+.sgb-row{padding:8px 12px;border-radius:12px;border:1px solid #ffffff10;background:#ffffff08}.sgb-row.you{border-color:#d4ff3a77;background:#d4ff3a14}
+.sgb-rk{font:700 13px 'DM Mono';color:#9fb4a4}.sgb-row:nth-child(1) .sgb-rk{color:#ffd54a}.sgb-row:nth-child(2) .sgb-rk{color:#d5dde6}.sgb-row:nth-child(3) .sgb-rk{color:#e49b5c}
+.sgb-pl{display:flex;align-items:center;gap:10px;min-width:0}.sgb-nm{min-width:0;font:600 13px 'Space Grotesk';white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sgb-nm small{display:block;font:8px 'DM Mono';letter-spacing:.16em;color:#7f9585;margin-top:2px}
+.sgb-tm{font:700 13px 'DM Mono';color:var(--lime)}.sgb-msg{padding:22px 8px;text-align:center;font:10px 'DM Mono';letter-spacing:.18em;color:#8aa08f}
+.sgb-foot{margin-top:12px;font:9px 'DM Mono';letter-spacing:.14em;color:#7f9585;text-align:center;min-height:12px}
+.sgb-res{margin:0 0 18px;font:10px 'DM Mono';letter-spacing:.16em;color:#c7ced8;line-height:1.9}.sgb-res b{color:var(--lime);font-size:16px;letter-spacing:.06em}.sgb-lbbtn{margin-left:10px;padding:16px 20px}
+@media(max-width:650px){.sgb-lbbtn{margin:10px 0 0}}
+</style></head><body><div class="app home-on"><header><div class="brand"><div class="brandmark">✳</div><div>SUPERCYCLE<small>GLASS BRIDGE // AVAX × ROBINHOOD</small></div></div><div class="tags"><span class="tag av"><i></i>AVAX</span><span class="tag rh"><i></i>ROBINHOOD</span><span class="live">THE CYCLE IS REAL</span></div></header><main><div id="scene"></div><div class="hud"><div class="stat"><div class="label">STAGE</div><div class="value"><em id="stage">01</em><span style="color:#788393;font-size:13px"> / 12</span></div><div class="pips" id="pips"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div><div class="stat" style="text-align:right"><div class="label">RUN BEST</div><div class="value" id="best">00</div></div></div><div class="center"><div class="label">CHOOSE YOUR FATE</div><strong id="status">THE NEXT TILE IS UNKNOWN</strong><div class="target" id="target"></div></div><section class="intro hidden" id="intro"><div class="eyebrow">✳ &nbsp; A SUPERCYCLE TRIAL</div><h1>TRUST THE<br>REAL ONE.</h1><p>Every step, two coins. One lives on Avalanche, one on Robinhood Chain. Jump on the coin from the chain you're told to find. Pick wrong and the glass breaks.</p><button class="btn" id="start">ENTER THE BRIDGE&nbsp; ↗</button><div class="sub">12 STEPS · ONE LIFE · NO SECOND GUESS</div></section><section class="home" id="home"><div class="home-in"><div class="eyebrow">✳ &nbsp; SUPERCYCLE × AVALANCHE × ROBINHOOD CHAIN</div><h1>GLASS<br><span>BRIDGE.</span></h1><p>Twelve steps. Two coins every step. One lives on Avalanche, one on Robinhood Chain. Find the right chain or the glass gives way.</p><div class="chains"><span class="chip av"><i></i>AVALANCHE</span><span class="chip rh"><i></i>ROBINHOOD CHAIN</span></div><div class="lbl">CHOOSE YOUR CHAIN MODE</div><div class="modes" id="modes"><button data-m="mixed" class="on">MIXED</button><button data-m="avax">AVAX ONLY</button><button data-m="hood">ROBINHOOD ONLY</button></div><div class="cta"><button class="btn" id="play">PLAY &nbsp;↗</button><button class="ghost" id="howbtn">HOW TO PLAY</button><button class="ghost" id="sgbLbBtn">LEADERBOARD</button></div><div class="sgb-me" id="sgbMe"></div><div class="how" id="how"><ol><li>The prompt up top names a chain.</li><li>Each step has two coins. Land on the one that lives on that chain.</li><li><b>← →</b> or <b>A D</b> to jump. <b>SPACE</b> is a blind guess.</li><li><b>Z</b> or the ZOOM button swoops in on the next panes.</li></ol></div><div class="stats"><div><b id="hBest">00</b><span>BEST / 12</span></div><div><b>12</b><span>STAGES</span></div><div><b id="hCoins">–</b><span id="hLive">COINS</span></div></div><div class="ticker" id="ticker"></div></div></section><section class="sgb-lb sgb-hide" id="sgbLb" role="dialog" aria-modal="true" aria-label="Leaderboard"><div class="sgb-card"><div class="sgb-head"><div><div class="eyebrow">✳ &nbsp; FASTEST CROSSINGS</div><h2>LEADERBOARD</h2></div><button class="ghost sgb-x" id="sgbLbClose" aria-label="Close leaderboard">✕</button></div><div class="sgb-cols"><span>#</span><span>PLAYER</span><span>TIME</span></div><ol class="sgb-list" id="sgbList"></ol><div class="sgb-foot" id="sgbFoot"></div></div></section><button class="zoombtn" id="zoom">◎ ZOOM</button></main><footer class="bottom"><div class="controls"><span class="key">←</span><span class="key">→</span><span>choose pane</span><span class="key">SPACE</span><span>jump</span><span class="key">Z</span><span>zoom</span></div><div class="hint">DON'T FADE THE SUPERCYCLE</div><div class="mobile"><button id="left" aria-label="Jump left">←</button><button id="right" aria-label="Jump right">→</button></div><div style="display:flex;gap:8px"><button class="sound" id="homeFoot">HOME</button><button class="sound" id="mode">MODE: MIXED</button><button class="sound" id="sound">SOUND: ON</button></div></footer></div>
+<script>
+/* ===== SGB: Grotto identity + Supabase scoring. Non-blocking; every failure is silent so the game always runs. ===== */
+(function(){
+'use strict';
+const API_BASE=''; // '' = same origin as this page. If the game is served from another origin, set your Vercel URL here, e.g. 'https://your-app.vercel.app'
+const SDK_URL='https://api.enterthegrotto.xyz/sdk/grotto-game-runtime.v1.js';
+const q=s=>document.querySelector(s);
+let grotto=null,run=null,profile=null,stats=null,lbOpen=false,lbToken=0,lastFocus=null;
+
+function loadSdk(){return new Promise((res,rej)=>{
+  if(window.GrottoRuntime)return res();
+  const s=document.createElement('script');s.src=SDK_URL;s.async=true;s.onload=()=>res();s.onerror=()=>rej(new Error('sdk'));document.head.appendChild(s);
+})}
+const readyP=loadSdk().then(()=>window.GrottoRuntime.ready({timeoutMs:10000})).then(c=>(grotto=c)).catch(()=>null);
+
+async function api(path,opt){
+  opt=opt||{};
+  const h={Accept:'application/json'};
+  if(grotto)h.Authorization='Bearer '+grotto.runtime.sessionId;
+  if(opt.body)h['Content-Type']='application/json';
+  const r=await fetch(API_BASE+path,{method:opt.method||'GET',headers:h,body:opt.body?JSON.stringify(opt.body):undefined});
+  const j=await r.json().catch(()=>null);
+  if(!r.ok)throw Object.assign(new Error((j&&j.error)||'http_'+r.status),{status:r.status});
+  return j;
+}
+
+function fmt(ms){
+  if(ms==null||!isFinite(ms))return '–';
+  const cs=Math.round(ms/10),m=Math.floor(cs/6000),rem=cs%6000;
+  return m+':'+String(Math.floor(rem/100)).padStart(2,'0')+'.'+String(rem%100).padStart(2,'0');
+}
+function safeUrl(u){try{const x=new URL(u);return x.protocol==='https:'?x.toString():null}catch{return null}}
+function avatarEl(url,name){
+  const el=document.createElement('span');el.className='sgb-av';
+  el.textContent=(String(name||'?').trim().charAt(0)||'?').toUpperCase();
+  const src=url&&safeUrl(url);
+  if(src){const img=document.createElement('img');img.alt='';img.referrerPolicy='no-referrer';img.loading='lazy';img.onerror=()=>img.remove();img.src=src;el.appendChild(img)}
+  return el;
+}
+
+/* ---- profile chip on the home page ---- */
+function renderMe(){
+  const box=q('#sgbMe');if(!box)return;
+  if(!profile&&!stats){box.classList.remove('on');return}
+  box.textContent='';
+  const name=(profile&&profile.name)||'PLAYER';
+  box.appendChild(avatarEl(profile&&profile.avatar,name));
+  const t=document.createElement('div');
+  const b=document.createElement('b');b.textContent=name;
+  const s=document.createElement('span');
+  s.textContent=stats?['RUNS '+stats.runs,'WINS '+stats.wins,'BEST '+fmt(stats.bestTimeMs),stats.rank?'RANK #'+stats.rank:null].filter(Boolean).join(' · '):'SIGNED IN VIA THE GROTTO';
+  t.appendChild(b);t.appendChild(s);box.appendChild(t);box.classList.add('on');
+}
+function refreshStats(){
+  return api('/api/me').then(j=>{
+    if(!j)return;
+    stats=j.stats;
+    if(!profile||!profile.name)profile=Object.assign({},profile,{name:j.player&&j.player.name,avatar:(profile&&profile.avatar)||(j.player&&j.player.avatar)});
+    renderMe();
+  }).catch(()=>{});
+}
+readyP.then(g=>{
+  if(!g)return;
+  g.getPlayer().then(p=>{if(p&&p.player){profile={name:p.player.displayName||null,avatar:p.player.avatar||null};renderMe()}}).catch(()=>{});
+  refreshStats();
+  setInterval(()=>{if(!document.hidden)g.heartbeat().catch(()=>{})},300000);
+});
+
+/* ---- run tracking (server clock decides the time) ---- */
+function runStart(mode){
+  const r={t0:performance.now(),localMs:null,ended:false,resultP:null};
+  run=r;
+  r.idP=readyP.then(g=>g?api('/api/run-start',{method:'POST',body:{mode}}):null).then(j=>(j&&j.runId)||null).catch(()=>null);
+}
+function runEnd(stage,completed){
+  const r=run;if(!r||r.ended)return;
+  r.ended=true;r.localMs=Math.round(performance.now()-r.t0);
+  r.resultP=r.idP.then(id=>id?api('/api/run-finish',{method:'POST',body:{runId:id,stage:stage,completed:!!completed}}):null)
+    .then(j=>{if(j&&j.stats){stats=j.stats;renderMe()}return j})
+    .catch(()=>null);
+}
+
+/* ---- result screen extras ---- */
+function setLines(wrap,ms,note){
+  wrap.textContent='';
+  const a=document.createElement('div');a.appendChild(document.createTextNode('YOUR TIME  '));
+  const b=document.createElement('b');b.textContent=fmt(ms);a.appendChild(b);wrap.appendChild(a);
+  if(note){const n=document.createElement('div');n.textContent=note;wrap.appendChild(n)}
+}
+function decorate(kind){
+  const box=q('#intro'),again=q('#again');if(!box||!again)return;
+  const lb=document.createElement('button');lb.className='ghost sgb-lbbtn';lb.textContent='LEADERBOARD';lb.onclick=openLb;
+  again.insertAdjacentElement('afterend',lb);
+  if(kind!=='won'||!run||run.localMs==null)return;
+  const r=run,local=r.localMs,wrap=document.createElement('div');wrap.className='sgb-res';
+  setLines(wrap,local,'');box.insertBefore(wrap,again);
+  readyP.then(g=>{
+    if(!wrap.isConnected)return;
+    if(!g){setLines(wrap,local,'OPEN FROM THE GROTTO TO RANK');return}
+    setLines(wrap,local,'SAVING…');
+    return(r.resultP||Promise.resolve(null)).then(res=>{
+      if(!wrap.isConnected)return;
+      if(!res){setLines(wrap,local,'COULDN’T SAVE THIS RUN');return}
+      const rank=res.stats&&res.stats.rank;
+      setLines(wrap,res.durationMs,[rank?'RANK #'+rank:null,res.newBest?'NEW PERSONAL BEST':null].filter(Boolean).join(' · '));
+    });
+  });
+}
+
+/* ---- leaderboard panel ---- */
+const lbEl=q('#sgbLb'),listEl=q('#sgbList'),footEl=q('#sgbFoot');
+function lbMsg(t){listEl.textContent='';const d=document.createElement('li');d.className='sgb-msg';d.textContent=t;listEl.appendChild(d)}
+function renderRows(entries){
+  listEl.textContent='';
+  if(!entries.length){lbMsg('NO CROSSINGS YET — BE THE FIRST');return}
+  entries.forEach(e=>{
+    const li=document.createElement('li');li.className='sgb-row'+(e.you?' you':'');
+    const rk=document.createElement('span');rk.className='sgb-rk';rk.textContent=String(e.rank);
+    const pl=document.createElement('div');pl.className='sgb-pl';pl.appendChild(avatarEl(e.avatar,e.name));
+    const nm=document.createElement('div');nm.className='sgb-nm';nm.appendChild(document.createTextNode(e.name+(e.you?' (YOU)':'')));
+    const sm=document.createElement('small');sm.textContent=e.wins+(e.wins===1?' WIN':' WINS');nm.appendChild(sm);
+    pl.appendChild(nm);
+    const tm=document.createElement('span');tm.className='sgb-tm';tm.textContent=fmt(e.timeMs);
+    li.appendChild(rk);li.appendChild(pl);li.appendChild(tm);listEl.appendChild(li);
+  });
+}
+async function openLb(){
+  if(!lbEl)return;
+  lastFocus=document.activeElement;lbOpen=true;lbEl.classList.remove('sgb-hide');
+  const x=q('#sgbLbClose');if(x)x.focus();
+  const my=++lbToken;lbMsg('LOADING…');footEl.textContent='';
+  try{
+    if(!grotto)await Promise.race([readyP,new Promise(r=>setTimeout(r,1500))]); // lets "(YOU)" show if the runtime is about to arrive; never blocks long
+    const j=await api('/api/leaderboard?limit=20');
+    if(my!==lbToken||!lbOpen)return;
+    renderRows(j.entries||[]);
+    footEl.textContent=stats&&stats.rank?'YOUR RANK #'+stats.rank+' · BEST '+fmt(stats.bestTimeMs):'FASTEST COMPLETED CROSSING PER PLAYER';
+  }catch{
+    if(my!==lbToken||!lbOpen)return;
+    lbMsg('LEADERBOARD OFFLINE');
+  }
+}
+function closeLb(){
+  if(!lbOpen)return;lbOpen=false;lbToken++;lbEl.classList.add('sgb-hide');
+  if(lastFocus&&lastFocus.focus&&document.contains(lastFocus))lastFocus.focus();
+}
+if(lbEl){
+  q('#sgbLbClose').onclick=closeLb;
+  lbEl.addEventListener('click',e=>{if(e.target===lbEl)closeLb()});
+  const hb=q('#sgbLbBtn');if(hb)hb.onclick=openLb;
+  // While the panel is open the game must not receive keys (arrows would start a run behind it).
+  window.addEventListener('keydown',e=>{if(!lbOpen)return;if(e.key==='Escape')closeLb();e.stopImmediatePropagation()},true);
+  document.addEventListener('click',e=>{if(lbOpen&&e.target.closest&&e.target.closest('.bottom .mobile button')){e.stopPropagation();e.preventDefault()}},true);
+}
+
+window.SGB={runStart,runEnd,decorate,openLb};
+})();
+</script>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <script type="module">
 import * as THREE from 'three';
@@ -431,7 +604,8 @@ function chime(){beep(660,.18,'triangle',.06);setTimeout(()=>beep(880,.22,'trian
 function resetHero(){heroPos.set(0,TOPY,startZ);hero.visible=true;shadow.visible=true;heroMat.rotation=0;fall=null;jump=null;landT=0;lean=0;crackTile=null;crackT=0}
 function begin(){
   build();stage=0;queued=null;resetHero();state='playing';showTarget();bgm.volume=.45;
-  $('#intro').classList.add('hidden');$('#stage').textContent='01';setStatus('PICK A SIDE · TAKE THE LEAP');beep(520,.1,'triangle')
+  $('#intro').classList.add('hidden');$('#stage').textContent='01';setStatus('PICK A SIDE · TAKE THE LEAP');beep(520,.1,'triangle');
+  try{window.SGB&&SGB.runStart(mode)}catch{}
 }
 function startJump(to,cb,dur=.4,h=1.2){jump={from:heroPos.clone(),to:to.clone(),t:0,dur,h,cb}}
 function doJump(side){
@@ -456,16 +630,16 @@ const ripples=[];
 function ring(tile){const m=new THREE.Mesh(new THREE.RingGeometry(.3,.36,48),new THREE.MeshBasicMaterial({color:new THREE.Color(.8,2.6,.4),transparent:true,opacity:.9,depthWrite:false,side:THREE.DoubleSide}));
   m.rotation.x=-Math.PI/2;m.position.set(tile.x,.09,tile.z);scene.add(m);ripples.push({m,t:0})}
 function die(){
-  state='dead';saveBest(stage);crash();flash.style.transition='none';flash.style.opacity=.55;requestAnimationFrame(()=>{flash.style.transition='opacity .6s ease-out';flash.style.opacity=0});
+  state='dead';saveBest(stage);try{window.SGB&&SGB.runEnd(stage,false)}catch{}crash();flash.style.transition='none';flash.style.opacity=.55;requestAnimationFrame(()=>{flash.style.transition='opacity .6s ease-out';flash.style.opacity=0});
   shake=.7;bgm.volume=.16;shatter(crackTile);shadow.visible=false;
   fall={v:0,spin:(Math.random()<.5?-1:1)*rnd(1.5,3)};setStatus('WRONG · $'+crackTile.coin.sym+' IS ON '+CHAINS[crackTile.coin.chain].name);$('#target').textContent='';
-  setTimeout(()=>{if(state!=='dead')return;$('#intro').innerHTML='<div class="eyebrow">✕ &nbsp; RUN ENDED</div><h1>YOU GOT<br>REKT.</h1><p class="result">The wrong pane shattered beneath you.<br> You made it to stage '+(stage+1)+' of 12.</p><button class="btn" id="again">RUN IT BACK ↗</button><div class="sub">THE CYCLE DOESN’T WAIT</div>';$('#intro').classList.remove('hidden');$('#again').onclick=begin},1500);
+  setTimeout(()=>{if(state!=='dead')return;$('#intro').innerHTML='<div class="eyebrow">✕ &nbsp; RUN ENDED</div><h1>YOU GOT<br>REKT.</h1><p class="result">The wrong pane shattered beneath you.<br> You made it to stage '+(stage+1)+' of 12.</p><button class="btn" id="again">RUN IT BACK ↗</button><div class="sub">THE CYCLE DOESN’T WAIT</div>';$('#intro').classList.remove('hidden');$('#again').onclick=begin;try{window.SGB&&SGB.decorate('dead')}catch{}},1500);
 }
 function win(){
-  state='winning';setStatus('THE SUPERCYCLE IS REAL');saveBest(12);$('#target').textContent='';bgm.volume=.6;
+  state='winning';setStatus('THE SUPERCYCLE IS REAL');saveBest(12);try{window.SGB&&SGB.runEnd(12,true)}catch{}$('#target').textContent='';bgm.volume=.6;
   startJump(new V3(0,TOPY,endZ),()=>{
     state='won';winT=0;fireT=0;chime();shake=.1;flash.style.transition='none';flash.style.opacity=.3;requestAnimationFrame(()=>{flash.style.transition='opacity .9s ease-out';flash.style.opacity=0});
-    setTimeout(()=>{if(state!=='won')return;$('#intro').innerHTML='<div class="eyebrow">✳ &nbsp; BRIDGE CONQUERED</div><h1>YOU ARE<br>THE REAL ONE.</h1><p class="result">12 perfect jumps. The Supercycle lives on.</p><button class="btn" id="again">PLAY AGAIN ↗</button><div class="sub">BUILT DIFFERENT. (REAL)</div>';$('#intro').classList.remove('hidden');$('#again').onclick=()=>{resetToIntro();begin()}},2600)
+    setTimeout(()=>{if(state!=='won')return;$('#intro').innerHTML='<div class="eyebrow">✳ &nbsp; BRIDGE CONQUERED</div><h1>YOU ARE<br>THE REAL ONE.</h1><p class="result">12 perfect jumps. The Supercycle lives on.</p><button class="btn" id="again">PLAY AGAIN ↗</button><div class="sub">BUILT DIFFERENT. (REAL)</div>';$('#intro').classList.remove('hidden');$('#again').onclick=()=>{resetToIntro();begin()};try{window.SGB&&SGB.decorate('won')}catch{}},2600)
   },.6,1.5);
 }
 function resetToIntro(){}
