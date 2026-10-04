@@ -83,3 +83,9 @@ Thirty players (you + 29 bots). Music plays (`Avalanche_Route.mp3`), everyone mi
 ## Red Light · Green Light is now a three.js world
 
 The 2D canvas renderer was replaced with a three.js scene that matches Glass Bridge: starfield sky and emblem moon, canyon pillars, glowing crystals, floating rocks, mist, light shafts, a glass-metal runway with LED edges that shift green → amber → red with the lamp, pylons, a finish gate, support columns over a glowing grid abyss, and a giant Sentinel that turns to face you with a sweeping red scan beam and a laser on elimination. Bloom + vignette/chromatic/grain grade, FOV kick with speed, and a chase camera that reacts to death/clear. The game logic (rounds, lamp timing, controls) is unchanged. Particles, flash and the red vignette are drawn on a transparent 2D overlay.
+
+## Super Ship lobby
+
+Open it from the hub banner (or press `L`). A chill deck on the Super Ship: dome ribs with the canyon, Glass Bridge and stars outside, a hologram of the `$SUPER` chart and stats (live from DexScreener + GeckoTerminal, 24H / 7D / 90D), a community hologram wall (tap an image to enlarge), a rolling hologram of the flyer, and portals to Glass Bridge, Red Light · Green Light and Mingle. Games opened from the lobby return to the lobby.
+
+You fly the new flyer sprite: all 16 frames (`assets/lobby/flyer.webp`, 4 angles x 4 frames) are used. Moving right/left/toward the camera/away picks the matching row; Space flies up. `lobby.js` loads on demand.

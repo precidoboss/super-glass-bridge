@@ -46,7 +46,7 @@ const HTML=`
 <div class="lb-stage"></div>
 <div class="lb-top"><div class="lb-brand"><img src="${BASE}assets/lobby/supercycle-logo-sm.png" alt=""><div>SUPER SHIP<small>LOBBY · CHILL ZONE</small></div></div><div class="lb-tick" id="lbTick">$SUPER · loading…</div></div>
 <div class="lb-tf" id="lbTf"><button data-tf="24H" class="on">24H</button><button data-tf="7D">7D</button><button data-tf="90D">90D</button><a href="${DEX_URL}" target="_blank" rel="noopener">DEXSCREENER ↗</a></div>
-<div class="lb-hint"><b>W A S D</b> / <b>ARROWS</b> WALK &nbsp;·&nbsp; <b>SPACE</b> HOP<br>WALK INTO A PORTAL OR TAP IT · TAP HOLOGRAMS TO INSPECT</div>
+<div class="lb-hint"><b>W A S D</b> / <b>ARROWS</b> WALK &nbsp;·&nbsp; <b>SPACE</b> FLY UP<br>WALK INTO A PORTAL OR TAP IT · TAP HOLOGRAMS TO INSPECT</div>
 <div class="lb-joy" id="lbJoy"><i></i></div>
 <div class="lb-bar"><button id="lbAll">◂ ALL GAMES</button><button id="lbSound">SOUND: ON</button></div>
 <div class="lb-toast" id="lbToast"></div><div class="lb-flash" id="lbFlash"></div>
@@ -93,12 +93,12 @@ function create(){
 
   // hologram material: scanlines + flicker + edge glow. mode 'img' (opaque pictures) or 'sprite' (cut-out characters, additive)
   const SHADER_V=`varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`;
-  function holoMat(map,{mode='img',tint=[.5,1,.65],map2=null,off=[0,0,1,1],op=1}={}){
-    return new THREE.ShaderMaterial({uniforms:{map:{value:map},map2:{value:map2||map},two:{value:map2?1:0},time:U.time,tint:{value:new THREE.Vector3(...tint)},mode:{value:mode==='sprite'?1:0},op:{value:op},r1:{value:new THREE.Vector4(...off)}},
+  function holoMat(map,{mode='img',tint=[.5,1,.65],map2=null,off=[0,0,1,1],off2=[0,0,1,1],op=1}={}){
+    return new THREE.ShaderMaterial({uniforms:{map:{value:map},map2:{value:map2||map},two:{value:map2?1:0},time:U.time,tint:{value:new THREE.Vector3(...tint)},mode:{value:mode==='sprite'?1:0},op:{value:op},r1:{value:new THREE.Vector4(...off)},r2:{value:new THREE.Vector4(...off2)}},
       vertexShader:SHADER_V,transparent:true,depthWrite:false,side:THREE.DoubleSide,blending:mode==='sprite'?THREE.AdditiveBlending:THREE.NormalBlending,
-      fragmentShader:`uniform sampler2D map,map2;uniform float two,time,mode,op;uniform vec3 tint;uniform vec4 r1;varying vec2 vUv;
+      fragmentShader:`uniform sampler2D map,map2;uniform float two,time,mode,op;uniform vec3 tint;uniform vec4 r1,r2;varying vec2 vUv;
       void main(){vec2 uv=vUv;vec4 t;
-        if(two>.5){if(gl_FrontFacing)t=texture2D(map,uv*r1.zw+r1.xy);else t=texture2D(map2,vec2(1.-uv.x,uv.y));}else t=texture2D(map,uv*r1.zw+r1.xy);
+        if(two>.5){if(gl_FrontFacing)t=texture2D(map,uv*r1.zw+r1.xy);else t=texture2D(map2,vec2(1.-uv.x,uv.y)*r2.zw+r2.xy);}else t=texture2D(map,uv*r1.zw+r1.xy);
         float scan=.8+.2*sin(uv.y*260.+time*7.);float flick=.9+.1*sin(time*31.+uv.y*7.);float sweep=exp(-pow((fract(time*.33)-uv.y)*14.,2.));
         float gl=step(.992,fract(sin(floor(time*9.)*91.7)*43758.5));uv.x+=gl*.02;
         if(mode>.5){float l=dot(t.rgb,vec3(.3,.59,.11));vec3 col=mix(vec3(l),t.rgb,.5)*tint*2.0;col+=tint*sweep*.8;float a=t.a*scan*flick*op;gl_FragColor=vec4(col,a);}
@@ -161,31 +161,37 @@ function create(){
   const spot=new THREE.PointLight(0xc8ff43,40,26,2);spot.position.set(0,6,0);scene.add(spot);
 
   /* ---------- hero hologram: rolls front -> back -> front ---------- */
-  const station={x:0,z:-2.4};
+  const station={x:0,z:1.2};
   const hologramGroup=new THREE.Group();hologramGroup.position.set(station.x,0,station.z);scene.add(hologramGroup);
   hologramGroup.add(at(new THREE.Mesh(new THREE.CylinderGeometry(1.9,2.3,.5,40),metalM),0,.25,0));
   for(const [r,m,y] of[[1.85,limeM,.52],[1.5,redM,.54]]){const t=new THREE.Mesh(new THREE.TorusGeometry(r,.05,8,64),m);t.rotation.x=Math.PI/2;t.position.y=y;hologramGroup.add(t)}
   const beamM=new THREE.MeshBasicMaterial({color:0x7bff3a,transparent:true,opacity:.07,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide,fog:false});
   hologramGroup.add(at(new THREE.Mesh(new THREE.CylinderGeometry(1.4,1.8,4.8,32,1,true),beamM),0,2.9,0));
-  const heroPlane=new THREE.Mesh(new THREE.PlaneGeometry(3,3.43),new THREE.MeshBasicMaterial({visible:false}));heroPlane.position.y=2.7;hologramGroup.add(heroPlane);
-  const heroLabel=labelSprite('SUPER HERO',{w:3.4,size:58,sub:'HOLOGRAM · LIVE'});heroLabel.position.set(0,5.35,0);hologramGroup.add(heroLabel);
+  const heroPlane=new THREE.Mesh(new THREE.PlaneGeometry(3.6,2.86),new THREE.MeshBasicMaterial({visible:false}));heroPlane.position.y=2.75;hologramGroup.add(heroPlane);
+  const heroLabel=labelSprite('SUPER HERO',{w:3.4,size:58,sub:'HOLOGRAM · LIVE'});heroLabel.position.set(0,4.35,0);hologramGroup.add(heroLabel);
   const rings=[];for(let i=0;i<3;i++){const t=new THREE.Mesh(new THREE.TorusGeometry(1.55-i*.16,.025,6,64),i%2?redM:limeM);t.rotation.x=Math.PI/2;hologramGroup.add(t);rings.push(t)}
 
-  /* ---------- sprites: front atlas + back frames (player & hologram) ---------- */
-  const frontF=[],backF=[];let atlas=null;
-  const heroSpriteMat=new THREE.SpriteMaterial({transparent:true,alphaTest:.3,fog:false});
-  const player={x:0,z:9.5,vx:0,vz:0,face:1,ph:0,hop:0,hy:0,moving:false,dir:'front'};
-  const hero=new THREE.Sprite(heroSpriteMat);hero.scale.set(SH*.875,SH,1);hero.renderOrder=3;scene.add(hero);
+  /* ---------- the flyer: 4 angles x 4 frames (row 0 = flying right, 1 = front, 2 = flying left, 3 = back) ---------- */
+  const FL={cw:392,ch:311},FH=2.6,FW=FH*FL.cw/FL.ch;
+  const flyF=[];
+  const heroSpriteMat=new THREE.SpriteMaterial({transparent:true,alphaTest:.25,fog:false});let heroInit=false;
+  const player={x:0,z:9.5,vx:0,vz:0,ph:0,alt:1.3,vy:0,row:1,moving:false};
+  const hero=new THREE.Sprite(heroSpriteMat);hero.scale.set(FW,FH,1);hero.renderOrder=3;scene.add(hero);
   const heroShadow=new THREE.Mesh(new THREE.CircleGeometry(.8,20),new THREE.MeshBasicMaterial({color:0,transparent:true,opacity:.4,depthWrite:false}));heroShadow.rotation.x=-Math.PI/2;heroShadow.position.y=.03;scene.add(heroShadow);
-  const tag=labelSprite('YOU',{w:1.1,size:70,color:'#0a1405',glow:'#d4ff3a'});tag.visible=false;
   const arrowM=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,color:0xd4ff3a,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,fog:false}));arrowM.scale.set(.9,.9,1);scene.add(arrowM);
-  loadTex('assets/mingle/p0.webp',t=>{atlas=t;for(let i=0;i<8;i++){const c=t.clone();c.needsUpdate=true;c.repeat.set(1/8,1);c.offset.set(i/8,0);frontF.push(c)}
-    const holoFront=holoMat(t,{mode:'sprite',tint:[.45,1,.55],off:[2.06/8,0,.88/8,1],map2:backH&&backH[1]||null});heroPlane.material=holoFront;heroMaterialReady()});
-  const backH=[];
-  const loadBack=n=>{const t=tl.load(BASE+'sprites/back_a_'+n+'.png',()=>{heroMaterialReady()});t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=4;return t};
-  const backTex=[1,2,3,4].map(loadBack);backH[1]=backTex[1];
-  for(const t of backTex){backF.push(t)}
-  function heroMaterialReady(){if(!atlas||!backTex[1].image)return;const t=atlas,m=holoMat(t,{mode:'sprite',tint:[.5,1,.6],off:[2.06/8,0,.88/8,1],map2:backTex[1]});heroPlane.material=m}
+  const ROLL=[1,3,0,2];let rollAng=0,rollIdx=0,lastEdge=0,faceF=1,faceB=3;
+  loadTex('assets/lobby/flyer.webp',t=>{
+    for(let r=0;r<4;r++){flyF[r]=[];for(let c=0;c<4;c++){const x=t.clone();x.needsUpdate=true;x.repeat.set(.25,.25);x.offset.set(c*.25,1-(r+1)*.25);flyF[r][c]=x}}
+    heroPlane.material=holoMat(t,{mode:'sprite',tint:[.5,1,.6],map2:t,off:[0,1-2*.25,.25,.25],off2:[0,1-4*.25,.25,.25]});
+  });
+  // the hologram rolls: front -> (edge-on) back -> side -> other side -> front... every angle of the flyer gets its turn
+  function rollHologram(dt){
+    rollAng+=dt*1.1;heroPlane.rotation.y=rollAng;const m=heroPlane.material;if(!m.uniforms)return;
+    const k=Math.floor((rollAng+Math.PI/2)/Math.PI);
+    if(k!==lastEdge){lastEdge=k;rollIdx=(rollIdx+1)%4;if(k%2)faceB=ROLL[rollIdx];else faceF=ROLL[rollIdx]}
+    const fr=Math.floor(time*8)%4;
+    m.uniforms.r1.value.set(fr*.25,1-(faceF+1)*.25,.25,.25);m.uniforms.r2.value.set(fr*.25,1-(faceB+1)*.25,.25,.25);
+  }
 
   /* ---------- $SUPER chart station (left) ---------- */
   const chart=new THREE.Group();chart.position.set(-10.2,0,-3.2);scene.add(chart);
@@ -272,7 +278,7 @@ function create(){
   const lightbox=$('#lbLight');lightbox.onclick=()=>lightbox.classList.remove('on');
 
   /* ---------- logo sign over the portals ---------- */
-  loadTex('assets/lobby/supercycle-logo.webp',t=>{const s=new THREE.Mesh(new THREE.PlaneGeometry(4.6,4.6),holoMat(t,{tint:[.7,1,.75]}));s.position.set(0,8.2,-(RAD-1.4));scene.add(s);
+  loadTex('assets/lobby/supercycle-logo.webp',t=>{const s=new THREE.Mesh(new THREE.PlaneGeometry(4.6,4.6),holoMat(t,{tint:[.7,1,.75]}));s.position.set(0,9.6,-(RAD-1.4));scene.add(s);
     const lr=new THREE.Mesh(new THREE.TorusGeometry(2.7,.05,8,80),limeM);lr.position.copy(s.position);scene.add(lr);logoRing=lr});
   let logoRing=null;
 
@@ -292,7 +298,7 @@ function create(){
         vec3 o=c*.85+col*sw*.22*(1.-r*1.2);o*=.8+.2*sin(vUv.y*220.+time*6.);o+=col*smoothstep(.36,.5,r)*.9;gl_FragColor=vec4(o,smoothstep(.5,.46,r));}`});
     const disc=new THREE.Mesh(new THREE.CircleGeometry(2.04,56),pm);disc.position.y=2.45;disc.userData={portal:d.k};g.add(disc);
     loadTex(d.img,t=>{pm.uniforms.map.value=t});
-    const lab=labelSprite(d.name,{w:4.8,size:d.name.length>14?46:62,sub:d.sub,color:'#fff',glow:'#'+d.col.toString(16).padStart(6,'0')});lab.position.set(0,5.2,.1);lab.rotation.y=0;g.add(lab);
+    const lab=labelSprite(d.name,{w:4.8,size:d.name.length>18?36:d.name.length>10?52:62,sub:d.sub,color:'#fff',glow:'#'+d.col.toString(16).padStart(6,'0')});lab.position.set(0,5.2,.1);lab.rotation.y=0;g.add(lab);
     const pl=new THREE.PointLight(d.col,18,12,2);pl.position.set(0,2.5,1.5);g.add(pl);
     portals.push({d,g,disc,ring,ring2,wx:g.position.x,wz:g.position.z});
   }
@@ -314,7 +320,7 @@ function create(){
 
   /* ---------- input ---------- */
   const keys=new Set();let joy={x:0,z:0};
-  const kd=e=>{if(!visible)return;const k=e.key.toLowerCase();if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright',' '].includes(k)){e.preventDefault();e.stopImmediatePropagation();if(k===' '){if(player.hop<=0&&!lightbox.classList.contains('on')){player.hop=1;tone(520,.12,'triangle',.04,780);emit(player.x,.2,player.z,10,0xc8ff43,1.4,1)}}else keys.add(k)}
+  const kd=e=>{if(!visible)return;const k=e.key.toLowerCase();if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright',' '].includes(k)){e.preventDefault();e.stopImmediatePropagation();keys.add(k)}
     if(k==='escape'){if(lightbox.classList.contains('on'))lightbox.classList.remove('on');else if(api.onExit)api.onExit()}};
   addEventListener('keydown',kd,true);addEventListener('keyup',e=>{if(visible)keys.delete(e.key.toLowerCase())},true);addEventListener('blur',()=>keys.clear());
   const joyEl=$('#lbJoy'),knob=joyEl.firstElementChild;let jid=null;
@@ -344,13 +350,15 @@ function create(){
     player.x+=player.vx*dt;player.z+=player.vz*dt;
     const d=Math.hypot(player.x,player.z);if(d>RAD-1.1){player.x*=(RAD-1.1)/d;player.z*=(RAD-1.1)/d}
     for(const c of colliders){const dx=player.x-c.x,dz=player.z-c.z,dd=Math.hypot(dx,dz);if(dd<c.r){const kk=c.r/Math.max(dd,.01);player.x=c.x+dx*kk;player.z=c.z+dz*kk}}
-    const spd=Math.hypot(player.vx,player.vz);player.moving=spd>.6;if(player.vx>.4)player.face=1;else if(player.vx<-.4)player.face=-1;
-    player.dir=(player.moving&&player.vz<-Math.abs(player.vx)*.7)?'back':'front';player.ph+=spd*dt*.34;
-    if(player.hop>0){player.hop-=dt*2.2;player.hy=Math.sin(Math.max(0,player.hop)*Math.PI)*1.1}else player.hy=0;
+    const spd=Math.hypot(player.vx,player.vz);player.moving=spd>.6;
+    if(player.moving)player.row=Math.abs(player.vx)>Math.abs(player.vz)*.8?(player.vx>0?0:2):(player.vz>0?1:3);else player.row=1;
+    player.ph+=dt*(player.moving?11:6);
+    const rise=ctl&&keys.has(' ');player.vy+=((rise?4.4:(player.alt>1.45?-2.6:0))-player.vy)*Math.min(1,dt*6);player.alt=clamp(player.alt+player.vy*dt,1.3,6.6);if(!rise&&player.alt<=1.3)player.vy=0;
+    if(rise&&Math.random()<dt*30)emit(player.x+rnd(-.3,.3),player.alt-.9,player.z+rnd(-.2,.2),1,0xc8ff43,1.2,-.3);
     // portals: walk in
-    for(const p of portals){const dx=player.x-p.wx,dz=player.z-(p.wz+1.0);if(Math.abs(dx)<1.5&&dz>-1.2&&dz<1.2&&ctl)enterPortal(p.d.k)}
+    for(const p of portals){const dx=player.x-p.wx,dz=player.z-(p.wz+1.0);if(Math.abs(dx)<1.5&&dz>-1.2&&dz<1.2&&ctl&&player.alt<5.2)enterPortal(p.d.k)}
     // hologram rolling
-    heroPlane.rotation.y+=dt*1.15;hologramGroup.children.forEach(()=>{});
+    rollHologram(dt);
     rings.forEach((r,i)=>{r.position.y=.9+((time*.5+i*.33)%1)*3.6;r.material.opacity=1});
     holoBox.rotation.y=0;
     // stations face the player a bit
@@ -366,24 +374,23 @@ function create(){
     meteorT-=dt;if(meteorT<=0){meteorT=rnd(3,7);const mt=meteors.find(x=>x.life<=0);if(mt){mt.life=1.2;mt.s.visible=true;mt.s.position.set(rnd(-200,200),rnd(60,160),-300);const sp2=rnd(90,150)*(Math.random()<.5?-1:1);mt.vx=sp2;mt.vy=-rnd(25,60);mt.s.material.rotation=Math.atan2(mt.vy,mt.vx)}}
     for(const mt of meteors)if(mt.life>0){mt.life-=dt;mt.s.position.x+=mt.vx*dt;mt.s.position.y+=mt.vy*dt;mt.s.material.opacity=Math.max(0,Math.min(1,mt.life*2))*.9;if(mt.life<=0)mt.s.visible=false}
     for(let i=0;i<motes.length;i++){const mo=motes[i];mo.y+=mo.s*dt;if(mo.y>9.5)mo.y=.4;mP[i*3]=mo.x+Math.sin(time*.5+i)*.4;mP[i*3+1]=mo.y;mP[i*3+2]=mo.z}mGeo.attributes.position.needsUpdate=true;
-    if(player.moving&&Math.random()<dt*14)emit(player.x+rnd(-.2,.2),.1,player.z+rnd(-.2,.2),1,0x7bff3a,.5,.4);
+    if(player.moving&&Math.random()<dt*18)emit(player.x+rnd(-.25,.25),player.alt-.8,player.z+rnd(-.25,.25),1,0x7bff3a,.6,.2);
     updParticles(dt);
     if(toastT>0){toastT-=dt;if(toastT<=0)toastEl.classList.remove('on')}
   }
   function renderHero(){
-    const cyc=player.ph%1,f=player.moving?Math.floor(cyc*4)%4:3;let mat=null;
-    if(player.dir==='back'&&backF.length){mat=backF[player.moving?Math.floor(cyc*4)%4:0]}
-    else if(frontF.length){mat=frontF[(player.face>0?0:4)+f]}
-    if(mat){heroSpriteMat.map=mat;heroSpriteMat.needsUpdate=false}
-    const hop=(player.moving?Math.abs(Math.sin(cyc*Math.PI*2))*.25:Math.sin(time*3)*.02+.02)+player.hy;
-    hero.position.set(player.x,SH/2+hop,player.z);heroShadow.position.set(player.x,.04,player.z);heroShadow.scale.setScalar(1-player.hy*.35);
-    arrowM.position.set(player.x,SH+.75+Math.sin(time*5)*.1,player.z);
+    const fr=Math.floor(player.ph)%4;
+    if(flyF[player.row]){heroSpriteMat.map=flyF[player.row][fr];if(!heroInit){heroSpriteMat.needsUpdate=true;heroInit=true}}
+    const bob=Math.sin(time*2.4)*.12;
+    hero.position.set(player.x,player.alt+bob+FH*.05,player.z);
+    const sh=Math.max(.35,1-(player.alt-1.3)*.12);heroShadow.position.set(player.x,.04,player.z);heroShadow.scale.setScalar(sh*1.3);heroShadow.material.opacity=.42*sh;
+    arrowM.position.set(player.x,player.alt+FH*.64+Math.sin(time*5)*.1,player.z);
   }
   const camLook=new THREE.Vector3(0,1.5,0);camera.position.set(0,8,15);
   function camUpdate(dt){
-    const px=player.x*.55,pz=player.z*.55;const tx=px,ty=7.2,tz=Math.min(pz+8.8,RAD-1.8),lx=px*.9,lz=pz-4;
+    const px=player.x*.55,pz=player.z*.55;const tx=px,ty=8.4+(player.alt-1.3)*.35,tz=Math.min(pz+9.8,RAD-1.1),lx=px*.9,lz=pz-4;
     const k=1-Math.exp(-dt*3.2);camera.position.x+=(tx-camera.position.x)*k;camera.position.y+=(ty-camera.position.y)*k;camera.position.z+=(tz-camera.position.z)*k;
-    camLook.x+=(lx-camLook.x)*k;camLook.z+=(lz-camLook.z)*k;camLook.y=1.9;camera.lookAt(camLook);
+    camLook.x+=(lx-camLook.x)*k;camLook.z+=(lz-camLook.z)*k;camLook.y=1.9+(player.alt-1.3)*.4;camera.lookAt(camLook);
   }
   const perf={a:0,n:0,t:performance.now()};
   function frame(now){
@@ -397,7 +404,7 @@ function create(){
     root.classList.remove('lb-off');visible=true;resize();entering=false;flash.style.opacity=0;lightbox.classList.remove('on');
     player.x=player.z>0?player.x:0;if(!booted){booted=true;refreshInfo();refreshChart()}
     // spawn in front of the portals, away from the one you just used
-    player.x=0;player.z=8.6;player.vx=player.vz=0;
+    player.x=0;player.z=6.2;player.vx=player.vz=0;
     if(soundOn)music.play().catch(()=>{});last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(frame);
     toast('WELCOME ABOARD THE SUPER SHIP');
   };
