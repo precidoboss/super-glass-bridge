@@ -179,10 +179,17 @@ header:after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;
 @media(max-height:700px){.rlh h1{font-size:clamp(38px,7vw,60px)}.rlh p,.rlh-stats{display:none}}
 .rl #rlCanvas{position:absolute;inset:0;width:100%;height:100%;z-index:1}.rl .hud,.rl .rl-prog,.rl .rl-count,.rl .intro,.rl .rl-run,.rl .rl-exit{z-index:3}
 body[data-view="rl"] .app>header,body[data-view="rl"] .app>.bottom,body[data-view="rl"] .app header,body[data-view="rl"] .app .bottom{display:none!important}
+
+.lobbybtn{display:flex;align-items:center;gap:16px;width:100%;text-align:left;cursor:pointer;margin:0 0 22px;padding:14px 18px;border-radius:20px;border:1px solid rgba(212,255,58,.35);background:linear-gradient(110deg,rgba(40,90,20,.55),rgba(8,20,12,.9) 60%,rgba(70,14,18,.5));color:inherit;font:inherit;position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s,border-color .25s}
+.lobbybtn:hover{transform:translateY(-3px);border-color:#d4ff3a;box-shadow:0 18px 60px #000a,0 0 50px rgba(125,220,31,.3)}
+.lobbybtn img{width:64px;height:64px;border-radius:16px;object-fit:cover;flex:none;box-shadow:0 0 28px rgba(125,220,31,.4)}
+.lobbybtn b{display:block;font-size:17px;letter-spacing:.08em}.lobbybtn span{display:block;font-size:12.5px;line-height:1.55;color:#a9bdad;margin-top:4px;max-width:640px}
+.lobbybtn em{margin-left:auto;font:700 11px 'Space Grotesk';letter-spacing:.18em;font-style:normal;padding:10px 16px;border-radius:999px;background:linear-gradient(110deg,#e0ff4a,#8fe321);color:#0a1405;flex:none}
+@media(max-width:650px){.lobbybtn{flex-wrap:wrap}.lobbybtn em{margin-left:0}}
 </style></head><body><section class="hub" id="hub" aria-label="Super Games"><div class="hub-bg" id="hubBg"></div><div class="hub-in">
 <header class="hub-top"><div class="hub-brand"><img src="assets/super-games-logo.webp" alt="" class="hub-mini"><span>SUPER GAMES<small>BY SUPERCYCLE</small></span></div><div class="tags"><span class="tag av"><i></i>AVAX</span><span class="tag rh"><i></i>ROBINHOOD</span><span class="live">THE CYCLE IS REAL</span></div></header>
 <div class="hub-hero"><img class="hub-logo" src="assets/super-games-logo.webp" alt="Super Games (Real)"><div class="hub-copy"><div class="eyebrow">✳ &nbsp; THE SUPERCYCLE ARCADE</div><h1>SUPER<br><span>GAMES.</span></h1><p>Survival games built different. Pick a game, open its home page, and play. More are on the way.</p></div></div>
-<div class="hub-lbl">CHOOSE YOUR GAME</div>
+<button class="lobbybtn" id="openLobby"><img src="assets/lobby/supercycle-logo-sm.png" alt=""><div><b>ENTER THE SUPER SHIP LOBBY</b><span>Walk the deck, see the $SUPER hologram chart, community holograms, and jump into any game through a portal.</span></div><em>ENTER ↗</em></button><div class="hub-lbl">CHOOSE YOUR GAME</div>
 <div class="hub-grid">
 <button class="gcard" data-g="bridge" data-bg="assets/previews/glass-bridge.jpg"><div class="gprev"><i style="background-image:url(assets/previews/glass-bridge.jpg)"></i></div><span class="gnum">01</span><span class="ggo">PLAY ↗</span><div class="gmeta"><h3>GLASS BRIDGE</h3><p>Two coins every step. One lives on Avalanche, one on Robinhood Chain. Pick the right chain or the glass breaks.</p><div class="gtags"><span>12 STAGES</span><span>AVAX × ROBINHOOD</span><span>LEADERBOARD</span></div></div></button>
 <button class="gcard" data-g="rl" data-bg="assets/previews/red-light.jpg"><div class="gprev"><i style="background-image:url(assets/previews/red-light.jpg)"></i></div><span class="gnum">02</span><span class="ggo">PLAY ↗</span><div class="gmeta"><h3>RED LIGHT · GREEN LIGHT</h3><p>Run on green, freeze on red. Five rounds of fake warnings and snap reds. Don't move when it's watching.</p><div class="gtags"><span>5 ROUNDS</span><span>REFLEXES</span></div></div></button>
@@ -1386,23 +1393,31 @@ const hub=$('#hub'),hubBg=$('#hubBg');let mg=null,_rlOn=false;
 function setView(v){window.__sgView=v;document.body.dataset.view=v;hub.classList.toggle('hub-off',v!=='hub');
   if(v!=='sgb')bgm.pause();if(v!=='rl'&&window.__rlBgm)window.__rlBgm.pause();if(v==='sgb'){bgm.volume=.45}if(v==='sgb'||v==='rl')kick()}
 // the Red Light module flips window.__rlOn on enter/exit; mirror that into the router
-Object.defineProperty(window,'__rlOn',{configurable:true,get:()=>_rlOn,set:v=>{_rlOn=!!v;if(v&&window.__sgView!=='rl')setView('rl');else if(!v&&window.__sgView==='rl')setView('hub')}});
-function leaveAll(){if(RL&&_rlOn)RL.exit();if(mg)mg.close()}
-function openHub(){leaveAll();setView('hub')}
+Object.defineProperty(window,'__rlOn',{configurable:true,get:()=>_rlOn,set:v=>{_rlOn=!!v;if(v&&window.__sgView!=='rl')setView('rl');else if(!v&&window.__sgView==='rl'&&!navigating)back()}});
+let lb=null,from='hub',navigating=false;
+function leaveAll(){navigating=true;try{if(RL&&_rlOn)RL.exit();if(mg)mg.close();if(lb)lb.close()}finally{navigating=false}}
+function openHub(){from='hub';leaveAll();setView('hub')}
+function back(){from==='lobby'?openLobby():openHub()}
 function openBridge(){leaveAll();setView('sgb');goHome()}
 function openRL(){if(!RL)return;leaveAll();setView('rl');RL.enter()}
 async function openMingle(){
   leaveAll();setView('mg');
-  try{mg=await import('./mingle.js');await mg.open(openHub)}catch(err){console.warn('Mingle failed to load',err);setView('hub')}
+  try{mg=await import('./mingle.js');await mg.open(back)}catch(err){console.warn('Mingle failed to load',err);setView('hub')}
+}
+const GAMES={bridge:openBridge,rl:openRL,mingle:openMingle};
+async function openLobby(){
+  leaveAll();setView('lobby');
+  try{lb=await import('./lobby.js');lb.open({onExit:openHub,onPortal:g=>{from='lobby';GAMES[g]()}})}catch(err){console.warn('Lobby failed to load',err);setView('hub')}
 }
 document.querySelectorAll('.gcard[data-g]').forEach(c=>{
-  c.addEventListener('click',()=>({bridge:openBridge,rl:openRL,mingle:openMingle})[c.dataset.g]());
+  c.addEventListener('click',()=>{from='hub';GAMES[c.dataset.g]()});
   c.addEventListener('mouseenter',()=>{hubBg.style.backgroundImage='url('+c.dataset.bg+')'});
 });
 hubBg.style.backgroundImage='url(assets/previews/glass-bridge.jpg)';
 $('#rlSound').onclick=()=>{soundOn=!soundOn;const t='SOUND: '+(soundOn?'ON':'OFF');$('#rlSound').textContent=t;$('#sound').textContent=t;if(soundOn)kick();else{bgm.pause();window.__rlBgm&&window.__rlBgm.pause()}};
-$('#toHub').onclick=openHub;$('#hubBtn').onclick=openHub;
-addEventListener('keydown',e=>{if(window.__sgView==='hub'&&(e.key==='1'||e.key==='2'||e.key==='3')){const c=document.querySelectorAll('.gcard[data-g]')[+e.key-1];c&&c.click()}});
+$('#toHub').onclick=back;$('#hubBtn').onclick=back;$('#openLobby').onclick=()=>{from='hub';openLobby()};
+addEventListener('keydown',e=>{if(window.__sgView==='hub'&&(e.key==='l'||e.key==='L'||e.key==='4')){from='hub';openLobby();return}
+  if(window.__sgView==='hub'&&(e.key==='1'||e.key==='2'||e.key==='3')){const c=document.querySelectorAll('.gcard[data-g]')[+e.key-1];c&&c.click()}});
 setView('hub');
 }
 /* RL:END */
