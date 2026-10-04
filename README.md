@@ -79,3 +79,7 @@ Thirty players (you + 29 bots). Music plays (`Avalanche_Route.mp3`), everyone mi
 - **Mingle** music is now `Four_Seats_Total.mp3`. Glass Bridge keeps `Avalanche_Route.mp3`.
 - **Glass Bridge logos:** coin logos now load direct, then through CORS-enabled image proxies (wsrv.nl, weserv) so they actually reach WebGL; panes prefer coins that have a logo.
 - **Glass Bridge design:** neon under-bridge glow, checkpoint arches every 3 stages, rail row numbers, canyon light shafts, giant halo rings and a glow behind the finish, meteors, hero aura and jump trail, FOV kick on jumps, death slow-mo, the unchosen pane shatters after a correct jump, a victory light beam, and a vignette/chromatic/grain grade pass.
+
+## Red Light · Green Light is now a three.js world
+
+The 2D canvas renderer was replaced with a three.js scene that matches Glass Bridge: starfield sky and emblem moon, canyon pillars, glowing crystals, floating rocks, mist, light shafts, a glass-metal runway with LED edges that shift green → amber → red with the lamp, pylons, a finish gate, support columns over a glowing grid abyss, and a giant Sentinel that turns to face you with a sweeping red scan beam and a laser on elimination. Bloom + vignette/chromatic/grain grade, FOV kick with speed, and a chase camera that reacts to death/clear. The game logic (rounds, lamp timing, controls) is unchanged. Particles, flash and the red vignette are drawn on a transparent 2D overlay.
