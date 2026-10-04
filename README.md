@@ -94,3 +94,11 @@ You fly the new flyer sprite: all 16 frames (`assets/lobby/flyer.webp`, 4 angles
 ## Eye World · Story mode
 
 `story.js` (loaded on demand like Mingle and the lobby) is a short three.js story game: a mission briefing at Supercycle HQ, a ship flight to the Eye World, a landing and fight through eye-styled sentries, then the Overseer Eye, an eye wired into the grid that powers the world, which you beat by solving its power-sequence puzzle. It uses `assets/lobby/supercycle-logo.webp`, `assets/lobby/flyer.webp`, `Avalanche_Route.mp3` and `Locked_In_The_Green.mp3`. Open it from the hub card **04 · Eye World** (or press `S` on the hub). Hub preview: `assets/previews/story.jpg`.
+
+## Eye World update
+
+- **Lobby portal**: the Super Ship lobby now has a fourth portal, EYE WORLD, that launches story mode.
+- **Flying character fix**: the flyer sprite frames are now cut into independent canvas textures (the old cloned sprite-sheet textures rendered as a plain white card in the lobby and in Eye World).
+- **Free roam in Space HQ**: after the briefing you walk (and fly up with SPACE) around the HQ. Talk to CYCLE-OS, scan the holo table, and press `E` next to the ship to board.
+- **You fly the ship**: WASD / joystick to steer, hold SPACE (or the DASH button) to boost, fly through the green rings for boost and score, and dodge asteroids. When you get close to the Eye planet a cutscene plays (the Eye locks on, then you dive in).
+- **Upgraded visuals**: new fighter model (lathe fuselage, swept wings, twin engines, glowing trim), richer space (asteroid field, nebulae, watching eyes, ringed Eye planet) and a denser Eye World (ribcage arches, crystal clusters, veined ground, floating eyes, god-rays, mist, dust, a spinning gyroscope and shards around the Overseer).

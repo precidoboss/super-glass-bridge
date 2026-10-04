@@ -174,14 +174,14 @@ function create(){
   /* ---------- the flyer: 4 angles x 4 frames (row 0 = flying right, 1 = front, 2 = flying left, 3 = back) ---------- */
   const FL={cw:392,ch:311},FH=2.6,FW=FH*FL.cw/FL.ch;
   const flyF=[];
-  const heroSpriteMat=new THREE.SpriteMaterial({transparent:true,alphaTest:.25,fog:false});let heroInit=false;
+  const heroSpriteMat=new THREE.ShaderMaterial({uniforms:{map:{value:null},r:{value:new THREE.Vector4(0,.5,.25,.25)},op:{value:1}},vertexShader:`varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,fragmentShader:`uniform sampler2D map;uniform vec4 r;uniform float op;varying vec2 vUv;void main(){vec4 t=texture2D(map,vUv*r.zw+r.xy);if(t.a<.04)discard;gl_FragColor=vec4(t.rgb,t.a*op);}`,transparent:true,depthWrite:false,side:THREE.DoubleSide});let heroInit=false;
   const player={x:0,z:9.5,vx:0,vz:0,ph:0,alt:1.3,vy:0,row:1,moving:false};
-  const hero=new THREE.Sprite(heroSpriteMat);hero.scale.set(FW,FH,1);hero.renderOrder=3;scene.add(hero);
+  const hero=new THREE.Mesh(new THREE.PlaneGeometry(FW,FH),heroSpriteMat);hero.renderOrder=3;hero.visible=false;hero.frustumCulled=false;scene.add(hero);
   const heroShadow=new THREE.Mesh(new THREE.CircleGeometry(.8,20),new THREE.MeshBasicMaterial({color:0,transparent:true,opacity:.4,depthWrite:false}));heroShadow.rotation.x=-Math.PI/2;heroShadow.position.y=.03;scene.add(heroShadow);
   const arrowM=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,color:0xd4ff3a,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,fog:false}));arrowM.scale.set(.9,.9,1);scene.add(arrowM);
   const ROLL=[1,3,0,2];let rollAng=0,rollIdx=0,lastEdge=0,faceF=1,faceB=3;
   loadTex('assets/lobby/flyer.webp',t=>{
-    for(let r=0;r<4;r++){flyF[r]=[];for(let c=0;c<4;c++){const x=t.clone();x.needsUpdate=true;x.repeat.set(.25,.25);x.offset.set(c*.25,1-(r+1)*.25);flyF[r][c]=x}}
+    heroSpriteMat.uniforms.map.value=t;heroInit=true;hero.visible=true;
     heroPlane.material=holoMat(t,{mode:'sprite',tint:[.5,1,.6],map2:t,off:[0,1-2*.25,.25,.25],off2:[0,1-4*.25,.25,.25]});
   });
   // the hologram rolls: front -> (edge-on) back -> side -> other side -> front... every angle of the flyer gets its turn
@@ -284,7 +284,7 @@ function create(){
 
   /* ---------- portals to the games (south wall) ---------- */
   const portals=[];
-  const PDEF=[{k:'bridge',name:'GLASS BRIDGE',sub:'12 STAGES · AVAX × ROBINHOOD',x:-7.2,col:0x7bff3a,img:'assets/previews/glass-bridge.jpg'},{k:'rl',name:'RED LIGHT · GREEN LIGHT',sub:'5 ROUNDS · DON\'T MOVE',x:0,col:0xff4d4f,img:'assets/previews/red-light.jpg'},{k:'mingle',name:'MINGLE',sub:'30 PLAYERS · FORM GROUPS',x:7.2,col:0xc8ff43,img:'assets/previews/mingle.jpg'}];
+  const PDEF=[{k:'bridge',name:'GLASS BRIDGE',sub:'12 STAGES · AVAX × ROBINHOOD',x:-8.4,col:0x7bff3a,img:'assets/previews/glass-bridge.jpg'},{k:'rl',name:'RED LIGHT · GREEN LIGHT',sub:'5 ROUNDS · DON\'T MOVE',x:-2.8,col:0xff4d4f,img:'assets/previews/red-light.jpg'},{k:'mingle',name:'MINGLE',sub:'30 PLAYERS · FORM GROUPS',x:2.8,col:0xc8ff43,img:'assets/previews/mingle.jpg'},{k:'story',name:'EYE WORLD',sub:'STORY MODE · FLY THE SHIP',x:8.4,col:0xff2a7a,img:'assets/previews/story.jpg'}];
   for(const d of PDEF){
     const g=new THREE.Group();g.position.set(d.x,0,-(RAD-2.6)+Math.abs(d.x)*.22);scene.add(g);
     const mat=new THREE.MeshBasicMaterial({color:new THREE.Color(d.col).multiplyScalar(2.4)});
@@ -379,8 +379,7 @@ function create(){
     if(toastT>0){toastT-=dt;if(toastT<=0)toastEl.classList.remove('on')}
   }
   function renderHero(){
-    const fr=Math.floor(player.ph)%4;
-    if(flyF[player.row]){heroSpriteMat.map=flyF[player.row][fr];if(!heroInit){heroSpriteMat.needsUpdate=true;heroInit=true}}
+    const fr=Math.floor(player.ph)%4;heroSpriteMat.uniforms.r.value.set(fr*.25,1-(player.row+1)*.25,.25,.25);hero.quaternion.copy(camera.quaternion);
     const bob=Math.sin(time*2.4)*.12;
     hero.position.set(player.x,player.alt+bob+FH*.05,player.z);
     const sh=Math.max(.35,1-(player.alt-1.3)*.12);heroShadow.position.set(player.x,.04,player.z);heroShadow.scale.setScalar(sh*1.3);heroShadow.material.opacity=.42*sh;
