@@ -89,3 +89,8 @@ The 2D canvas renderer was replaced with a three.js scene that matches Glass Bri
 Open it from the hub banner (or press `L`). A chill deck on the Super Ship: dome ribs with the canyon, Glass Bridge and stars outside, a hologram of the `$SUPER` chart and stats (live from DexScreener + GeckoTerminal, 24H / 7D / 90D), a community hologram wall (tap an image to enlarge), a rolling hologram of the flyer, and portals to Glass Bridge, Red Light · Green Light and Mingle. Games opened from the lobby return to the lobby.
 
 You fly the new flyer sprite: all 16 frames (`assets/lobby/flyer.webp`, 4 angles x 4 frames) are used. Moving right/left/toward the camera/away picks the matching row; Space flies up. `lobby.js` loads on demand.
+
+
+## Eye World · Story mode
+
+`story.js` (loaded on demand like Mingle and the lobby) is a short three.js story game: a mission briefing at Supercycle HQ, a ship flight to the Eye World, a landing and fight through eye-styled sentries, then the Overseer Eye, an eye wired into the grid that powers the world, which you beat by solving its power-sequence puzzle. It uses `assets/lobby/supercycle-logo.webp`, `assets/lobby/flyer.webp`, `Avalanche_Route.mp3` and `Locked_In_The_Green.mp3`. Open it from the hub card **04 · Eye World** (or press `S` on the hub). Hub preview: `assets/previews/story.jpg`.
