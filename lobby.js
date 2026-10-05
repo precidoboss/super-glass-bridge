@@ -314,7 +314,7 @@ function create(){
   scene.add(Object.assign(new THREE.Points(mGeo,new THREE.PointsMaterial({size:.14,map:glowTex,color:0xa6ff6a,transparent:true,opacity:.6,depthWrite:false,blending:THREE.AdditiveBlending,fog:false})),{frustumCulled:false}));
 
   /* ---------- audio ---------- */
-  const music=new Audio(BASE+'Avalanche_Route.mp3');music.loop=true;music.volume=.32;music.preload='auto';
+  const music=new Audio(BASE+'CREATE_A_MUSIC_ABOUT_A_COIN_CA.mp3');music.loop=true;music.volume=.32;music.preload='auto';
   $('#lbSound').onclick=()=>{soundOn=!soundOn;$('#lbSound').textContent='SOUND: '+(soundOn?'ON':'OFF');soundOn?music.play().catch(()=>{}):music.pause()};
   let actx=null;const tone=(f,d,type='sine',v=.05,f2)=>{if(!soundOn)return;try{actx??=new (window.AudioContext||window.webkitAudioContext)();const a=actx,o=a.createOscillator(),g=a.createGain();o.type=type;o.frequency.setValueAtTime(f,a.currentTime);if(f2)o.frequency.exponentialRampToValueAtTime(f2,a.currentTime+d);g.gain.setValueAtTime(v,a.currentTime);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+d);o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+d)}catch{}};
 

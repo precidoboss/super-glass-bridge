@@ -187,7 +187,7 @@ body[data-view="rl"] .app>header,body[data-view="rl"] .app>.bottom,body[data-vie
 .lobbybtn em{margin-left:auto;font:700 11px 'Space Grotesk';letter-spacing:.18em;font-style:normal;padding:10px 16px;border-radius:999px;background:linear-gradient(110deg,#e0ff4a,#8fe321);color:#0a1405;flex:none}
 @media(max-width:650px){.lobbybtn{flex-wrap:wrap}.lobbybtn em{margin-left:0}}
 </style></head><body><section class="hub" id="hub" aria-label="Super Games"><div class="hub-bg" id="hubBg"></div><div class="hub-in">
-<header class="hub-top"><div class="hub-brand"><img src="assets/super-games-logo.webp" alt="" class="hub-mini"><span>SUPER GAMES<small>BY SUPERCYCLE</small></span></div><div class="tags"><span class="tag av"><i></i>AVAX</span><span class="tag rh"><i></i>ROBINHOOD</span><span class="live">THE CYCLE IS REAL</span></div></header>
+<header class="hub-top"><div class="hub-brand"><img src="assets/super-games-logo.webp" alt="" class="hub-mini"><span>SUPER GAMES<small>BY SUPERCYCLE</small></span></div><div class="tags"><span class="tag av"><i></i>AVAX</span><span class="tag rh"><i></i>ROBINHOOD</span><span class="live">THE CYCLE IS REAL</span><button class="tag" id="hubMute" style="cursor:pointer">♪ MUSIC: ON</button></div></header>
 <div class="hub-hero"><img class="hub-logo" src="assets/super-games-logo.webp" alt="Super Games (Real)"><div class="hub-copy"><div class="eyebrow">✳ &nbsp; THE SUPERCYCLE ARCADE</div><h1>SUPER<br><span>GAMES.</span></h1><p>Survival games built different. Pick a game, open its home page, and play. More are on the way.</p></div></div>
 <button class="lobbybtn" id="openLobby"><img src="assets/lobby/supercycle-logo-sm.png" alt=""><div><b>ENTER THE SUPER SHIP LOBBY</b><span>Walk the deck, see the $SUPER hologram chart, community holograms, and jump into any game through a portal.</span></div><em>ENTER ↗</em></button><div class="hub-lbl">CHOOSE YOUR GAME</div>
 <div class="hub-grid">
@@ -1390,9 +1390,13 @@ return{enter,exit,act,_step:step,_t:{start:r=>startRound(r),get:()=>({on,phase,r
 
 /* ============ SUPER GAMES HUB (routes between Glass Bridge, Red Light Green Light, Mingle, the Lobby and Eye World story mode) ============ */
 {
-const hub=$('#hub'),hubBg=$('#hubBg');let mg=null,st=null,_rlOn=false;
+const hub=$('#hub'),hubBg=$('#hubBg');
+const hubMusic=new Audio('CREATE_A_MUSIC_ABOUT_A_COIN_CA.mp3');hubMusic.loop=true;hubMusic.volume=.4;hubMusic.preload='auto';let hubMute=false;
+function hubMusicSync(v){if(v==='hub'&&!hubMute)hubMusic.play().catch(()=>{});else hubMusic.pause()}
+addEventListener('pointerdown',()=>{if(window.__sgView==='hub'&&hubMusic.paused&&!hubMute)hubMusic.play().catch(()=>{})});
+addEventListener('keydown',()=>{if(window.__sgView==='hub'&&hubMusic.paused&&!hubMute)hubMusic.play().catch(()=>{})});let mg=null,st=null,_rlOn=false;
 function setView(v){window.__sgView=v;document.body.dataset.view=v;hub.classList.toggle('hub-off',v!=='hub');
-  if(v!=='sgb')bgm.pause();if(v!=='rl'&&window.__rlBgm)window.__rlBgm.pause();if(v==='sgb'){bgm.volume=.45}if(v==='sgb'||v==='rl')kick()}
+  if(v!=='sgb')bgm.pause();if(v!=='rl'&&window.__rlBgm)window.__rlBgm.pause();if(v==='sgb'){bgm.volume=.45}if(v==='sgb'||v==='rl')kick();hubMusicSync(v)}
 // the Red Light module flips window.__rlOn on enter/exit; mirror that into the router
 Object.defineProperty(window,'__rlOn',{configurable:true,get:()=>_rlOn,set:v=>{_rlOn=!!v;if(v&&window.__sgView!=='rl')setView('rl');else if(!v&&window.__sgView==='rl'&&!navigating)back()}});
 let lb=null,tw=null,from='hub',navigating=false;
@@ -1424,6 +1428,7 @@ document.querySelectorAll('.gcard[data-g]').forEach(c=>{
 });
 hubBg.style.backgroundImage='url(assets/previews/glass-bridge.jpg)';
 $('#rlSound').onclick=()=>{soundOn=!soundOn;const t='SOUND: '+(soundOn?'ON':'OFF');$('#rlSound').textContent=t;$('#sound').textContent=t;if(soundOn)kick();else{bgm.pause();window.__rlBgm&&window.__rlBgm.pause()}};
+$('#hubMute').onclick=()=>{hubMute=!hubMute;$('#hubMute').textContent='♪ MUSIC: '+(hubMute?'OFF':'ON');hubMusicSync(window.__sgView)};
 $('#toHub').onclick=back;$('#hubBtn').onclick=back;$('#openLobby').onclick=()=>{from='hub';openLobby()};
 addEventListener('keydown',e=>{if(window.__sgView==='hub'&&(e.key==='s'||e.key==='S')){from='hub';openStory();return}
   if(window.__sgView==='hub'&&(e.key==='t'||e.key==='T'||e.key==='5')){from='hub';openTown();return}
