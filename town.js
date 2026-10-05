@@ -5,6 +5,8 @@ import {UnrealBloomPass} from 'three/addons/postprocessing/UnrealBloomPass.js';
 import {OutputPass} from 'three/addons/postprocessing/OutputPass.js';
 import {ShaderPass} from 'three/addons/postprocessing/ShaderPass.js';
 import {createBenz} from './benz.js';
+import {dress} from './townscape.js';
+import {makeFolk} from './townfolk.js';
 
 /* ===================== SUPER TOWN =====================
    A small open-world community on a floating island: fly (or hover-walk) as the flyer, meet bot residents,
@@ -202,6 +204,10 @@ function create(){
    const n=pts.length,pm=new THREE.InstancedMesh(new THREE.CylinderGeometry(.08,.12,5,6),metalM,n),d=new THREE.Object3D(),pos=new Float32Array(n*3);
    pts.forEach(([x,z],i)=>{d.position.set(x,2.5,z);d.updateMatrix();pm.setMatrixAt(i,d.matrix);pos.set([x,5.2,z],i*3)});scene.add(pm);
    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(pos,3));scene.add(Object.assign(new THREE.Points(g,new THREE.PointsMaterial({size:3.2,map:glowTex,color:0xc8ff7a,transparent:true,opacity:.7,depthWrite:false,blending:THREE.AdditiveBlending,fog:false})),{frustumCulled:false}))}
+
+  /* ---------- scenery upgrade: sidewalks, crosswalks, storefronts, parks, ambience ---------- */
+  const PARKS=[[-54,-54],[54,-54],[-54,54],[54,54]];
+  const dressing=dress({scene,B,ROADS,RW,ISL,U,limeM,redM,greenM,metalM,roofM,BMAT,glowTex,labelSprite,specials,camera,parkCenters:PARKS});
 
   /* ---------- the Super Home: three stories, furnished, with an elevator (spawn point) ---------- */
   const HS=(()=>{
@@ -497,7 +503,7 @@ function create(){
   $('#twGames').querySelectorAll('button').forEach(b=>b.onclick=()=>{menu.classList.remove('on');go(b.dataset.g)});
   function openMenu(){menu.classList.add('on')}$('#twClose').onclick=()=>menu.classList.remove('on');
   let going=false;function go(k){if(going)return;going=true;toast('LOADING…');flashEl.style.opacity=1;emit(P.x,P.y,P.z,40,0xc8ff43,6,1,2,1);setTimeout(()=>{if(api.onPortal)api.onPortal(k);setTimeout(()=>{flashEl.style.opacity=0;going=false},500)},380)}
-  root.querySelectorAll('[data-em]').forEach(b=>b.onclick=()=>{say(P,b.dataset.em,3);P.vy=Math.max(P.vy,7);emit(P.x,P.y+1,P.z,14,0xffc83d,3,1,2,.9);const n=nearestNpc(30);if(n&&Math.random()<.7)setTimeout(()=>say(n,pick(['👋','hey!','😄','🔥']),3),600)});
+  root.querySelectorAll('[data-em]').forEach(b=>b.onclick=()=>{say(P,b.dataset.em,3);P.vy=Math.max(P.vy,7);emit(P.x,P.y+1,P.z,14,0xffc83d,3,1,2,.9);folk.onEmote();const n=nearestNpc(30);if(n&&Math.random()<.7)setTimeout(()=>say(n,pick(['👋','hey!','😄','🔥']),3),600)});
   $('#twBoost').onpointerdown=()=>boostBtn=true;$('#twBoost').onpointerup=$('#twBoost').onpointerleave=()=>boostBtn=false;
   $('#twUp').onpointerdown=()=>upBtn=true;$('#twDn').onpointerdown=()=>dnBtn=true;for(const id of['#twUp','#twDn'])for(const ev of['pointerup','pointerleave','pointercancel'])$(id).addEventListener(ev,()=>{upBtn=dnBtn=false});
   $('#twAll').onclick=()=>api.onExit&&api.onExit();
@@ -511,7 +517,7 @@ function create(){
   function spawnHome(){carReset();P.mode='walk';P.floor=0;P.x=HS.spawn.x;P.z=HS.spawn.z;P.y=0;P.vx=P.vy=P.vz=0;P.riding=false;yaw=-1.12;pitch=.36;camD=9;HS.E.y=0;HS.E.floor=0;HS.E.tgt=0;HS.E.state='open';HS.E.door=1;updateFlyBtn();camP.set(P.x-8,4,P.z);camL.set(P.x,1.5,P.z)}
   $('#twFly').onclick=toggleFly;$('#twHome').onclick=()=>{spawnHome();toast('HOME SWEET HOME')};
   inEl.addEventListener('focus',()=>typing=true);inEl.addEventListener('blur',()=>typing=false);
-  inEl.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter'){const t=inEl.value.trim();inEl.value='';inEl.blur();if(t){log('YOU',t,'me');say(P,t,5);const n=nearestNpc(60);if(n)setTimeout(()=>{const r=pick(REPLIES);say(n,r,4);log(n.name,r)},rnd(1200,3200))}}else if(e.key==='Escape'){inEl.blur()}});
+  inEl.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter'){const t=inEl.value.trim();inEl.value='';inEl.blur();if(t){log('YOU',t,'me');say(P,t,5);if(!folk.onChat(t)){const n=nearestNpc(60);if(n)setTimeout(()=>{const r=pick(REPLIES);say(n,r,4);log(n.name,r)},rnd(1200,3200))}}}else if(e.key==='Escape'){inEl.blur()}});
 
   // minimap
   const mapC=$('#twMap'),mx=mapC.getContext('2d'),mapBase=document.createElement('canvas');mapBase.width=mapBase.height=150;
@@ -541,6 +547,12 @@ function create(){
   function interact(){if(curSpot&&!going&&!menu.classList.contains('on'))curSpot.act()}
 
   /* ---------- simulation ---------- */
+  /* ---------- resident brain (personalities, routines, chat, events) ---------- */
+  const carPt={x:0,z:0},trafficPts=[...cars.map(c=>c.g.position),carPt];
+  const folk=makeFolk({THREE,scene,npcs,B,ROADS,RW,pois:dressing.pois,P,car,say,log,toast,emit,getRight:()=>[RX,RZ],blocked,pushOut,randWalk,blimp,LINES,
+    traffic:()=>{carPt.x=car.x;carPt.z=car.z;return trafficPts},
+    circles:[{x:0,z:0,r:7.4},...PARKS.map(([x,z])=>({x,z,r:6.5}))]});
+  npcs.forEach((n,i)=>{if(n.kind==='walk')folk.adopt(n,i)});
   function update(dt){
     time+=dt;U.time.value=time;grade.uniforms.time.value=time%100;
     if(toastT>0){toastT-=dt;if(toastT<=0)toastEl.classList.remove('on')}
@@ -591,23 +603,18 @@ function create(){
     if(!curSpot&&hs.inside&&!P.riding){const ed=Math.hypot(P.x-HS.E.x,P.z-HS.E.z);if(ed<7&&Math.abs(P.y-HS.FY[hs.pf<3?hs.pf:0])<1.3&&!(HS.E.floor===hs.pf&&HS.E.state==='open')){const f=hs.pf;curSpot={x:HS.E.x,z:HS.E.z,label:'CALL ELEVATOR',act:()=>HS.go(f)}}}
     if(curSpot&&!going&&!menu.classList.contains('on')){promptEl.textContent=(matchMedia('(pointer:coarse)').matches?'TAP · ':'F · ')+curSpot.label;promptEl.classList.add('on')}else promptEl.classList.remove('on');
     // npcs
+    folk.tick(dt);
     for(const n of npcs){
+      folk.step(n,dt);
       if(n.kind==='walk'){
-        const dx=n.tx-n.x,dz=n.tz-n.z,d=Math.hypot(dx,dz);
-        if(n.wait>0){n.wait-=dt;n.vx*=.8;n.vz*=.8;if(n.wait<=0){[n.tx,n.tz]=randWalk()}}
-        else{n.vx+=(dx/d*n.spd-n.vx)*Math.min(1,dt*4);n.vz+=(dz/d*n.spd-n.vz)*Math.min(1,dt*4);if(d<1.2){n.wait=rnd(1,6)}}
-        const ox=n.x,oz=n.z;n.x+=n.vx*dt;n.z+=n.vz*dt;pushOut(n,.6,0);if(Math.hypot(n.x-ox,n.z-oz)<.2*dt*n.spd&&n.wait<=0){n.stuck+=dt;if(n.stuck>1.2){n.stuck=0;[n.tx,n.tz]=randWalk()}}
-        const sp2=Math.hypot(n.vx,n.vz);if(Math.abs(n.vx)>.2)n.face=n.vx>0?1:-1;n.ph+=dt*sp2*.45;
-        if(n.hop>0)n.hop-=dt*2;
       }else{
-        const dx=n.tx-n.x,dy=n.ty-n.y,dz=n.tz-n.z,d=Math.hypot(dx,dy,dz);if(d<4){n.tx=rnd(-95,95);n.ty=rnd(8,42);n.tz=rnd(-95,95)}
+        const dx=n.tx-n.x,dy=n.ty-n.y,dz=n.tz-n.z,d=Math.hypot(dx,dy,dz);if(d<4&&(!n.ai||n.ai.state==='cruise')){n.tx=rnd(-95,95);n.ty=rnd(8,42);n.tz=rnd(-95,95)}
         n.vx+=(dx/d*n.spd-n.vx)*Math.min(1,dt*1.6);n.vy+=(dy/d*n.spd-n.vy)*Math.min(1,dt*1.6);n.vz+=(dz/d*n.spd-n.vz)*Math.min(1,dt*1.6);n.x+=n.vx*dt;n.y+=n.vy*dt;n.z+=n.vz*dt;pushOut(n,1,n.y);
         const vr2=n.vx*rx+n.vz*rz,vf2=n.vx*fx+n.vz*fz;n.row=Math.abs(vr2)>Math.abs(vf2)*.8?(vr2>0?0:2):(vf2>0?3:1);n.ph+=dt*10;
       }
       // chatter near the player
-      n.say-=dt;const dp=Math.hypot(n.x-P.x,(n.y||0)-P.y,n.z-P.z);if(n.say<=0){n.say=rnd(14,34);if(dp<45){say(n,pick(LINES),4);if(dp<22)log(n.name,n.bub?'…':'')}}
+      n.say-=dt;const dp=Math.hypot(n.x-P.x,(n.y||0)-P.y,n.z-P.z);if(n.say<=0){n.say=rnd(14,34);if(dp<45){const ln=n.kind==='walk'?folk.line(n):pick(LINES);say(n,ln,4);if(dp<22)log(n.name,ln)}}
       if(n.bub){n.bt-=dt;if(n.bt<=0)clearBub(n)}
-      if(n.kind==='walk'&&dp<6&&!n.greeted&&Math.random()<dt*.5){n.greeted=true;n.hop=1;say(n,'👋',3);setTimeout(()=>n.greeted=false,20000)}
     }
     // cars
     for(const c of cars){let x,z,hx,hz;
@@ -619,7 +626,7 @@ function create(){
       p.strobe.material.opacity=Math.sin(time*9)>.85?1:.1;p.ct-=dt;if(p.ct<=0){p.ct=.07;const tail=new V3(0,0,13).applyMatrix4(p.g.matrixWorld);emit(tail.x,tail.y,tail.z,1,0xcfeede,.4,.1,0,3.2)}}
     {const a=time*.03;blimp.position.set(Math.cos(a)*90+20,60+Math.sin(time*.4)*2,Math.sin(a)*90);blimp.rotation.y=Math.atan2(-(-Math.sin(a)),-(Math.cos(a)))+Math.PI/2}
     for(const b of blinkers)b.material.opacity=Math.sin(time*3+b.position.x)>0?1:.15;
-    coin.rotation.y+=dt*1.2;
+    coin.rotation.y+=dt*1.2;dressing.tick(dt,time);
     if(Math.random()<dt*30)emit(Math.cos(time*3)*1.2,3.4,Math.sin(time*3)*1.2,1,0x4dd2ff,1.4,1.6,4,1.2);
     updP(dt);drawMap(dt);
   }
@@ -639,9 +646,9 @@ function create(){
     if(car.on){const sc=.37,w=seatToWorld(benz.seat.x,benz.seat.z);hero.scale.set(WW*sc,WH*sc,1);hero.position.set(w.x,.5+WH*sc*.5,w.z);heroSh.visible=false}else heroSh.visible=true;
     for(const n of npcs){
       if(n.kind==='walk'){const set=fronts[n.variant];if(n.newS&&walkF.length){const sp2=Math.hypot(n.vx,n.vz),vr3=n.vx*RX+n.vz*RZ,vf3=n.vx*FX+n.vz*FZ;if(Math.abs(vr3)>.3)n.fs=vr3>0?1:-1;const back=vf3>.4&&vf3>Math.abs(vr3)*.7;n.sp.material=walkMat((back?2:0)+((n.fs||1)>0?0:1),sp2>.4?Math.floor(n.ph*8)%8:0,n.tint);n.sp.scale.set(WW,WH,1)}else if(set){const mov=Math.hypot(n.vx,n.vz)>.4,f=mov?Math.floor(n.ph*4)%4:3;n.sp.material=set[(n.face>0?0:4)+f]}
-        const hop=(Math.hypot(n.vx,n.vz)>.4?Math.abs(Math.sin(n.ph*Math.PI*2))*.18:0)+(n.hop>0?Math.sin(n.hop*Math.PI)*.9:0);n.sp.position.set(n.x,1.2+hop,n.z);n.sh.position.set(n.x,.08,n.z);n.tag.position.set(n.x,2.9,n.z);if(n.bub)n.bub.position.set(n.x,4.4,n.z)}
+        const hop=(Math.hypot(n.vx,n.vz)>.4?Math.abs(Math.sin(n.ph*Math.PI*2))*.18:0)+(n.hop>0?Math.sin(n.hop*Math.PI)*.9:0);const sit=(n.sit||0)*.45;n.sp.position.set(n.x,1.2+hop-sit,n.z);n.sh.position.set(n.x,.08,n.z);n.tag.position.set(n.x,2.9-sit,n.z);if(n.bub)n.bub.position.set(n.x,4.4-sit,n.z)}
       else{if(flyF[n.row]){n.sp.material=flyMat(n.row,Math.floor(n.ph)%4,n.tint)}n.sp.position.set(n.x,n.y+Math.sin(time*2+n.ph)*.15,n.z);n.tag.position.set(n.x,n.y+2.2,n.z);if(n.bub)n.bub.position.set(n.x,n.y+3.7,n.z)}
-      const d=Math.hypot(n.x-camera.position.x,(n.y||0)-camera.position.y,n.z-camera.position.z);n.tag.visible=d<42}
+      const d=Math.hypot(n.x-camera.position.x,(n.y||0)-camera.position.y,n.z-camera.position.z);n.tag.visible=d<42&&!n.hide;n.sp.visible=!n.hide;if(n.sh)n.sh.visible=!n.hide;if(n.bub)n.bub.visible=!n.hide}
   }
   const camP=new V3(0,8,30),camL=new V3(0,2,20);camera.position.copy(camP);
   function camUpdate(dt){
@@ -664,11 +671,11 @@ function create(){
     spawnHome();if(soundOn)music.play().catch(()=>{});last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(frame);
     toast('WELCOME HOME · SUPER HOME');log(null,'You spawn at your Super Home: take the elevator (1 2 3), walk out the front door, press V to fly, and visit the Arcade, HQ, Dock and Exchange.','sys')};
   api.hide=()=>{visible=false;cancelAnimationFrame(raf);root.classList.add('tw-off');music.pause();keys.clear();inEl.blur()};
-  api.debug=(w)=>{if(w==='aerial'){P.x=0;P.z=40;P.y=44;yaw=0;pitch=.62;camD=34}else if(w==='benz'){carReset();P.x=-37;P.z=15;P.y=0;yaw=.95;pitch=.2;camD=8.5}else if(w==='drive'){carReset();P.x=car.x;P.z=car.z;enterCar()}else if(w==='street'){P.x=14;P.z=2;P.y=3;yaw=-.5;pitch=.22;camD=11}};
+  api.debug=(w)=>{if(w==='aerial'){P.x=0;P.z=40;P.y=44;yaw=0;pitch=.62;camD=34}else if(w==='benz'){carReset();P.x=-37;P.z=15;P.y=0;yaw=.95;pitch=.2;camD=8.5}else if(w==='drive'){carReset();P.x=car.x;P.z=car.z;enterCar()}else if(w==='street'){P.x=14;P.z=2;P.y=3;yaw=-.5;pitch=.22;camD=11}else if(w==='folk')return{stats:folk.stats(),sample:folk.arr.slice(0,6).map(n=>({n:n.name,a:n.ai.arch,s:n.ai.state,act:n.ai.act,x:+n.x.toFixed(1),z:+n.z.toFixed(1)}))};else if(w==='plaza'){P.x=0;P.z=22;P.y=0;P.mode='walk';yaw=0;pitch=.25;camD=14}};
   return api;
 }
 
 let inst=null;
 export function open(cb){if(!inst)inst=create();inst.onExit=cb.onExit;inst.onPortal=cb.onPortal;inst.show()}
 export function close(){if(inst)inst.hide()}
-export function debug(w){if(inst)inst.debug(w)}
+export function debug(w){if(inst)return inst.debug(w)}
