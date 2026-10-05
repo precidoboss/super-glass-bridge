@@ -397,7 +397,7 @@ function create(){
     const badge=new THREE.Mesh(new THREE.CylinderGeometry(.23,.23,.055,24),trim);badge.rotation.x=Math.PI/2;badge.position.set(0,1.08,-2.86);g.add(badge);
     const starMat=new THREE.MeshBasicMaterial({color:0xe8eef2});
     for(const [ry,rz] of[[0,0],[Math.PI/3,0],[2*Math.PI/3,0]]){const arm=new THREE.Mesh(new THREE.BoxGeometry(.055,.28,.018),starMat);arm.position.set(0,1.08,-2.895);arm.rotation.z=ry;g.add(arm)}
-    for(const x of[-.72,.72]){const h=new THREE.Mesh(new RoundedBoxGeometry(.55,.24,.08,.04,3),light);h.position.set(x,1.0,-2.72);g.add(h);const r=new THREE.Mesh(new RoundedBoxGeometry(.55,.18,.08,.04,3),red);r.position.set(x,1.0,2.72);g.add(r);const a=new THREE.Mesh(new BoxGeometry(.08,.16,.05),amber);a.position.set(x>0?.99:-.99,1.02,-2.78);g.add(a)}
+    for(const x of[-.72,.72]){const h=new THREE.Mesh(new RoundedBoxGeometry(.55,.24,.08,.04,3),light);h.position.set(x,1.0,-2.72);g.add(h);const r=new THREE.Mesh(new RoundedBoxGeometry(.55,.18,.08,.04,3),red);r.position.set(x,1.0,2.72);g.add(r);const a=new THREE.Mesh(new THREE.BoxGeometry(.08,.16,.05),amber);a.position.set(x>0?.99:-.99,1.02,-2.78);g.add(a)}
     const plate=new THREE.Mesh(new RoundedBoxGeometry(.8,.16,.04,.03,3),trim);plate.position.set(0,.82,2.77);g.add(plate);
     const wheels=[],frontWheels=[];
     for(const x of[-1,1])for(const z of[-1.82,1.82]){
