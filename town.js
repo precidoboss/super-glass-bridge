@@ -4,6 +4,7 @@ import {RenderPass} from 'three/addons/postprocessing/RenderPass.js';
 import {UnrealBloomPass} from 'three/addons/postprocessing/UnrealBloomPass.js';
 import {OutputPass} from 'three/addons/postprocessing/OutputPass.js';
 import {ShaderPass} from 'three/addons/postprocessing/ShaderPass.js';
+import {createSuperHouse} from './super-town-house.js';
 
 /* ===================== SUPER TOWN =====================
    A small open-world community on a floating island: fly (or hover-walk) as the flyer, meet bot residents,
@@ -56,11 +57,11 @@ const CSS=`
 const HTML=`
 <div class="tw-stage"></div>
 <div class="tw-top"><div class="tw-brand"><img src="${BASE}assets/lobby/supercycle-logo-sm.png" alt=""><div>SUPER TOWN<small id="twPop">OPEN WORLD · COMMUNITY</small></div></div><div class="tw-mini"><canvas id="twMap" width="150" height="150"></canvas><small>MAP</small></div></div>
-<div class="tw-hint"><b>WASD</b> FLY · <b>SPACE</b> UP · <b>C</b> DOWN · <b>SHIFT</b> BOOST · <b>Q E</b> / DRAG CAMERA · <b>F</b> INTERACT · <b>ENTER</b> CHAT</div>
+<div class="tw-hint"><b>WASD</b> WALK · <b>SHIFT</b> RUN · <b>4</b> FLY · <b>SPACE</b> UP · <b>C</b> DOWN · <b>Q E</b> / DRAG CAMERA · <b>F</b> INTERACT · <b>ENTER</b> CHAT</div>
 <div class="tw-chat"><div class="tw-log" id="twLog"></div><input id="twIn" maxlength="80" placeholder="Press Enter to chat…" autocomplete="off"></div>
 <div class="tw-prompt" id="twPrompt"></div><div class="tw-toast" id="twToast"></div>
 <div class="tw-joy" id="twJoy"><i></i></div><div class="tw-fly"><button id="twUp">▲</button><button id="twDn">▼</button></div>
-<div class="tw-bar"><button class="em" data-em="👋">👋</button><button class="em" data-em="🕺">🕺</button><button class="em" data-em="❤️">❤️</button><button class="em" data-em="🚀">🚀</button><button id="twBoost">BOOST</button><button id="twAll">◂ ALL GAMES</button><button id="twSound">SOUND: ON</button></div>
+<div class="tw-bar"><button class="em" data-em="👋">👋</button><button class="em" data-em="🕺">🕺</button><button class="em" data-em="❤️">❤️</button><button class="em" data-em="🚀">🚀</button><button id="twBoost">RUN</button><button id="twMode">MODE: WALK</button><button id="twAll">◂ ALL GAMES</button><button id="twSound">SOUND: ON</button></div>
 <div class="tw-menu" id="twMenu"><div><h2>SUPER ARCADE</h2><p>Pick a game. You'll come back to town when you leave it.</p><div class="tw-games" id="twGames"></div><button class="g" id="twClose">CLOSE</button></div></div>
 <div class="tw-flash" id="twFlash"></div>`;
 
@@ -199,6 +200,12 @@ function create(){
    pts.forEach(([x,z],i)=>{d.position.set(x,2.5,z);d.updateMatrix();pm.setMatrixAt(i,d.matrix);pos.set([x,5.2,z],i*3)});scene.add(pm);
    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(pos,3));scene.add(Object.assign(new THREE.Points(g,new THREE.PointsMaterial({size:3.2,map:glowTex,color:0xc8ff7a,transparent:true,opacity:.7,depthWrite:false,blending:THREE.AdditiveBlending,fog:false})),{frustumCulled:false}))}
 
+  // Three-story furnished spawn residence with a working elevator.
+  house=createSuperHouse({scene,player:P,labelSprite,toast});
+  const oldBlocked=blocked;
+  const oldPushOut=pushOut;
+  const spawnHome=house.spawn;
+
   /* ---------- cars ---------- */
   function loopCurve(H,ccw){const r=7,pts=[];const corners=ccw?[[H-r,H-r,0],[-(H-r),H-r,Math.PI/2],[-(H-r),-(H-r),Math.PI],[H-r,-(H-r),Math.PI*1.5]]:[[H-r,-(H-r),Math.PI*1.5],[-(H-r),-(H-r),Math.PI],[-(H-r),H-r,Math.PI/2],[H-r,H-r,0]];
     for(const [cx,cz,a0] of corners){for(let i=0;i<=4;i++){const a=ccw?a0+i/4*Math.PI/2:a0-i/4*Math.PI/2;pts.push(new V3(cx+Math.cos(a)*r,.55,cz+Math.sin(a)*r))}}return new THREE.CatmullRomCurve3(pts,true,'catmullrom',.4)}
@@ -235,6 +242,40 @@ function create(){
   loadTex('assets/lobby/flyer.webp',t=>{flyTex=t;for(let r=0;r<4;r++){flyF[r]=[];for(let c=0;c<4;c++){const x=t.clone();x.needsUpdate=true;x.repeat.set(.25,.25);x.offset.set(c*.25,1-(r+1)*.25);flyF[r][c]=x}}});
   function flyMat(r,c,tint){const k=r*4+c+'_'+tint;return flyMats[k]??=new THREE.SpriteMaterial({map:flyF[r][c],alphaTest:.25,fog:true,color:tint})}
   const FW=2.5*392/311,FH=2.5;
+
+  // New character sheet. It is loaded as an image, then cut into a regular grid at runtime.
+  // Candidate grids are scored by alpha occupancy so transparent gutters are respected.
+  const PLAYER_SHEET='4b318cef-2ac1-49cf-a329-93dd2d5d8896.png';
+  let walkF=[],runF=[],playerFlyF=[],playerFrameW=2.6,playerFrameH=3.4;
+  function cutCharacterSheet(img){
+    const w=img.naturalWidth,h=img.naturalHeight;
+    const candidates=[[4,4],[8,4],[4,8],[6,4],[8,8],[6,8],[12,4]];
+    let best=null;
+    for(const [cols,rows] of candidates){
+      if(w%cols||h%rows)continue;
+      const cw=w/cols,ch=h/rows,cv=document.createElement('canvas');cv.width=cw;cv.height=ch;
+      const cx=cv.getContext('2d',{willReadFrequently:true});let score=0,non=0;
+      for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
+        cx.clearRect(0,0,cw,ch);cx.drawImage(img,c*cw,r*ch,cw,ch,0,0,cw,ch);
+        const d=cx.getImageData(0,0,cw,ch).data;let a=0;
+        for(let i=3;i<d.length;i+=4)if(d[i]>20)a++;
+        const occ=a/(cw*ch);if(occ>.015&&occ<.82){score+=1-Math.abs(occ-.22);non++}
+      }
+      const quality=non/(cols*rows)+score/(cols*rows);
+      if(!best||quality>best.quality)best={cols,rows,cw,ch,quality};
+    }
+    if(!best)return;
+    const frame=(r,c)=>{
+      const cv=document.createElement('canvas');cv.width=best.cw;cv.height=best.ch;cv.getContext('2d').drawImage(img,c*best.cw,r*best.ch,best.cw,best.ch,0,0,best.cw,best.ch);
+      const t=new THREE.CanvasTexture(cv);t.colorSpace=THREE.SRGBColorSpace;t.needsUpdate=true;return new THREE.SpriteMaterial({map:t,transparent:true,alphaTest:.25,fog:true});
+    };
+    const rows=Math.min(best.rows,4),cols=best.cols;
+    walkF=Array.from({length:Math.min(2,rows)},(_,r)=>Array.from({length:cols},(_,c)=>frame(r,c)));
+    runF=rows>2?Array.from({length:Math.min(2,rows-2)},(_,r)=>Array.from({length:cols},(_,c)=>frame(r+2,c))):walkF;
+    playerFlyF=rows>3?Array.from({length:1},()=>Array.from({length:cols},(_,c)=>frame(3,c))):runF;
+    playerFrameW=2.8;playerFrameH=playerFrameW*(best.ch/best.cw);
+  }
+  const playerSheet=new Image();playerSheet.onload=()=>cutCharacterSheet(playerSheet);playerSheet.src=BASE+PLAYER_SHEET;
   // shared particles
   const MAXP=600,pPos=new Float32Array(MAXP*3),pCol=new Float32Array(MAXP*3),pVel=new Float32Array(MAXP*3),pLife=new Float32Array(MAXP),pMax=new Float32Array(MAXP),pBase=new Float32Array(MAXP*3),pG=new Float32Array(MAXP);pPos.fill(-9999);let pHead=0;
   const pGeo=new THREE.BufferGeometry();pGeo.setAttribute('position',new THREE.BufferAttribute(pPos,3));pGeo.setAttribute('color',new THREE.BufferAttribute(pCol,3));
@@ -258,9 +299,10 @@ function create(){
   $('#twPop').textContent=npcs.length+1+' IN TOWN · OPEN WORLD';
 
   /* ---------- the player (the flyer) ---------- */
-  const P={x:0,y:3,z:20,vx:0,vy:0,vz:0,row:1,ph:0,boost:0,bub:null,bt:0};
+  const P={x:0,y:1.6,z:20,vx:0,vy:0,vz:0,row:1,ph:0,boost:0,bub:null,bt:0,mode:'walk'};
   const heroMat=new THREE.SpriteMaterial({transparent:true,alphaTest:.25,fog:true});let heroInit=false;
-  const hero=new THREE.Sprite(heroMat);hero.scale.set(FW,FH,1);hero.renderOrder=3;scene.add(hero);
+  const hero=new THREE.Sprite(heroMat);hero.scale.set(playerFrameW,playerFrameH,1);hero.renderOrder=3;scene.add(hero);
+  let house=null;
   const heroSh=new THREE.Mesh(new THREE.CircleGeometry(1,20),new THREE.MeshBasicMaterial({color:0,transparent:true,opacity:.45,depthWrite:false}));heroSh.rotation.x=-Math.PI/2;heroSh.position.y=.09;scene.add(heroSh);
   const heroTag=labelSprite('YOU',{w:1.8,size:58,color:'#0a1405',glow:'#d4ff3a',plate:false});scene.add(heroTag);
   const youPlate=(()=>{const c=document.createElement('canvas');c.width=512;c.height=112;const x=c.getContext('2d');x.fillStyle='#d4ff3a';x.beginPath();x.roundRect(150,12,212,88,26);x.fill();x.fillStyle='#0a1405';x.font='800 58px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText('YOU',256,58);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t})();
@@ -280,9 +322,10 @@ function create(){
   let going=false;function go(k){if(going)return;going=true;toast('LOADING…');flashEl.style.opacity=1;emit(P.x,P.y,P.z,40,0xc8ff43,6,1,2,1);setTimeout(()=>{if(api.onPortal)api.onPortal(k);setTimeout(()=>{flashEl.style.opacity=0;going=false},500)},380)}
   root.querySelectorAll('[data-em]').forEach(b=>b.onclick=()=>{say(P,b.dataset.em,3);P.vy=Math.max(P.vy,7);emit(P.x,P.y+1,P.z,14,0xffc83d,3,1,2,.9);const n=nearestNpc(30);if(n&&Math.random()<.7)setTimeout(()=>say(n,pick(['👋','hey!','😄','🔥']),3),600)});
   $('#twBoost').onpointerdown=()=>boostBtn=true;$('#twBoost').onpointerup=$('#twBoost').onpointerleave=()=>boostBtn=false;
+  $('#twMode').onclick=()=>{P.mode=P.mode==='fly'?'walk':'fly';$('#twMode').textContent='MODE: '+P.mode.toUpperCase();toast(P.mode==='fly'?'FLIGHT ENABLED':'WALK MODE ENABLED')};
   $('#twUp').onpointerdown=()=>upBtn=true;$('#twDn').onpointerdown=()=>dnBtn=true;for(const id of['#twUp','#twDn'])for(const ev of['pointerup','pointerleave','pointercancel'])$(id).addEventListener(ev,()=>{upBtn=dnBtn=false});
   $('#twAll').onclick=()=>api.onExit&&api.onExit();
-  const music=new Audio(BASE+'Avalanche_Route.mp3');music.loop=true;music.volume=.3;music.preload='auto';
+  const music=new Audio(BASE+'CREATE_A_MUSIC_ABOUT_A_COIN_CA.mp3');music.loop=true;music.volume=.3;music.preload='auto';
   $('#twSound').onclick=()=>{soundOn=!soundOn;$('#twSound').textContent='SOUND: '+(soundOn?'ON':'OFF');soundOn?music.play().catch(()=>{}):music.pause()};
   function nearestNpc(r){let b=null,bd=r;for(const n of npcs){const d=Math.hypot(n.x-P.x,(n.y||0)-P.y,n.z-P.z);if(d<bd){bd=d;b=n}}return b}
   inEl.addEventListener('focus',()=>typing=true);inEl.addEventListener('blur',()=>typing=false);
@@ -299,6 +342,7 @@ function create(){
   /* ---------- input ---------- */
   const kd=e=>{if(!visible)return;if(typing)return;const k=e.key.toLowerCase();
     if(k==='enter'){e.preventDefault();e.stopImmediatePropagation();inEl.focus();return}
+    if(k==='4'){P.mode=P.mode==='fly'?'walk':'fly';$('#twMode').textContent='MODE: '+P.mode.toUpperCase();toast(P.mode==='fly'?'FLIGHT ENABLED':'WALK MODE ENABLED');e.preventDefault();e.stopImmediatePropagation();return}
     if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright',' ','c','q','e','f','shift','control'].includes(k)){e.preventDefault();e.stopImmediatePropagation();keys.add(k);if(k==='f')interact()}
     if(k==='escape'){e.stopImmediatePropagation();if(menu.classList.contains('on'))menu.classList.remove('on');else if(api.onExit)api.onExit()}};
   addEventListener('keydown',kd,true);addEventListener('keyup',e=>{if(visible)keys.delete(e.key.toLowerCase())},true);addEventListener('blur',()=>keys.clear());
@@ -316,25 +360,38 @@ function create(){
   function update(dt){
     time+=dt;U.time.value=time;grade.uniforms.time.value=time%100;
     if(toastT>0){toastT-=dt;if(toastT<=0)toastEl.classList.remove('on')}
-    plazaSpin(dt);
+    plazaSpin(dt);if(house)house.update(dt);
     // camera yaw keys
     if(!typing){if(keys.has('q'))yaw+=dt*1.8;if(keys.has('e'))yaw-=dt*1.8}
-    // player flight
-    let ix=(keys.has('d')||keys.has('arrowright')?1:0)-(keys.has('a')||keys.has('arrowleft')?1:0)+joy.x,iz=(keys.has('s')||keys.has('arrowdown')?1:0)-(keys.has('w')||keys.has('arrowup')?1:0)+joy.z;const m=Math.hypot(ix,iz);if(m>1){ix/=m;iz/=m}
+    // player movement: ground walk/run by default; flight is a deliberate mode (4).
+    let ix=(keys.has('d')||keys.has('arrowright')?1:0)-(keys.has('a')||keys.has('arrowleft')?1:0)+joy.x;
+    let iz=(keys.has('s')||keys.has('arrowdown')?1:0)-(keys.has('w')||keys.has('arrowup')?1:0)+joy.z;
+    const m=Math.hypot(ix,iz);if(m>1){ix/=m;iz/=m}
     const frozen=menu.classList.contains('on')||going||typing;if(frozen){ix=iz=0}
     const fx=-Math.sin(yaw),fz=-Math.cos(yaw),rx=Math.cos(yaw),rz=-Math.sin(yaw);
-    const boost=(keys.has('shift')||boostBtn)&&!frozen,sp=(boost?26:13)*(P.y<3?.7:1),k=1-Math.exp(-dt*5.5);
-    const tx=(rx*ix+fx*-iz)*sp,tz=(rz*ix+fz*-iz)*sp;P.vx+=(tx-P.vx)*k;P.vz+=(tz-P.vz)*k;
-    const up=!frozen&&(keys.has(' ')||upBtn),dn=!frozen&&(keys.has('c')||keys.has('control')||dnBtn);P.vy+=(((up?1:0)-(dn?1:0))*(boost?16:10)-P.vy)*Math.min(1,dt*5);
-    P.x+=P.vx*dt;P.y=clamp(P.y+P.vy*dt,1.6,150);P.z+=P.vz*dt;
+    const running=(keys.has('shift')||boostBtn)&&!frozen;
+    const k=1-Math.exp(-dt*(P.mode==='fly'?5.5:8));
+    if(P.mode==='fly'){
+      const sp=running?26:13;const tx=(rx*ix+fx*-iz)*sp,tz=(rz*ix+fz*-iz)*sp;
+      P.vx+=(tx-P.vx)*k;P.vz+=(tz-P.vz)*k;
+      const up=!frozen&&(keys.has(' ')||upBtn),dn=!frozen&&(keys.has('c')||keys.has('control')||dnBtn);
+      P.vy+=(((up?1:0)-(dn?1:0))*(running?16:10)-P.vy)*Math.min(1,dt*5);
+      P.x+=P.vx*dt;P.y=clamp(P.y+P.vy*dt,1.6,150);P.z+=P.vz*dt;
+    }else{
+      const sp=running?8.5:4.4;const tx=(rx*ix+fx*-iz)*sp,tz=(rz*ix+fz*-iz)*sp;
+      P.vx+=(tx-P.vx)*k;P.vz+=(tz-P.vz)*k;P.vy+=(1.6-P.y)*Math.min(1,dt*8);
+      P.x+=P.vx*dt;P.z+=P.vz*dt;P.y=1.6;
+    }
+    if(house)house.resolve(P);
     const pr0=Math.hypot(P.x,P.z);if(pr0>ISL+25){P.x*=(ISL+25)/pr0;P.z*=(ISL+25)/pr0}
-    pushOut(P,1,P.y);
+    if(P.mode==='fly')pushOut(P,1,P.y);
     const spd=Math.hypot(P.vx,P.vz);const vr=P.vx*rx+P.vz*rz,vf=P.vx*fx+P.vz*fz;
-    if(spd>.8)P.row=Math.abs(vr)>Math.abs(vf)*.8?(vr>0?0:2):(vf>0?3:1);else P.row=1;P.ph+=dt*(spd>.8?(boost?16:11):6);
-    if(spd>2&&Math.random()<dt*(boost?40:16))emit(P.x+rnd(-.3,.3),P.y-.8,P.z+rnd(-.3,.3),1,boost?0xffc83d:0x7bff3a,.6,.2,1,.6);
+    if(P.mode==='fly'){P.row=Math.abs(vr)>Math.abs(vf)*.8?(vr>0?0:2):(vf>0?3:1);P.ph+=dt*(spd>.8?(running?16:11):6)}else{P.row=0;P.ph+=dt*(spd>.15?(running?12:7):2)}
+    if(P.mode==='fly'&&spd>2&&Math.random()<dt*(running?40:16))emit(P.x+rnd(-.3,.3),P.y-.8,P.z+rnd(-.3,.3),1,boost?0xffc83d:0x7bff3a,.6,.2,1,.6);
     if(P.bub){P.bt-=dt;if(P.bt<=0)clearBub(P)}
     // prompts: nearest special door
     curSpot=null;let bd=9;for(const key in specials){const s=specials[key],d=Math.hypot(P.x-s.x,P.z-s.z);if(d<bd&&P.y<26){bd=d;curSpot=s}}
+    if(!curSpot&&house){const hp=house.prompt();if(hp){curSpot={label:hp,act:()=>house.interact()};bd=6}}
     if(curSpot&&!going&&!menu.classList.contains('on')){promptEl.textContent=(matchMedia('(pointer:coarse)').matches?'TAP · ':'F · ')+curSpot.label;promptEl.classList.add('on')}else promptEl.classList.remove('on');
     // npcs
     for(const n of npcs){
@@ -371,9 +428,11 @@ function create(){
   }
   function plazaSpin(dt){statue.rotation.y+=dt*.5}
   function place(){
-    // player sprite
-    if(flyF[P.row]){heroMat.map=flyF[P.row][Math.floor(P.ph)%4];if(!heroInit){heroMat.needsUpdate=true;heroInit=true}}
-    hero.position.set(P.x,P.y+Math.sin(time*2.4)*.12,P.z);const h=Math.max(0,P.y);heroSh.position.set(P.x,.09,P.z);heroSh.scale.setScalar(Math.max(.3,1.1-h*.015));heroSh.material.opacity=Math.max(.1,.45-h*.006);
+    // player sprite: new sheet is walk/run on the ground; flying uses option 4.
+    const frames=P.mode==='fly'?(playerFlyF[P.row]||runF[0]||walkF[0]):(running?runF[0]:walkF[0]);
+    if(frames&&frames.length){heroMat.map=frames[Math.floor(P.ph)%frames.length].map;heroMat.needsUpdate=true;hero.scale.set(playerFrameW,playerFrameH,1)}
+    hero.position.set(P.x,P.y+(P.mode==='fly'?Math.sin(time*2.4)*.12:0),P.z);
+    const h=Math.max(0,P.y);heroSh.position.set(P.x,.09,P.z);heroSh.scale.setScalar(Math.max(.3,1.1-h*.015));heroSh.material.opacity=Math.max(.1,.45-h*.006);
     heroTag.position.set(P.x,P.y+2.3,P.z);if(P.bub)P.bub.position.set(P.x,P.y+3.9,P.z);
     for(const n of npcs){
       if(n.kind==='walk'){const set=fronts[n.variant];if(set){const mov=Math.hypot(n.vx,n.vz)>.4,f=mov?Math.floor(n.ph*4)%4:3;n.sp.material=set[(n.face>0?0:4)+f]}
@@ -399,10 +458,10 @@ function create(){
 
   /* ---------- public ---------- */
   api.show=()=>{root.classList.remove('tw-off');visible=true;resize();going=false;flashEl.style.opacity=0;menu.classList.remove('on');
-    P.x=-4;P.z=24;P.y=3;P.vx=P.vy=P.vz=0;yaw=0;if(soundOn)music.play().catch(()=>{});last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(frame);
+    P.x=spawnHome.x;P.z=spawnHome.z;P.y=spawnHome.y;P.vx=P.vy=P.vz=0;yaw=0;P.mode='walk';$('#twMode').textContent='MODE: WALK';if(soundOn)music.play().catch(()=>{});last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(frame);
     toast('WELCOME TO SUPER TOWN');log(null,'Welcome to Super Town. Fly around, say hi, and visit the Arcade, HQ, Dock and Exchange.','sys')};
   api.hide=()=>{visible=false;cancelAnimationFrame(raf);root.classList.add('tw-off');music.pause();keys.clear();inEl.blur()};
-  api.debug=(w)=>{if(w==='aerial'){P.x=0;P.z=40;P.y=44;yaw=0;pitch=.62;camD=34}else if(w==='street'){P.x=14;P.z=2;P.y=3;yaw=-.5;pitch=.22;camD=11}};
+  api.debug=(w)=>{if(w==='aerial'){P.mode='fly';P.x=0;P.z=40;P.y=44;yaw=0;pitch=.62;camD=34}else if(w==='street'){P.mode='walk';P.x=14;P.z=2;P.y=1.6;yaw=-.5;pitch=.22;camD=11}};
   return api;
 }
 
