@@ -35,7 +35,7 @@ const CSS=`
 .tw-chat input{width:100%;padding:11px 14px;border-radius:12px;border:1px solid rgba(190,255,90,.25);background:rgba(5,12,7,.88);color:#eaf6ec;font:600 13px 'Space Grotesk';outline:none;backdrop-filter:blur(10px)}.tw-chat input:focus{border-color:#d4ff3a;box-shadow:0 0 22px rgba(125,220,31,.3)}
 .tw-bar{position:absolute;right:clamp(12px,3vw,34px);bottom:16px;display:flex;gap:8px;z-index:5;flex-wrap:wrap;justify-content:flex-end}
 .tw-bar button,.tw-menu button.g{font:700 10px 'Space Grotesk';letter-spacing:.14em;padding:11px 14px;border-radius:12px;border:1px solid rgba(185,255,90,.25);background:rgba(11,22,14,.85);color:#d6e9d9;cursor:pointer;backdrop-filter:blur(10px)}
-.tw-bar button:hover,.tw-menu button.g:hover{border-color:#d4ff3a;color:#d4ff3a}.tw-bar .em{padding:10px 12px;font-size:15px}
+.tw-bar button:hover,.tw-menu button.g:hover{border-color:#d4ff3a;color:#d4ff3a}.tw-bar .em{padding:10px 12px;font-size:15px}.tw-mode{min-width:86px}.tw-mode.fly{border-color:#4dd2ff;color:#8fe8ff;background:rgba(16,48,62,.78)}.tw-home-panel{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:7;pointer-events:none;padding:12px 16px;border-radius:14px;border:1px solid rgba(212,255,58,.25);background:rgba(5,12,7,.82);backdrop-filter:blur(12px);font:700 10px 'DM Mono';letter-spacing:.14em;color:#d4ff3a;opacity:0;transition:opacity .2s}.tw-home-panel.on{opacity:1}
 .tw-hint{position:absolute;left:50%;top:84px;transform:translateX(-50%);font:9px 'DM Mono',monospace;letter-spacing:.2em;color:#8aa690;z-index:2;pointer-events:none;text-align:center;line-height:1.9;white-space:nowrap}
 .tw-hint b{display:inline-block;padding:3px 7px;border-radius:6px;border:1px solid rgba(185,255,90,.25);background:#0e1d12;color:#eef9ea;margin:0 3px}
 .tw-prompt{position:absolute;left:50%;bottom:130px;transform:translateX(-50%);padding:11px 20px;border-radius:14px;background:rgba(7,17,10,.92);border:1px solid #d4ff3a;color:#e9ffb0;font:700 12px 'Space Grotesk';letter-spacing:.14em;opacity:0;pointer-events:none;z-index:6;transition:opacity .15s;white-space:nowrap;box-shadow:0 0 30px rgba(125,220,31,.3)}.tw-prompt.on{opacity:1;pointer-events:auto;cursor:pointer}
@@ -60,9 +60,9 @@ const HTML=`
 <div class="tw-chat"><div class="tw-log" id="twLog"></div><input id="twIn" maxlength="80" placeholder="Press Enter to chat…" autocomplete="off"></div>
 <div class="tw-prompt" id="twPrompt"></div><div class="tw-toast" id="twToast"></div>
 <div class="tw-joy" id="twJoy"><i></i></div><div class="tw-fly"><button id="twUp">▲</button><button id="twDn">▼</button></div>
-<div class="tw-bar"><button class="em" data-em="👋">👋</button><button class="em" data-em="🕺">🕺</button><button class="em" data-em="❤️">❤️</button><button class="em" data-em="🚀">🚀</button><button id="twBoost">BOOST</button><button id="twAll">◂ ALL GAMES</button><button id="twSound">SOUND: ON</button></div>
+<div class="tw-bar"><button class="em" data-em="👋">👋</button><button class="em" data-em="🕺">🕺</button><button class="em" data-em="❤️">❤️</button><button class="em" data-em="🚀">🚀</button><button id="twMode" class="tw-mode">WALK</button><button id="twBoost">RUN</button><button id="twAll">◂ ALL GAMES</button><button id="twSound">SOUND: ON</button></div>
 <div class="tw-menu" id="twMenu"><div><h2>SUPER ARCADE</h2><p>Pick a game. You'll come back to town when you leave it.</p><div class="tw-games" id="twGames"></div><button class="g" id="twClose">CLOSE</button></div></div>
-<div class="tw-flash" id="twFlash"></div>`;
+<div class="tw-flash" id="twFlash"></div><div class="tw-home-panel" id="twHomePanel">SUPER HOUSE · SPAWN RESIDENCE</div>`;
 
 function create(){
   const css=document.createElement('style');css.textContent=CSS;document.head.appendChild(css);
@@ -187,6 +187,25 @@ function create(){
   {const c=new THREE.Mesh(new THREE.CylinderGeometry(3.4,3.4,.6,40),new THREE.MeshStandardMaterial({color:0x2a4a30,metalness:.9,roughness:.25,emissive:0x2a6a18}));c.rotation.x=Math.PI/2;coin.add(c);const r=new THREE.Mesh(new THREE.TorusGeometry(3.4,.2,8,48),limeM);coin.add(r);const mk=new THREE.Mesh(new THREE.PlaneGeometry(4.4,4.4),new THREE.MeshBasicMaterial({transparent:true,depthWrite:false,color:0xdfffc0}));mk.position.z=.35;coin.add(mk);const mk2=mk.clone();mk2.position.z=-.35;mk2.rotation.y=Math.PI;coin.add(mk2);loadTex('assets/lobby/supercycle-logo.webp',t=>{mk.material.map=t;mk.material.needsUpdate=true})}
   {const s=labelSprite('$SUPER EXCHANGE',{w:12,size:70});s.position.set(EX.x,EX.h+14,EX.z);scene.add(s)}
   specials.exchange={x:EX.x,z:EX.z+EX.d/2+3.5,label:'$SUPER EXCHANGE · OPEN THE LIVE CHART',act:()=>window.open(DEX_URL,'_blank','noopener')};
+   /* ---------- SUPER HOUSE · 3 STORY SPAWN RESIDENCE ---------- */
+   const houseRoot=new THREE.Group();houseRoot.position.set(HOME.x,0,HOME.z);scene.add(houseRoot);
+   const hm={floor:new THREE.MeshStandardMaterial({color:0x13281a,roughness:.62,metalness:.25}),wall:new THREE.MeshStandardMaterial({color:0x1c3d28,roughness:.48,metalness:.35}),trim:new THREE.MeshStandardMaterial({color:0x0a1510,roughness:.3,metalness:.8}),glass:new THREE.MeshPhysicalMaterial({color:0x9dffc7,emissive:0x1c6b38,emissiveIntensity:.45,roughness:.08,metalness:.15,transparent:true,opacity:.38}),lime:new THREE.MeshStandardMaterial({color:0xc8ff43,emissive:0x4f7f13,emissiveIntensity:.55,roughness:.35,metalness:.35}),wood:new THREE.MeshStandardMaterial({color:0x563b25,roughness:.68}),sofa:new THREE.MeshStandardMaterial({color:0x294d36,roughness:.8}),white:new THREE.MeshStandardMaterial({color:0xdcebe0,roughness:.58})};
+   const hb=(x,y,z,w,h,d,m)=>{const q=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);q.position.set(HOME.x+x,y,HOME.z+z);houseRoot.add(q);return q};
+   const wh=HOME.floorH*HOME.floors;
+   for(let f=0;f<3;f++){hb(0,f*HOME.floorH+.05,0,HOME.w-.5,.1,HOME.d-.5,hm.floor);if(f<2)hb(0,(f+1)*HOME.floorH-.08,0,HOME.w-.5,.16,HOME.d-.5,hm.trim)}
+   hb(-HOME.w/2+.25,wh/2,0,.5,wh,HOME.d,hm.wall);hb(HOME.w/2-.25,wh/2,0,.5,wh,HOME.d,hm.wall);hb(0,wh/2,-HOME.d/2+.25,HOME.w,wh,.5,hm.wall);hb(-(HOME.w+HOME.doorW)/4,wh/2,HOME.d/2-.25,(HOME.w-HOME.doorW)/2,wh,.5,hm.wall);hb((HOME.w+HOME.doorW)/4,wh/2,HOME.d/2-.25,(HOME.w-HOME.doorW)/2,wh,.5,hm.wall);
+   B.push({x:HOME.x-HOME.w/2+.25,z:HOME.z,hw:.25,hd:HOME.d/2,h:wh},{x:HOME.x+HOME.w/2-.25,z:HOME.z,hw:.25,hd:HOME.d/2,h:wh},{x:HOME.x,z:HOME.z-HOME.d/2+.25,hw:HOME.w/2,hd:.25,h:wh},{x:HOME.x-(HOME.w+HOME.doorW)/4,z:HOME.z+HOME.d/2-.25,hw:(HOME.w-HOME.doorW)/4,hd:.25,h:wh},{x:HOME.x+(HOME.w+HOME.doorW)/4,z:HOME.z+HOME.d/2-.25,hw:(HOME.w-HOME.doorW)/4,hd:.25,h:wh});
+   hb(0,wh+.35,0,HOME.w+.8,.45,HOME.d+.8,hm.trim);hb(0,wh+.62,0,HOME.w-2,.08,HOME.d-2,hm.lime);
+   const hs=labelSprite('SUPER HOUSE',{w:12,size:78,color:'#eaffc0',glow:'#7ddc1f'});hs.position.set(HOME.x,wh+2.8,HOME.z);scene.add(hs);
+   for(let f=0;f<3;f++){const y=f*HOME.floorH+2.7;for(const sx of[-10,-4,4,10]){for(const sz of[-HOME.d/2-.02,HOME.d/2+.02])hb(sx,y,sz,3.4,.95,.06,hm.glass);for(const sx2 of[-HOME.w/2-.02,HOME.w/2+.02])hb(sx2,y,sx,.06,.95,3.4,hm.glass)}}
+   hb(0,.18,HOME.d/2+2.1,7,.35,4,hm.trim);hb(0,.08,HOME.d/2+4,11,.16,7,hm.lime);
+   const sofa=(x,y,z,w=5)=>{hb(x,y+.65,z,w,1.3,1.2,hm.sofa);hb(x,y+1.35,z-.48,w,1.1,.28,hm.sofa)},table=(x,y,z,w=2.5,d=1.4)=>{hb(x,y+.85,z,w,.18,d,hm.wood);for(const sx of[-1,1])for(const sz of[-1,1])hb(x+sx*(w/2-.2),y+.4,z+sz*(d/2-.15),.15,.9,.15,hm.wood)},bed=(x,y,z)=>{hb(x,y+.45,z,5.4,.7,3.4,hm.wood);hb(x,y+.86,z-.3,5.05,.18,2.75,hm.white);hb(x,y+1.35,z-1.15,4.9,.9,.35,hm.white)};
+   sofa(-6,0,-2,6);table(-6,0,2.1,3.2,1.7);hb(5,.85,-3,5,.22,2.5,hm.wood);hb(5,1.45,-3,5,1,.12,hm.lime);bed(-6,HOME.floorH,1);bed(5,HOME.floorH,-1.5);sofa(5,HOME.floorH*2,2,5);table(5,HOME.floorH*2,4.3,3.2,1.6);hb(-6,HOME.floorH*2+.9,-2,4.6,1.8,2.8,hm.wood);hb(-6,HOME.floorH*2+1.9,-2,4.1,.12,2.3,hm.white);
+   const liftX=9,liftZ=5,liftW=3.8,liftD=3.8,shaft=new THREE.Mesh(new THREE.BoxGeometry(liftW,wh,liftD),hm.glass);shaft.position.set(HOME.x+liftX,wh/2,HOME.z+liftZ);scene.add(shaft);const cab=new THREE.Mesh(new THREE.BoxGeometry(liftW-.35,.22,liftD-.35),hm.trim);cab.position.set(HOME.x+liftX,FLOOR_Y(0)-.25,HOME.z+liftZ);scene.add(cab);
+   const el=labelSprite('ELEVATOR',{w:4.2,size:54,color:'#dfffe8',glow:'#4dd2ff',plate:true});el.position.set(HOME.x+liftX,wh+1.2,HOME.z+liftZ);scene.add(el);
+   specials.home={x:HOME.x,z:HOME.z+HOME.d/2+2.8,label:'SUPER HOUSE · SPAWN RESIDENCE',act:()=>{P.x=HOME.x;P.z=HOME.z+HOME.d/2+1.6;P.y=FLOOR_Y(0);currentFloor=0;mode='walk';toast('SPAWNED AT SUPER HOUSE')}};
+   specials.elevator={x:HOME.x+liftX,z:HOME.z+liftZ-2.8,label:'ELEVATOR · PRESS F TO CHANGE FLOOR',act:()=>{elevatorFloor=(elevatorFloor+1)%3;currentFloor=elevatorFloor;P.x=HOME.x+liftX;P.z=HOME.z+liftZ-2;P.y=FLOOR_Y(currentFloor);mode='walk';toast('ELEVATOR · FLOOR '+(currentFloor+1))}};
+
   // parks (corner blocks): trees, pond, benches
   const trees=[];for(const [cx,cz] of[[-54,-54],[54,-54],[-54,54],[54,54]]){for(let i=0;i<30;i++){const a=rnd(0,6.283),r=Math.sqrt(Math.random())*22;const x=cx+Math.cos(a)*r,z=cz+Math.sin(a)*r;if(Math.hypot(x-cx,z-cz)>6)trees.push([x,z,rnd(.8,1.6)])}
     const pond=new THREE.Mesh(new THREE.CircleGeometry(6,32),new THREE.MeshBasicMaterial({color:new THREE.Color(.1,.9,.8)}));pond.rotation.x=-Math.PI/2;pond.position.set(cx,.05,cz);scene.add(pond);const pr3=new THREE.Mesh(new THREE.TorusGeometry(6,.2,8,40),greenM);pr3.rotation.x=Math.PI/2;pr3.position.set(cx,.1,cz);scene.add(pr3)}
@@ -229,7 +248,10 @@ function create(){
    loadTex('assets/lobby/supercycle-logo.webp',t=>{bb.map=t;bb.needsUpdate=true});for(const s of[-1,1]){const f=new THREE.Mesh(new THREE.BoxGeometry(.2,6,5),s>0?limeM:redM);f.position.set(-20,0,0);f.rotation.x=s>0?0:Math.PI/2;blimp.add(f)}}
 
   /* ---------- sprites: bots + the flyer ---------- */
-  const fronts=[];const flyF=[];
+  const fronts=[];const flyF=[];const walkF=[];let walkGrid={cols:4,rows:4},walkReady=false;
+  function cutWalkSheet(img){const w=img.naturalWidth||img.width,h=img.naturalHeight||img.height,c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(img,0,0);const d=x.getImageData(0,0,w,h).data,cs=[];
+    for(let cols=2;cols<=12;cols++)for(let rows=2;rows<=12;rows++){if(w/cols<24||h/rows<24)continue;let edge=0,occ=0,total=0;const cw=w/cols,ch=h/rows,sx=Math.max(1,Math.floor(cw/42)),sy=Math.max(1,Math.floor(ch/42));for(let r=0;r<rows;r++)for(let c0=0;c0<cols;c0++){let hit=0,samp=0;for(let yy=Math.floor(r*ch)+2;yy<Math.min(h,Math.floor((r+1)*ch)-2);yy+=sy)for(let xx=Math.floor(c0*cw)+2;xx<Math.min(w,Math.floor((c0+1)*cw)-2);xx+=sx){samp++;if(d[(yy*w+xx)*4+3]>18)hit++}if(hit/Math.max(1,samp)>.008)occ++;total++;const x0=Math.floor(c0*cw),x1=Math.min(w,Math.floor((c0+1)*cw)-1),y0=Math.floor(r*ch),y1=Math.min(h,Math.floor((r+1)*ch)-1);for(let yy=y0;yy<=y1;yy+=sy)edge+=(d[(yy*w+x0)*4+3]>18)+(d[(yy*w+x1)*4+3]>18);for(let xx=x0;xx<=x1;xx+=sx)edge+=(d[(y0*w+xx)*4+3]>18)+(d[(y1*w+xx)*4+3]>18)}const occScore=occ/Math.max(1,total),edgeScore=edge/Math.max(1,(w/sx+h/sy)*2*total),pref=(cols===4||cols===8?1.35:1)*(rows===4||rows===8?1.2:1);cs.push({cols,rows,score:occScore*pref-edgeScore*.8})}cs.sort((a,b)=>b.score-a.score);walkGrid=cs[0]||{cols:4,rows:4};for(let r=0;r<walkGrid.rows;r++){walkF[r]=[];for(let c0=0;c0<walkGrid.cols;c0++){const fc=document.createElement('canvas');fc.width=Math.floor(w/walkGrid.cols);fc.height=Math.floor(h/walkGrid.rows);const fx=fc.getContext('2d');fx.imageSmoothingEnabled=false;fx.drawImage(img,c0*fc.width,r*fc.height,fc.width,fc.height,0,0,fc.width,fc.height);const ft=new THREE.CanvasTexture(fc);ft.colorSpace=THREE.SRGBColorSpace;ft.magFilter=THREE.NearestFilter;ft.minFilter=THREE.NearestFilter;walkF[r][c0]=ft}}return walkF}
+  new THREE.TextureLoader().load(BASE+'4b318cef-2ac1-49cf-a329-93dd2d5d8896.png',t=>{try{cutWalkSheet(t.image);walkReady=true}catch(e){console.warn('walk sheet cut failed',e)}});
   for(let v=1;v<=7;v++)loadTex('assets/mingle/p'+v+'.webp',t=>{fronts[v]=[...Array(8)].map((_,f)=>{const c=t.clone();c.needsUpdate=true;c.repeat.set(1/8,1);c.offset.set(f/8,0);return new THREE.SpriteMaterial({map:c,alphaTest:.3,fog:true})})});
   const flyTint=[0xffffff,0xffd9d9,0xd9f0ff,0xe9ffd9,0xfff0c8,0xf0d9ff];let flyTex=null;const flyMats={};
   loadTex('assets/lobby/flyer.webp',t=>{flyTex=t;for(let r=0;r<4;r++){flyF[r]=[];for(let c=0;c<4;c++){const x=t.clone();x.needsUpdate=true;x.repeat.set(.25,.25);x.offset.set(c*.25,1-(r+1)*.25);flyF[r][c]=x}}});
@@ -258,7 +280,9 @@ function create(){
   $('#twPop').textContent=npcs.length+1+' IN TOWN · OPEN WORLD';
 
   /* ---------- the player (the flyer) ---------- */
-  const P={x:0,y:3,z:20,vx:0,vy:0,vz:0,row:1,ph:0,boost:0,bub:null,bt:0};
+  const HOME={x:0,z:72,w:30,d:24,floorH:5.4,floors:3,doorW:4},FLOOR_Y=f=>1.6+f*HOME.floorH;
+  let mode='walk',currentFloor=0,elevatorFloor=0,walkF=[],walkGrid={cols:4,rows:4},walkReady=false;
+  const P={x:HOME.x,y:FLOOR_Y(0),z:HOME.z-3,vx:0,vy:0,vz:0,row:1,ph:0,boost:0,bub:null,bt:0,faceX:0,faceZ:1,running:false};
   const heroMat=new THREE.SpriteMaterial({transparent:true,alphaTest:.25,fog:true});let heroInit=false;
   const hero=new THREE.Sprite(heroMat);hero.scale.set(FW,FH,1);hero.renderOrder=3;scene.add(hero);
   const heroSh=new THREE.Mesh(new THREE.CircleGeometry(1,20),new THREE.MeshBasicMaterial({color:0,transparent:true,opacity:.45,depthWrite:false}));heroSh.rotation.x=-Math.PI/2;heroSh.position.y=.09;scene.add(heroSh);
@@ -280,9 +304,10 @@ function create(){
   let going=false;function go(k){if(going)return;going=true;toast('LOADING…');flashEl.style.opacity=1;emit(P.x,P.y,P.z,40,0xc8ff43,6,1,2,1);setTimeout(()=>{if(api.onPortal)api.onPortal(k);setTimeout(()=>{flashEl.style.opacity=0;going=false},500)},380)}
   root.querySelectorAll('[data-em]').forEach(b=>b.onclick=()=>{say(P,b.dataset.em,3);P.vy=Math.max(P.vy,7);emit(P.x,P.y+1,P.z,14,0xffc83d,3,1,2,.9);const n=nearestNpc(30);if(n&&Math.random()<.7)setTimeout(()=>say(n,pick(['👋','hey!','😄','🔥']),3),600)});
   $('#twBoost').onpointerdown=()=>boostBtn=true;$('#twBoost').onpointerup=$('#twBoost').onpointerleave=()=>boostBtn=false;
+  const modeBtn=$('#twMode'),homePanel=$('#twHomePanel');function setMode(next){mode=next;modeBtn.textContent=mode==='fly'?'FLY':'WALK';modeBtn.classList.toggle('fly',mode==='fly');if(mode==='fly')P.y=Math.max(3,P.y);else{currentFloor=clamp(Math.round((P.y-1.6)/HOME.floorH),0,2);P.y=FLOOR_Y(currentFloor);P.vy=0}toast(mode==='fly'?'FLIGHT MODE · SPACE / C / RUN':'WALK MODE · WASD / SHIFT RUN')}modeBtn.onclick=()=>setMode(mode==='walk'?'fly':'walk');
   $('#twUp').onpointerdown=()=>upBtn=true;$('#twDn').onpointerdown=()=>dnBtn=true;for(const id of['#twUp','#twDn'])for(const ev of['pointerup','pointerleave','pointercancel'])$(id).addEventListener(ev,()=>{upBtn=dnBtn=false});
   $('#twAll').onclick=()=>api.onExit&&api.onExit();
-  const music=new Audio(BASE+'Avalanche_Route.mp3');music.loop=true;music.volume=.3;music.preload='auto';
+  const music=new Audio(BASE+'CREATE_A_MUSIC_ABOUT_A_COIN_CA.mp3');music.loop=true;music.volume=.3;music.preload='auto';
   $('#twSound').onclick=()=>{soundOn=!soundOn;$('#twSound').textContent='SOUND: '+(soundOn?'ON':'OFF');soundOn?music.play().catch(()=>{}):music.pause()};
   function nearestNpc(r){let b=null,bd=r;for(const n of npcs){const d=Math.hypot(n.x-P.x,(n.y||0)-P.y,n.z-P.z);if(d<bd){bd=d;b=n}}return b}
   inEl.addEventListener('focus',()=>typing=true);inEl.addEventListener('blur',()=>typing=false);
@@ -299,7 +324,7 @@ function create(){
   /* ---------- input ---------- */
   const kd=e=>{if(!visible)return;if(typing)return;const k=e.key.toLowerCase();
     if(k==='enter'){e.preventDefault();e.stopImmediatePropagation();inEl.focus();return}
-    if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright',' ','c','q','e','f','shift','control'].includes(k)){e.preventDefault();e.stopImmediatePropagation();keys.add(k);if(k==='f')interact()}
+    if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright',' ','c','q','e','f','shift','control','v'].includes(k)){e.preventDefault();e.stopImmediatePropagation();keys.add(k);if(k==='f')interact();if(k==='v')setMode(mode==='walk'?'fly':'walk')}
     if(k==='escape'){e.stopImmediatePropagation();if(menu.classList.contains('on'))menu.classList.remove('on');else if(api.onExit)api.onExit()}};
   addEventListener('keydown',kd,true);addEventListener('keyup',e=>{if(visible)keys.delete(e.key.toLowerCase())},true);addEventListener('blur',()=>keys.clear());
   const joyEl=$('#twJoy'),knob=joyEl.firstElementChild;let jid=null;
@@ -323,14 +348,12 @@ function create(){
     let ix=(keys.has('d')||keys.has('arrowright')?1:0)-(keys.has('a')||keys.has('arrowleft')?1:0)+joy.x,iz=(keys.has('s')||keys.has('arrowdown')?1:0)-(keys.has('w')||keys.has('arrowup')?1:0)+joy.z;const m=Math.hypot(ix,iz);if(m>1){ix/=m;iz/=m}
     const frozen=menu.classList.contains('on')||going||typing;if(frozen){ix=iz=0}
     const fx=-Math.sin(yaw),fz=-Math.cos(yaw),rx=Math.cos(yaw),rz=-Math.sin(yaw);
-    const boost=(keys.has('shift')||boostBtn)&&!frozen,sp=(boost?26:13)*(P.y<3?.7:1),k=1-Math.exp(-dt*5.5);
+    const boost=(keys.has('shift')||boostBtn)&&!frozen,k=1-Math.exp(-dt*(mode==='walk'?10:5.5)),sp=mode==='walk'?(boost?8.5:4.5):((boost?26:13)*(P.y<3?.7:1));
     const tx=(rx*ix+fx*-iz)*sp,tz=(rz*ix+fz*-iz)*sp;P.vx+=(tx-P.vx)*k;P.vz+=(tz-P.vz)*k;
-    const up=!frozen&&(keys.has(' ')||upBtn),dn=!frozen&&(keys.has('c')||keys.has('control')||dnBtn);P.vy+=(((up?1:0)-(dn?1:0))*(boost?16:10)-P.vy)*Math.min(1,dt*5);
-    P.x+=P.vx*dt;P.y=clamp(P.y+P.vy*dt,1.6,150);P.z+=P.vz*dt;
+    if(mode==='walk'){P.vy=0;P.y=FLOOR_Y(currentFloor);P.x+=P.vx*dt;P.z+=P.vz*dt}else{const up=!frozen&&(keys.has(' ')||upBtn),dn=!frozen&&(keys.has('c')||keys.has('control')||dnBtn);P.vy+=(((up?1:0)-(dn?1:0))*(boost?16:10)-P.vy)*Math.min(1,dt*5);P.x+=P.vx*dt;P.y=clamp(P.y+P.vy*dt,1.6,150);P.z+=P.vz*dt}
     const pr0=Math.hypot(P.x,P.z);if(pr0>ISL+25){P.x*=(ISL+25)/pr0;P.z*=(ISL+25)/pr0}
     pushOut(P,1,P.y);
-    const spd=Math.hypot(P.vx,P.vz);const vr=P.vx*rx+P.vz*rz,vf=P.vx*fx+P.vz*fz;
-    if(spd>.8)P.row=Math.abs(vr)>Math.abs(vf)*.8?(vr>0?0:2):(vf>0?3:1);else P.row=1;P.ph+=dt*(spd>.8?(boost?16:11):6);
+    const spd=Math.hypot(P.vx,P.vz),vr=P.vx*rx+P.vz*rz,vf=P.vx*fx+P.vz*fz;P.running=mode==='walk'&&boost&&spd>1.2;if(spd>.3){P.faceX=rx*vr+fx*vf;P.faceZ=rz*vr+fz*vf}if(spd>.8)P.row=Math.abs(vr)>Math.abs(vf)*.8?(vr>0?0:2):(vf>0?3:1);else P.row=1;P.ph+=dt*(mode==='walk'?(P.running?11:7):(boost?16:11));
     if(spd>2&&Math.random()<dt*(boost?40:16))emit(P.x+rnd(-.3,.3),P.y-.8,P.z+rnd(-.3,.3),1,boost?0xffc83d:0x7bff3a,.6,.2,1,.6);
     if(P.bub){P.bt-=dt;if(P.bt<=0)clearBub(P)}
     // prompts: nearest special door
@@ -372,8 +395,8 @@ function create(){
   function plazaSpin(dt){statue.rotation.y+=dt*.5}
   function place(){
     // player sprite
-    if(flyF[P.row]){heroMat.map=flyF[P.row][Math.floor(P.ph)%4];if(!heroInit){heroMat.needsUpdate=true;heroInit=true}}
-    hero.position.set(P.x,P.y+Math.sin(time*2.4)*.12,P.z);const h=Math.max(0,P.y);heroSh.position.set(P.x,.09,P.z);heroSh.scale.setScalar(Math.max(.3,1.1-h*.015));heroSh.material.opacity=Math.max(.1,.45-h*.006);
+    if(mode==='walk'&&walkReady){const dir=Math.abs(P.faceX)>Math.abs(P.faceZ)?(P.faceX<0?1:2):(P.faceZ<0?3:0),rr=walkGrid.rows>=8?Math.min(walkGrid.rows-1,dir+(P.running?4:0)):Math.min(walkGrid.rows-1,dir),row=walkF[rr]||walkF[0];if(row&&row.length){const f=Math.hypot(P.vx,P.vz)>.35?Math.floor(P.ph*row.length)%row.length:0;heroMat.map=row[f];heroMat.needsUpdate=true;hero.scale.set(2.9*walkGrid.cols/Math.max(1,walkGrid.rows),2.9,1)}}else if(flyF[P.row]){heroMat.map=flyF[P.row][Math.floor(P.ph)%4];if(!heroInit){heroMat.needsUpdate=true;heroInit=true}}
+    hero.position.set(P.x,P.y+(mode==='walk'?1.2:Math.sin(time*2.4)*.12),P.z);const h=Math.max(0,P.y);heroSh.position.set(P.x,.09,P.z);heroSh.scale.setScalar(Math.max(.3,1.1-h*.015));heroSh.material.opacity=Math.max(.1,.45-h*.006);
     heroTag.position.set(P.x,P.y+2.3,P.z);if(P.bub)P.bub.position.set(P.x,P.y+3.9,P.z);
     for(const n of npcs){
       if(n.kind==='walk'){const set=fronts[n.variant];if(set){const mov=Math.hypot(n.vx,n.vz)>.4,f=mov?Math.floor(n.ph*4)%4:3;n.sp.material=set[(n.face>0?0:4)+f]}
@@ -399,7 +422,7 @@ function create(){
 
   /* ---------- public ---------- */
   api.show=()=>{root.classList.remove('tw-off');visible=true;resize();going=false;flashEl.style.opacity=0;menu.classList.remove('on');
-    P.x=-4;P.z=24;P.y=3;P.vx=P.vy=P.vz=0;yaw=0;if(soundOn)music.play().catch(()=>{});last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(frame);
+    P.x=HOME.x;P.z=HOME.z-3;P.y=FLOOR_Y(0);currentFloor=0;mode='walk';modeBtn.textContent='WALK';modeBtn.classList.remove('fly');yaw=0;homePanel.classList.add('on');setTimeout(()=>homePanel.classList.remove('on'),3200);if(soundOn)music.play().catch(()=>{});last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(frame);
     toast('WELCOME TO SUPER TOWN');log(null,'Welcome to Super Town. Fly around, say hi, and visit the Arcade, HQ, Dock and Exchange.','sys')};
   api.hide=()=>{visible=false;cancelAnimationFrame(raf);root.classList.add('tw-off');music.pause();keys.clear();inEl.blur()};
   api.debug=(w)=>{if(w==='aerial'){P.x=0;P.z=40;P.y=44;yaw=0;pitch=.62;camD=34}else if(w==='street'){P.x=14;P.z=2;P.y=3;yaw=-.5;pitch=.22;camD=11}};
