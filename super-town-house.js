@@ -83,7 +83,7 @@ export function createSuperHouse({scene,player,labelSprite,toast}){
   let floor=0,liftY=1.08,targetY=1.08;
   function floorForY(y){return Math.max(0,Math.min(2,Math.round((y-1.6)/H.floorH)))}
   function nearElevator(){return Math.abs(player.x-(H.x+ex))<4.4&&Math.abs(player.z-(H.z+ez))<4.8&&player.y<24}
-  function interact(){if(!nearElevator())return false;floor=(floor+1)%3;targetY=1.08+floor*H.floorH;toast?.('ELEVATOR · FLOOR '+(floor+1));return true}
+  function interact(){if(!nearElevator())return false;floor=(floor+1)%3;targetY=1.08+floor*H.floorH;player.y=1.6+floor*H.floorH;player.vy=0;toast?.('ELEVATOR · FLOOR '+(floor+1));return true}
   function update(dt){
     liftY+=(targetY-liftY)*(1-Math.exp(-dt*5));car.position.y=liftY;liftRing.position.y=liftY+.14;
     if(nearElevator()&&Math.abs(player.y-(1.6+floor*H.floorH))<1.4)player.y=1.6+floor*H.floorH;
