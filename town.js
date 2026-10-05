@@ -293,6 +293,11 @@ function create(){
   $('#twPop').textContent=npcs.length+1+' IN TOWN · OPEN WORLD';
 
   /* ---------- the player (the flyer) ---------- */
+  /* Toast UI must exist before the house constructor: the house can call toast during initialization. */
+  const toastEl=$('#twToast');
+  let toastT=0;
+  const toast=t=>{toastEl.textContent=t;toastEl.classList.add('on');toastT=1.8};
+
   const P={x:0,y:1.6,z:20,vx:0,vy:0,vz:0,row:1,ph:0,boost:0,bub:null,bt:0,mode:'walk'};
   const heroMat=new THREE.SpriteMaterial({transparent:true,alphaTest:.25,fog:true});let heroInit=false;
   const hero=new THREE.Sprite(heroMat);hero.scale.set(playerFrameW,playerFrameH,1);hero.renderOrder=3;scene.add(hero);
@@ -307,8 +312,7 @@ function create(){
   let yaw=0,pitch=.34,camD=12;const keys=new Set();let joy={x:0,z:0},upBtn=false,dnBtn=false,boostBtn=false;
 
   /* ---------- UI ---------- */
-  const logEl=$('#twLog'),inEl=$('#twIn'),promptEl=$('#twPrompt'),toastEl=$('#twToast'),flashEl=$('#twFlash'),menu=$('#twMenu');
-  let toastT=0;const toast=t=>{toastEl.textContent=t;toastEl.classList.add('on');toastT=1.8};
+  const logEl=$('#twLog'),inEl=$('#twIn'),promptEl=$('#twPrompt'),flashEl=$('#twFlash'),menu=$('#twMenu');
   function log(who,t,cls=''){const d=document.createElement('div');if(cls)d.className=cls;if(who){const b=document.createElement('b');b.textContent=who+': ';d.appendChild(b)}d.appendChild(document.createTextNode(t));logEl.appendChild(d);setTimeout(()=>d.remove(),9000);while(logEl.children.length>6)logEl.firstChild.remove()}
   function say(o,text,secs=4){if(o.bub){o.bub.parent&&o.bub.parent.remove(o.bub);o.bub.material.map.dispose();o.bub.material.dispose()}o.bub=bubble(text);scene.add(o.bub);o.bt=secs}
   function clearBub(o){if(o.bub){scene.remove(o.bub);o.bub.material.map.dispose();o.bub.material.dispose();o.bub=null}}
