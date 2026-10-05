@@ -369,7 +369,7 @@ function create(){
     const m=Math.hypot(ix,iz);if(m>1){ix/=m;iz/=m}
     const frozen=menu.classList.contains('on')||going||typing;if(frozen){ix=iz=0}
     const fx=-Math.sin(yaw),fz=-Math.cos(yaw),rx=Math.cos(yaw),rz=-Math.sin(yaw);
-    const running=(keys.has('shift')||boostBtn)&&!frozen;
+    const running=(keys.has('shift')||boostBtn)&&!frozen;P.running=running;
     const k=1-Math.exp(-dt*(P.mode==='fly'?5.5:8));
     if(P.mode==='fly'){
       const sp=running?26:13;const tx=(rx*ix+fx*-iz)*sp,tz=(rz*ix+fz*-iz)*sp;
@@ -387,7 +387,7 @@ function create(){
     if(P.mode==='fly')pushOut(P,1,P.y);
     const spd=Math.hypot(P.vx,P.vz);const vr=P.vx*rx+P.vz*rz,vf=P.vx*fx+P.vz*fz;
     if(P.mode==='fly'){P.row=Math.abs(vr)>Math.abs(vf)*.8?(vr>0?0:2):(vf>0?3:1);P.ph+=dt*(spd>.8?(running?16:11):6)}else{P.row=0;P.ph+=dt*(spd>.15?(running?12:7):2)}
-    if(P.mode==='fly'&&spd>2&&Math.random()<dt*(running?40:16))emit(P.x+rnd(-.3,.3),P.y-.8,P.z+rnd(-.3,.3),1,boost?0xffc83d:0x7bff3a,.6,.2,1,.6);
+    if(P.mode==='fly'&&spd>2&&Math.random()<dt*(running?40:16))emit(P.x+rnd(-.3,.3),P.y-.8,P.z+rnd(-.3,.3),1,running?0xffc83d:0x7bff3a,.6,.2,1,.6);
     if(P.bub){P.bt-=dt;if(P.bt<=0)clearBub(P)}
     // prompts: nearest special door
     curSpot=null;let bd=9;for(const key in specials){const s=specials[key],d=Math.hypot(P.x-s.x,P.z-s.z);if(d<bd&&P.y<26){bd=d;curSpot=s}}
@@ -429,7 +429,7 @@ function create(){
   function plazaSpin(dt){statue.rotation.y+=dt*.5}
   function place(){
     // player sprite: new sheet is walk/run on the ground; flying uses option 4.
-    const frames=P.mode==='fly'?(playerFlyF[P.row]||runF[0]||walkF[0]):(running?runF[0]:walkF[0]);
+    const frames=P.mode==='fly'?(playerFlyF[0]||runF[0]||walkF[0]):(P.running?runF[0]:walkF[0]);
     if(frames&&frames.length){heroMat.map=frames[Math.floor(P.ph)%frames.length].map;heroMat.needsUpdate=true;hero.scale.set(playerFrameW,playerFrameH,1)}
     hero.position.set(P.x,P.y+(P.mode==='fly'?Math.sin(time*2.4)*.12:0),P.z);
     const h=Math.max(0,P.y);heroSh.position.set(P.x,.09,P.z);heroSh.scale.setScalar(Math.max(.3,1.1-h*.015));heroSh.material.opacity=Math.max(.1,.45-h*.006);
