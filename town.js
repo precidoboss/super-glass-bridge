@@ -379,7 +379,7 @@ function create(){
       P.x+=P.vx*dt;P.y=clamp(P.y+P.vy*dt,1.6,150);P.z+=P.vz*dt;
     }else{
       const sp=running?8.5:4.4;const tx=(rx*ix+fx*-iz)*sp,tz=(rz*ix+fz*-iz)*sp;
-      P.vx+=(tx-P.vx)*k;P.vz+=(tz-P.vz)*k;P.vy+=(1.6-P.y)*Math.min(1,dt*8);if(house&&house.isInside())P.vy=0;
+      P.vx+=(tx-P.vx)*k;P.vz+=(tz-P.vz)*k;P.vy+=(1.6-P.y)*Math.min(1,dt*8);if(house&&house.isInside())P.vy=0;else P.y=1.6;
       P.x+=P.vx*dt;P.z+=P.vz*dt;P.y=1.6;
     }
     if(house)house.resolve(P);if(house)house.update(dt);
