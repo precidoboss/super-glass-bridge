@@ -816,8 +816,8 @@ function zoomToggle(){
 zbtn.onclick=zoomToggle;
 
 /* ============ MUSIC + PIPS ============ */
-const bgm=new Audio('Avalanche_Route.mp3');bgm.loop=true;bgm.volume=.45;bgm.preload='auto';
-const kick=()=>{if(!soundOn)return;const v=window.__sgView;if(v==='sgb'&&bgm.paused)bgm.play().catch(()=>{});else if(v==='rl'&&window.__rlBgm&&window.__rlBgm.paused)window.__rlBgm.play().catch(()=>{})};
+const bgm=new Audio('CREATE_A_MUSIC_ABOUT_A_COIN_CA.mp3');bgm.loop=true;bgm.volume=.45;bgm.preload='auto';
+const kick=()=>{if(!soundOn)return;const v=window.__sgView;if((v==='sgb'||v==='hub')&&bgm.paused)bgm.play().catch(()=>{});else if(v==='rl'&&window.__rlBgm&&window.__rlBgm.paused)window.__rlBgm.play().catch(()=>{})};
 addEventListener('pointerdown',kick);addEventListener('keydown',kick);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)bgm.pause();else kick()});
 const pipEls=[...document.querySelectorAll('#pips i')];let pipN=-1;
@@ -1392,7 +1392,7 @@ return{enter,exit,act,_step:step,_t:{start:r=>startRound(r),get:()=>({on,phase,r
 {
 const hub=$('#hub'),hubBg=$('#hubBg');let mg=null,st=null,_rlOn=false;
 function setView(v){window.__sgView=v;document.body.dataset.view=v;hub.classList.toggle('hub-off',v!=='hub');
-  if(v!=='sgb')bgm.pause();if(v!=='rl'&&window.__rlBgm)window.__rlBgm.pause();if(v==='sgb'){bgm.volume=.45}if(v==='sgb'||v==='rl')kick()}
+  if(v!=='sgb'&&v!=='hub')bgm.pause();if(v!=='rl'&&window.__rlBgm)window.__rlBgm.pause();if(v==='sgb'||v==='hub'){bgm.volume=.45}if(v==='sgb'||v==='hub'||v==='rl')kick()}
 // the Red Light module flips window.__rlOn on enter/exit; mirror that into the router
 Object.defineProperty(window,'__rlOn',{configurable:true,get:()=>_rlOn,set:v=>{_rlOn=!!v;if(v&&window.__sgView!=='rl')setView('rl');else if(!v&&window.__sgView==='rl'&&!navigating)back()}});
 let lb=null,tw=null,from='hub',navigating=false;
