@@ -200,12 +200,6 @@ function create(){
    pts.forEach(([x,z],i)=>{d.position.set(x,2.5,z);d.updateMatrix();pm.setMatrixAt(i,d.matrix);pos.set([x,5.2,z],i*3)});scene.add(pm);
    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(pos,3));scene.add(Object.assign(new THREE.Points(g,new THREE.PointsMaterial({size:3.2,map:glowTex,color:0xc8ff7a,transparent:true,opacity:.7,depthWrite:false,blending:THREE.AdditiveBlending,fog:false})),{frustumCulled:false}))}
 
-  // Three-story furnished spawn residence with a working elevator.
-  house=createSuperHouse({scene,player:P,labelSprite,toast});
-  const oldBlocked=blocked;
-  const oldPushOut=pushOut;
-  const spawnHome=house.spawn;
-
   /* ---------- cars ---------- */
   function loopCurve(H,ccw){const r=7,pts=[];const corners=ccw?[[H-r,H-r,0],[-(H-r),H-r,Math.PI/2],[-(H-r),-(H-r),Math.PI],[H-r,-(H-r),Math.PI*1.5]]:[[H-r,-(H-r),Math.PI*1.5],[-(H-r),-(H-r),Math.PI],[-(H-r),H-r,Math.PI/2],[H-r,H-r,0]];
     for(const [cx,cz,a0] of corners){for(let i=0;i<=4;i++){const a=ccw?a0+i/4*Math.PI/2:a0-i/4*Math.PI/2;pts.push(new V3(cx+Math.cos(a)*r,.55,cz+Math.sin(a)*r))}}return new THREE.CatmullRomCurve3(pts,true,'catmullrom',.4)}
@@ -303,6 +297,9 @@ function create(){
   const heroMat=new THREE.SpriteMaterial({transparent:true,alphaTest:.25,fog:true});let heroInit=false;
   const hero=new THREE.Sprite(heroMat);hero.scale.set(playerFrameW,playerFrameH,1);hero.renderOrder=3;scene.add(hero);
   let house=null;
+  // Build the residence only after the player state exists (avoids a TDZ during town startup).
+  house=createSuperHouse({scene,player:P,labelSprite,toast});
+  const spawnHome=house.spawn;
   const heroSh=new THREE.Mesh(new THREE.CircleGeometry(1,20),new THREE.MeshBasicMaterial({color:0,transparent:true,opacity:.45,depthWrite:false}));heroSh.rotation.x=-Math.PI/2;heroSh.position.y=.09;scene.add(heroSh);
   const heroTag=labelSprite('YOU',{w:1.8,size:58,color:'#0a1405',glow:'#d4ff3a',plate:false});scene.add(heroTag);
   const youPlate=(()=>{const c=document.createElement('canvas');c.width=512;c.height=112;const x=c.getContext('2d');x.fillStyle='#d4ff3a';x.beginPath();x.roundRect(150,12,212,88,26);x.fill();x.fillStyle='#0a1405';x.font='800 58px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText('YOU',256,58);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t})();
