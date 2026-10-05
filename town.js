@@ -360,7 +360,7 @@ function create(){
   function update(dt){
     time+=dt;U.time.value=time;grade.uniforms.time.value=time%100;
     if(toastT>0){toastT-=dt;if(toastT<=0)toastEl.classList.remove('on')}
-    plazaSpin(dt);if(house)house.update(dt);
+    plazaSpin(dt);
     // camera yaw keys
     if(!typing){if(keys.has('q'))yaw+=dt*1.8;if(keys.has('e'))yaw-=dt*1.8}
     // player movement: ground walk/run by default; flight is a deliberate mode (4).
@@ -379,10 +379,10 @@ function create(){
       P.x+=P.vx*dt;P.y=clamp(P.y+P.vy*dt,1.6,150);P.z+=P.vz*dt;
     }else{
       const sp=running?8.5:4.4;const tx=(rx*ix+fx*-iz)*sp,tz=(rz*ix+fz*-iz)*sp;
-      P.vx+=(tx-P.vx)*k;P.vz+=(tz-P.vz)*k;P.vy+=(1.6-P.y)*Math.min(1,dt*8);
+      P.vx+=(tx-P.vx)*k;P.vz+=(tz-P.vz)*k;P.vy+=(1.6-P.y)*Math.min(1,dt*8);if(house&&house.isInside())P.vy=0;
       P.x+=P.vx*dt;P.z+=P.vz*dt;P.y=1.6;
     }
-    if(house)house.resolve(P);
+    if(house)house.resolve(P);if(house)house.update(dt);
     const pr0=Math.hypot(P.x,P.z);if(pr0>ISL+25){P.x*=(ISL+25)/pr0;P.z*=(ISL+25)/pr0}
     if(P.mode==='fly')pushOut(P,1,P.y);
     const spd=Math.hypot(P.vx,P.vz);const vr=P.vx*rx+P.vz*rz,vf=P.vx*fx+P.vz*fz;
