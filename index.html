@@ -816,7 +816,7 @@ function zoomToggle(){
 zbtn.onclick=zoomToggle;
 
 /* ============ MUSIC + PIPS ============ */
-const bgm=new Audio('Avalanche_Route.mp3');bgm.loop=true;bgm.volume=.45;bgm.preload='auto';
+const bgm=new Audio('CREATE_A_MUSIC_ABOUT_A_COIN_CA.mp3');bgm.loop=true;bgm.volume=.45;bgm.preload='auto';
 const kick=()=>{if(!soundOn)return;const v=window.__sgView;if(v==='sgb'&&bgm.paused)bgm.play().catch(()=>{});else if(v==='rl'&&window.__rlBgm&&window.__rlBgm.paused)window.__rlBgm.play().catch(()=>{})};
 addEventListener('pointerdown',kick);addEventListener('keydown',kick);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)bgm.pause();else kick()});
