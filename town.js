@@ -393,6 +393,10 @@ function create(){
     const ramp=new THREE.Mesh(new THREE.BoxGeometry(5.8,.3,8),new THREE.MeshStandardMaterial({color:0x26362d,roughness:.7,metalness:.25}));ramp.position.set(0,2.0,10.5);ramp.rotation.x=-.22;g.add(ramp);
     const title=labelSprite('SUPER HOME GARAGE',{w:7.4,size:62,color:'#edffe9',glow:'#c8ff43',plate:true});title.position.set(0,3.35,5.3);g.add(title);
     const l1=new THREE.PointLight(0xc8ff43,20,18,2);l1.position.set(-3,3,1);g.add(l1);const l2=new THREE.PointLight(0x4dd2ff,18,18,2);l2.position.set(3,3,-6);g.add(l2);
+     const garageGate=new THREE.Group();garageGate.position.set(GARAGE.doorX,0,GARAGE.doorZ);scene.add(garageGate);
+     const gateRing=new THREE.Mesh(new THREE.TorusGeometry(2.15,.12,12,40),new THREE.MeshBasicMaterial({color:0xc8ff43,transparent:true,opacity:.82,depthWrite:false}));gateRing.rotation.x=Math.PI/2;garageGate.add(gateRing);
+     const gateL=new THREE.Mesh(new THREE.BoxGeometry(.18,3.2,.18),limeM),gateR=gateL.clone();gateL.position.set(-2.05,1.55,0);gateR.position.set(2.05,1.55,0);garageGate.add(gateL,gateR);
+     const gateLabel=labelSprite('GARAGE · F TO ENTER',{w:6,size:54,color:'#edffe9',glow:'#c8ff43',plate:true});gateLabel.position.set(0,3.6,0);garageGate.add(gateLabel);
   }
 
   /* ---------- smart NPC traffic · every road car is a Benz ---------- */
@@ -584,7 +588,9 @@ function create(){
   $('#twBoost').onpointerdown=()=>boostBtn=true;$('#twBoost').onpointerup=$('#twBoost').onpointerleave=()=>boostBtn=false;
   $('#twUp').onpointerdown=()=>upBtn=true;$('#twDn').onpointerdown=()=>dnBtn=true;for(const id of['#twUp','#twDn'])for(const ev of['pointerup','pointerleave','pointercancel'])$(id).addEventListener(ev,()=>{upBtn=dnBtn=false});
   $('#twAll').onclick=()=>api.onExit&&api.onExit();
-  const music=new Audio(BASE+'CREATE_A_MUSIC_ABOUT_A_COIN_CA.mp3');music.loop=true;music.volume=.3;music.preload='auto';
+  const guardBtn=$('#twGuards'),syncGuardBtn=()=>{if(guardBtn)guardBtn.textContent='GUARDS: '+(guards&&guards.enabled?'ON':'STAND DOWN')};
+   guardBtn.onclick=()=>{if(!guards)return;guards.setEnabled(!guards.enabled);syncGuardBtn();toast(guards.enabled?'BODYGUARDS CALLED BACK · ON DUTY':'BODYGUARDS STAND DOWN · PRESS G TO RECALL')};
+   const music=new Audio(BASE+'CREATE_A_MUSIC_ABOUT_A_COIN_CA.mp3');music.loop=true;music.volume=.3;music.preload='auto';
   $('#twSound').onclick=()=>{soundOn=!soundOn;$('#twSound').textContent='SOUND: '+(soundOn?'ON':'OFF');soundOn?music.play().catch(()=>{}):music.pause()};
   function nearestNpc(r){let b=null,bd=r;for(const n of npcs){const d=Math.hypot(n.x-P.x,(n.y||0)-P.y,n.z-P.z);if(d<bd){bd=d;b=n}}return b}
   const elevEl=$('#twElev');let elevOn=false,elevTgt=-1;
@@ -594,7 +600,7 @@ function create(){
   function spawnHome(){garageIn=false;interiorKey=null;carReset();P.mode='walk';P.floor=0;P.x=HS.spawn.x;P.z=HS.spawn.z;P.y=0;P.vx=P.vy=P.vz=0;P.riding=false;yaw=-1.12;pitch=.36;camD=9;HS.E.y=0;HS.E.floor=0;HS.E.tgt=0;HS.E.state='open';HS.E.door=1;updateFlyBtn();camP.set(P.x-8,4,P.z);camL.set(P.x,1.5,P.z);guards&&guards.reset()}
   $('#twFly').onclick=toggleFly;$('#twHome').onclick=()=>{spawnHome();toast('HOME SWEET HOME')};
   inEl.addEventListener('focus',()=>typing=true);inEl.addEventListener('blur',()=>typing=false);
-  inEl.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter'){const t=inEl.value.trim();inEl.value='';inEl.blur();if(t){log('YOU',t,'me');say(P,t,5);if(!(guards&&guards.onChat(t))&&!folk.onChat(t)){const n=nearestNpc(60);if(n)setTimeout(()=>{const r=pick(REPLIES);say(n,r,4);log(n.name,r)},rnd(1200,3200))}}}else if(e.key==='Escape'){inEl.blur()}});
+  inEl.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter'){const t=inEl.value.trim();inEl.value='';inEl.blur();if(t){log('YOU',t,'me');say(P,t,5);const guardHandled=guards&&guards.onChat(t);syncGuardBtn();if(!guardHandled&&!folk.onChat(t)){const n=nearestNpc(60);if(n)setTimeout(()=>{const r=pick(REPLIES);say(n,r,4);log(n.name,r)},rnd(1200,3200))}}}else if(e.key==='Escape'){inEl.blur()}});
 
   // minimap
   const mapC=$('#twMap'),mx=mapC.getContext('2d'),mapBase=document.createElement('canvas');mapBase.width=mapBase.height=150;
@@ -608,6 +614,7 @@ function create(){
   const kd=e=>{if(!visible)return;if(typing)return;const k=e.key.toLowerCase();
     if(k==='enter'){e.preventDefault();e.stopImmediatePropagation();inEl.focus();return}
     if(k==='v'){e.preventDefault();e.stopImmediatePropagation();if(!car.on)toggleFly();return}
+     if(k==='g'){e.preventDefault();e.stopImmediatePropagation();if(guards){guards.setEnabled(!guards.enabled);syncGuardBtn();toast(guards.enabled?'BODYGUARDS CALLED BACK · ON DUTY':'BODYGUARDS STAND DOWN · PRESS G TO RECALL')}return}
     if(k==='r'&&(car.on||Math.hypot(P.x-car.x,P.z-car.z)<7||Math.hypot(P.x-urus.group.position.x,P.z-urus.group.position.z)<7)){e.preventDefault();e.stopImmediatePropagation();const vm=car.on?driveModel:(garageIn?urus:benz);const pt=vm.nextPaint();toast((vm===urus?'URUS':'BENZ')+' PAINT · '+pt.name);emit(vm.group.position.x,garageIn?-.7:1,vm.group.position.z,14,0xc8ff43,3,1,2,.7);return}
     if((k==='1'||k==='2'||k==='3')&&P.riding){e.preventDefault();e.stopImmediatePropagation();HS.go(+k-1);return}
     if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright',' ','c','q','e','f','shift','control'].includes(k)){e.preventDefault();e.stopImmediatePropagation();keys.add(k);if(k==='f')interact()}
