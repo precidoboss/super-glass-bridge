@@ -366,23 +366,69 @@ function create(){
     return{FY,FH,TOP,E,go,step,inHouse,inCab,HX0,HZ0,hx,hz,spawn:{x:HX0+5,z:HZ0+1.5}};
   })();
 
-  /* ---------- cars ---------- */
+  /* ---------- smart NPC traffic · every road car is a Benz ---------- */
   function loopCurve(H,ccw){const r=7,pts=[];const corners=ccw?[[H-r,H-r,0],[-(H-r),H-r,Math.PI/2],[-(H-r),-(H-r),Math.PI],[H-r,-(H-r),Math.PI*1.5]]:[[H-r,-(H-r),Math.PI*1.5],[-(H-r),-(H-r),Math.PI],[-(H-r),H-r,Math.PI/2],[H-r,H-r,0]];
     for(const [cx,cz,a0] of corners){for(let i=0;i<=4;i++){const a=ccw?a0+i/4*Math.PI/2:a0-i/4*Math.PI/2;pts.push(new V3(cx+Math.cos(a)*r,.55,cz+Math.sin(a)*r))}}return new THREE.CatmullRomCurve3(pts,true,'catmullrom',.4)}
-  const carBodyG=new THREE.BoxGeometry(2,.7,4.2),carCabG=new THREE.BoxGeometry(1.7,.62,2.1),wheelG=new THREE.CylinderGeometry(.42,.42,.35,12),glassM=new THREE.MeshStandardMaterial({color:0x0a1a16,roughness:.1,metalness:.9}),wheelM=new THREE.MeshStandardMaterial({color:0x080c0a,roughness:.6}),headM=new THREE.MeshBasicMaterial({color:new THREE.Color(3,3,2.4)}),tailM=new THREE.MeshBasicMaterial({color:new THREE.Color(3,.2,.25)});
-  const CARCOL=[0x7bff3a,0xff4d4f,0xe9f4ea,0x4dd2ff,0xffc83d,0xc8ff43,0xff2a9a];
-  function makeCar(col){const g=new THREE.Group(),bm=new THREE.MeshStandardMaterial({color:col,roughness:.25,metalness:.7,emissive:col,emissiveIntensity:.18});
-    const b=new THREE.Mesh(carBodyG,bm);b.position.y=.55;g.add(b);const c=new THREE.Mesh(carCabG,glassM);c.position.set(0,1.12,.2);g.add(c);
-    for(const x of[-1,1])for(const z of[-1.35,1.35]){const w=new THREE.Mesh(wheelG,wheelM);w.rotation.z=Math.PI/2;w.position.set(x*1.02,.42,z);g.add(w)}
-    for(const x of[-.7,.7]){const h=new THREE.Mesh(new THREE.BoxGeometry(.4,.2,.1),headM);h.position.set(x,.62,-2.12);g.add(h);const t=new THREE.Mesh(new THREE.BoxGeometry(.4,.2,.1),tailM);t.position.set(x,.62,2.12);g.add(t)}
-    const ug=new THREE.Mesh(new THREE.PlaneGeometry(2.6,4.8),new THREE.MeshBasicMaterial({color:new THREE.Color(col).multiplyScalar(1.6),transparent:true,opacity:.35,blending:THREE.AdditiveBlending,depthWrite:false}));ug.rotation.x=-Math.PI/2;ug.position.y=.06;g.add(ug);scene.add(g);return g}
+  const roadBenzSeed=createBenz(renderer,{noBeam:true}),trafficEnv=roadBenzSeed.env;
+  const TRAFFIC_PAINTS=[0,1,2,3,1,0,2,3,0,1,2,3,1,0];
+  function makeTrafficBenz(i){
+    const b=i===0?roadBenzSeed:createBenz(renderer,{env:trafficEnv,noBeam:true});
+    b.setPaint(TRAFFIC_PAINTS[i%TRAFFIC_PAINTS.length]);b.setLights(true);scene.add(b.group);return b
+  }
   const cars=[];
-  {const L=[[38.2,false],[33.8,true]];L.forEach(([H,ccw],li)=>{const cv=loopCurve(H,ccw),len=cv.getLength();for(let i=0;i<5;i++)cars.push({g:makeCar(CARCOL[(li*5+i)%CARCOL.length]),cv,len,u:i/5+li*.07,spd:rnd(9,13),loop:true})})}
-  [[-1,-72,-10,2.2],[1,72,10,-2.2],[-1,-72,-10,-2.2],[1,72,10,2.2]].forEach(([dir,a,b,off],i)=>{const horiz=i<2;cars.push({g:makeCar(CARCOL[(i+3)%CARCOL.length]),shuttle:true,a,b,off,horiz,t:rnd(0,1),dir:1,spd:rnd(8,12)})});
+  {const L=[[38.2,false],[33.8,true]];L.forEach(([H,ccw],li)=>{const cv=loopCurve(H,ccw),len=cv.getLength();
+    for(let i=0;i<5;i++){const b=makeTrafficBenz(cars.length);cars.push({g:b.group,b,cv,len,u:(i/5+li*.07)%1,v:rnd(8.5,12.5),cruise:rnd(9.5,13.5),steer:0,roll:0,pit:0,_pv:0,brake:false,loop:true,id:'ring-'+li+'-'+i})}
+  })}
+  [[-1,-72,-10,2.2],[1,72,10,-2.2],[-1,-72,-10,-2.2],[1,72,10,2.2]].forEach(([dir,start,end,off],i)=>{
+    const horiz=i<2,b=makeTrafficBenz(cars.length);
+    cars.push({g:b.group,b,shuttle:true,start,end,off,horiz,t:rnd(0,1),dir:1,v:rnd(8.2,11.8),cruise:rnd(9.2,12.8),steer:0,roll:0,pit:0,_pv:0,brake:false,id:'shuttle-'+i})
+  });
+  function wrapAng(a){return Math.atan2(Math.sin(a),Math.cos(a))}
+  function trafficLead(c){
+    let gap=1e9,lead=null;
+    if(c.loop){
+      for(const o of cars)if(o!==c&&o.loop&&o.cv===c.cv){
+        const du=(o.u-c.u+1)%1;if(du>.001&&du<gap/c.len){gap=du*c.len;lead=o}
+      }
+    }else{
+      for(const o of cars)if(o!==c&&o.shuttle&&o.horiz===c.horiz&&Math.abs(o.off-c.off)<.01){
+        const ds=Math.sign(c.end-c.start)*c.dir*(o.horiz?o.g.position.x-c.g.position.x:o.g.position.z-c.g.position.z);
+        if(ds>0&&ds<gap){gap=ds;lead=o}
+      }
+    }
+    return{gap,lead}
+  }
+  function trafficTargetSpeed(c,dt){
+    let target=c.cruise,brake=false;
+    const lead=trafficLead(c);if(lead.lead){
+      const desiredGap=7.2+Math.min(7,c.v*.55);
+      if(lead.gap<desiredGap){target=Math.min(target,clamp(lead.lead.v*(lead.gap/desiredGap),2.8,lead.lead.v));brake=lead.gap<desiredGap*.78}
+    }
+    // Yield naturally at the four road-crossing zones instead of clipping through traffic.
+    const nearCross=Math.min(
+      Math.hypot(c.g.position.x-36,c.g.position.z-2.2),Math.hypot(c.g.position.x-36,c.g.position.z+2.2),
+      Math.hypot(c.g.position.x+36,c.g.position.z-2.2),Math.hypot(c.g.position.x+36,c.g.position.z+2.2),
+      Math.hypot(c.g.position.x-2.2,c.g.position.z-36),Math.hypot(c.g.position.x+2.2,c.g.position.z-36),
+      Math.hypot(c.g.position.x-2.2,c.g.position.z+36),Math.hypot(c.g.position.x+2.2,c.g.position.z+36)
+    );
+    if(nearCross<6.5){
+      for(const o of cars)if(o!==c){
+        const d=Math.hypot(o.g.position.x-c.g.position.x,o.g.position.z-c.g.position.z);
+        const rel=(o.g.position.x-c.g.position.x)*(-Math.sin(c.g.rotation.y))+(o.g.position.z-c.g.position.z)*(-Math.cos(c.g.rotation.y));
+        if(d<10&&rel>0){target=Math.min(target,4.8);brake=true}
+      }
+    }
+    // Give the player a little road etiquette when they are driving through town.
+    if(car.on){
+      const dx=car.x-c.g.position.x,dz=car.z-c.g.position.z,d=Math.hypot(dx,dz);const ahead=dx*(-Math.sin(c.g.rotation.y))+dz*(-Math.cos(c.g.rotation.y));
+      if(d<15&&ahead>0)target=Math.min(target,clamp(Math.abs(car.v)+1,3.5,10));if(d<8&&ahead>0)brake=true;
+    }
+    return{target:clamp(target,0,16),brake}
+  }
 
 
   /* ---------- SUPER BENZ: parked at the front of Super Home, drivable ---------- */
-  const benz=createBenz(renderer);scene.add(benz.group);
+  const benz=createBenz(renderer,{env:trafficEnv});scene.add(benz.group);
   const PARK={x:-40.4,z:10.6,h:Math.PI};
   const car={on:false,x:PARK.x,z:PARK.z,h:PARK.h,v:0,st:0,roll:0,pit:0,brake:false,lights:0,in:{x:0,z:0,boost:false}};
   benz.group.position.set(car.x,.02,car.z);benz.group.rotation.y=car.h;
@@ -563,7 +609,7 @@ function create(){
     for(const off of[-1.5,0,1.5]){const o={x:c.x+(-Math.sin(c.h))*off,z:c.z+(-Math.cos(c.h))*off};const ax=o.x,az=o.z;pushOut(o,1.15,0);cx+=o.x-ax;cz+=o.z-az}
     {const m=1.1,dx=c.x-HS.HX0,dz=c.z-HS.HZ0,ox2=HS.hx+m-Math.abs(dx),oz2=HS.hz+m-Math.abs(dz);if(ox2>0&&oz2>0){if(ox2<oz2)cx+=Math.sign(dx||1)*ox2;else cz+=Math.sign(dz||1)*oz2}}
     const hit=Math.hypot(cx,cz);if(hit>.001){c.x+=cx;c.z+=cz}const pr=Math.hypot(c.x,c.z);if(pr>ISL-4){c.x*=(ISL-4)/pr;c.z*=(ISL-4)/pr}return hit}
-  guards=makeGuards({THREE,scene,renderer,createBenz,benzMain:benz,B,blocked,pushOut,P,car,emit,say,toast,spawnGuard,carBump,labelSprite,getRight:()=>[RX,RZ]});
+  guards=makeGuards({THREE,scene,renderer,createBenz,benzMain:benz,B,blocked,pushOut,P,car,emit,say,toast,spawnGuard,carBump,labelSprite,getRight:()=>[RX,RZ],traffic:()=>trafficPts});
   guards.cars.forEach(c=>trafficPts.push(c.pt));
   function update(dt){
     time+=dt;U.time.value=time;grade.uniforms.time.value=time%100;
@@ -629,11 +675,21 @@ function create(){
       n.say-=dt;const dp=Math.hypot(n.x-P.x,(n.y||0)-P.y,n.z-P.z);if(n.say<=0){n.say=rnd(14,34);if(dp<45){const ln=n.kind==='walk'?folk.line(n):pick(LINES);say(n,ln,4);if(dp<22)log(n.name,ln)}}
       if(n.bub){n.bt-=dt;if(n.bt<=0)clearBub(n)}
     }
-    // cars
-    for(const c of cars){let x,z,hx,hz;
-      if(c.loop){c.u=(c.u+c.spd*dt/c.len)%1;const p=c.cv.getPointAt(c.u),t=c.cv.getTangentAt(c.u);x=p.x;z=p.z;hx=t.x;hz=t.z}
-      else{c.t+=c.dir*c.spd*dt/Math.abs(c.b-c.a);if(c.t>1){c.t=1;c.dir=-1}if(c.t<0){c.t=0;c.dir=1}const s=lerp(c.a,c.b,c.t),dd=Math.sign(c.b-c.a)*c.dir;if(c.horiz){x=s;z=c.off;hx=dd;hz=0}else{x=c.off;z=s;hx=0;hz=dd}}
-      c.g.position.set(x,0,z);c.g.rotation.y=Math.atan2(-hx,-hz)}
+    // smart Benz traffic: smooth acceleration, safe following, crossroad yielding and wheel steering
+    for(const c of cars){
+      const ts=trafficTargetSpeed(c,dt),prevH=c.g.rotation.y;const rate=ts.brake?18:(ts.target<c.v?12:5.5);
+      c.v+=clamp(ts.target-c.v,-rate*dt,rate*dt);c.brake=ts.brake&&c.v>3;
+      let x,z,hx,hz;
+      if(c.loop){
+        c.u=(c.u+c.v*dt/c.len)%1;const p=c.cv.getPointAt(c.u),t=c.cv.getTangentAt(c.u);x=p.x;z=p.z;hx=t.x;hz=t.z
+      }else{
+        c.t+=c.dir*c.v*dt/Math.abs(c.end-c.start);if(c.t>1){c.t=1;c.dir=-1;c.v=Math.max(c.v,5)}if(c.t<0){c.t=0;c.dir=1;c.v=Math.max(c.v,5)}
+        const s=lerp(c.start,c.end,c.t),dd=Math.sign(c.end-c.start)*c.dir;if(c.horiz){x=s;z=c.off;hx=dd;hz=0}else{x=c.off;z=s;hx=0;hz=dd}
+      }
+      const h=Math.atan2(-hx,-hz),turn=wrapAng(h-prevH);c.steer+=(clamp(turn*5,-.48,.48)-c.steer)*(1-Math.exp(-dt*9));c.g.position.set(x,0,z);c.g.rotation.y=h;
+      c.roll+=((-c.steer*c.v*.0045)-c.roll)*(1-Math.exp(-dt*6));const accel=(c.v-(c._pv||c.v))/Math.max(dt,.001);c._pv=c.v;c.pit+=(clamp(accel*.0035,-.05,.05)-c.pit)*(1-Math.exp(-dt*6));
+      c.b.pose(c.v,c.steer,dt,c.roll,c.pit);c.b.setBrake(c.brake);c.b.setLights(true);
+    }
     // planes + blimp
     for(const p of planes){p.a+=p.w*dt;const x=Math.cos(p.a)*p.R,z=Math.sin(p.a)*p.R,dir=Math.sign(p.w);p.g.position.set(x,p.y+Math.sin(time*.5+p.R)*3,z);p.g.rotation.set(0,0,0);p.g.rotation.y=Math.atan2(-(-Math.sin(p.a)*dir),-(Math.cos(p.a)*dir));p.g.rotateZ(-.28*dir);
       p.strobe.material.opacity=Math.sin(time*9)>.85?1:.1;p.ct-=dt;if(p.ct<=0){p.ct=.07;const tail=new V3(0,0,13).applyMatrix4(p.g.matrixWorld);emit(tail.x,tail.y,tail.z,1,0xcfeede,.4,.1,0,3.2)}}

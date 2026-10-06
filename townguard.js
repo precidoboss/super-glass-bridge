@@ -7,17 +7,22 @@
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),rnd=(a,b)=>a+Math.random()*(b-a),pick=a=>a[Math.floor(Math.random()*a.length)];
 const wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
-const SLOTS=[[-2.7,-2.2],[-2.7,2.2],[.6,-3.5],[.6,3.5]]; // [forward, right] in metres relative to the player's heading
+const SLOTS=[
+  {f:3.7,r:-2.8,role:'LEAD LEFT',scan:-1},
+  {f:3.7,r:2.8,role:'LEAD RIGHT',scan:1},
+  {f:-2.8,r:-3.5,role:'REAR LEFT',scan:-1},
+  {f:-2.8,r:3.5,role:'REAR RIGHT',scan:1}
+]; // diamond formation: two forward, two rear, all relative to the player's movement heading
 const HOME=[{x:-32.2,z:10.6,h:Math.PI},{x:-32.2,z:4.3,h:Math.PI}]; // parked across the street from the player's Benz, facing the same way
 
 export function makeGuards(ctx){
-  const {THREE,scene,renderer,createBenz,benzMain,B,blocked,pushOut,P,car,emit,say,toast,spawnGuard,carBump,labelSprite}=ctx;
+  const {THREE,scene,renderer,createBenz,benzMain,B,blocked,pushOut,P,car,emit,say,toast,spawnGuard,carBump,labelSprite,traffic}=ctx;
   const N=4,guards=[],cars=[];let enabled=true,wasOn=false,clock=0,heading=0,stillT=0,lastPX=P.x,lastPZ=P.z;
   const trail=[]; // breadcrumbs of the player's car
 
-  for(let i=0;i<N;i++){const n=spawnGuard(i);n.guard=true;n.ai=null;guards.push({n,st:'foot',car:Math.floor(i/2),seat:i%2,seatT:0,scan:rnd(0,3),scanDir:1,sayCd:rnd(5,15)})}
+  for(let i=0;i<N;i++){const n=spawnGuard(i);n.guard=true;n.ai=null;const slot=SLOTS[i];guards.push({n,st:'foot',car:Math.floor(i/2),seat:i%2,role:slot.role,seatT:0,scan:rnd(0,2.2),scanDir:slot.scan,phase:rnd(0,6.28),sayCd:rnd(5,15)})}
   for(let i=0;i<2;i++){
-    const b=createBenz(renderer,{env:benzMain.env,noBeam:true});b.setPaint(0);scene.add(b.group);
+    const b=createBenz(renderer,{env:benzMain.env,noBeam:true});b.setPaint(i===0?0:1);scene.add(b.group);
     const tag=labelSprite('ESCORT',{w:2.6,size:54,color:'#ffe9e9',glow:'#ff4d4f',plate:true});scene.add(tag);
     const c={b,tag,x:HOME[i].x,z:HOME[i].z,h:HOME[i].h,v:0,sa:0,roll:0,pit:0,_pv:0,state:'parked',trail:[],pt:{x:HOME[i].x,z:HOME[i].z},seated:0,settle:0};
     b.group.position.set(c.x,.02,c.z);b.group.rotation.y=c.h;cars.push(c)}
@@ -31,10 +36,12 @@ export function makeGuards(ctx){
     let dx=tx-n.x,dz=tz-n.z;const d=Math.hypot(dx,dz)||1;dx/=d;dz/=d;
     const hit=blocked(n.x+dx*2.4,n.z+dz*2.4,.5);
     if(hit){const side=Math.sign(dx*(hit.z-n.z)-dz*(hit.x-n.x))||1,ax=side>0?dz:-dz,az=side>0?-dx:dx;dx=dx*.3+ax;dz=dz*.3+az;const l=Math.hypot(dx,dz)||1;dx/=l;dz/=l}
-    let sx=0,sz=0;for(const o of guards){if(o.n===n||o.n.hide)continue;const ex=n.x-o.n.x,ez=n.z-o.n.z,e=Math.hypot(ex,ez);if(e<1.4&&e>.01){sx+=ex/e*(1.4-e);sz+=ez/e*(1.4-e)}}
-    const pe=Math.hypot(n.x-P.x,n.z-P.z);if(pe<1.5&&pe>.01){sx+=(n.x-P.x)/pe*(1.5-pe);sz+=(n.z-P.z)/pe*(1.5-pe)}
+    let sx=0,sz=0;
+    for(const o of guards){if(o.n===n||o.n.hide)continue;const ex=n.x-o.n.x,ez=n.z-o.n.z,e=Math.hypot(ex,ez);if(e<1.65&&e>.01){const k=(1.65-e)/1.65;sx+=ex/e*k*1.35;sz+=ez/e*k*1.35}}
+    const pe=Math.hypot(n.x-P.x,n.z-P.z);if(pe<1.7&&pe>.01){const k=(1.7-pe)/1.7;sx+=(n.x-P.x)/pe*k*1.4;sz+=(n.z-P.z)/pe*k*1.4}
+    if(traffic){for(const q of traffic()){if(!q||q===n)continue;const ex=n.x-q.x,ez=n.z-q.z,e=Math.hypot(ex,ez);if(e<5.5&&e>.01){const k=(5.5-e)/5.5;sx+=ex/e*k*2.1;sz+=ez/e*k*2.1}}}
     let vx=dx+sx,vz=dz+sz;const l=Math.hypot(vx,vz)||1;vx=vx/l*spd;vz=vz/l*spd;
-    n.vx+=(vx-n.vx)*Math.min(1,dt*7);n.vz+=(vz-n.vz)*Math.min(1,dt*7)}
+    n.vx+=(vx-n.vx)*Math.min(1,dt*7.5);n.vz+=(vz-n.vz)*Math.min(1,dt*7.5)}
   function halt(n,dt){n.vx*=Math.max(0,1-dt*9);n.vz*=Math.max(0,1-dt*9)}
   function look(n,dx,dz){if(Math.abs(dx)>.02)n.face=dx>0?1:-1;const [RX,RZ]=ctx.getRight();const s=dx*RX+dz*RZ;if(Math.abs(s)>.02)n.fs=s>0?1:-1}
   function placeNear(n,x,z){n.x=x;n.z=z;n.vx=n.vz=0;pushOut(n,.6,0)}
@@ -64,6 +71,7 @@ export function makeGuards(ctx){
     const rate=vDes<c.v?30:11;c.v+=clamp(vDes-c.v,-rate*dt,rate*dt);
     const sp=Math.abs(c.v),sA=c.sa*(1-.5*clamp(sp/24,0,1));
     c.h+=(c.v/3.0)*Math.tan(sA)*dt;c.x+=-Math.sin(c.h)*c.v*dt;c.z+=-Math.cos(c.h)*c.v*dt;
+    for(const o of cars)if(o!==c){const ex=c.x-o.x,ez=c.z-o.z,d=Math.hypot(ex,ez);if(d<7.2&&d>.01){const k=(7.2-d)/7.2;c.x+=ex/d*k*.7;c.z+=ez/d*k*.7;if(d<5.6)c.v=Math.min(c.v,2.5)}}
     const hit=carBump(c);if(hit>.001)c.v*=Math.max(.2,1-hit*6);
     const accel=(c.v-c._pv)/Math.max(dt,.001);c._pv=c.v;
     c.roll+=((-c.sa*sp*.0045)-c.roll)*(1-Math.exp(-dt*6));c.pit+=((clamp(accel*.0035,-.05,.05))-c.pit)*(1-Math.exp(-dt*6));
@@ -107,17 +115,18 @@ export function makeGuards(ctx){
       g.sayCd-=dt;
       switch(g.st){
         case 'foot':{
-          const f=[Math.cos(heading),Math.sin(heading)],r=[-f[1],f[0]],sl=SLOTS[i];
-          let tx=P.x+f[0]*sl[0]+r[0]*sl[1],tz=P.z+f[1]*sl[0]+r[1]*sl[1];
-          if(blocked(tx,tz,.7)){tx=P.x+r[0]*sl[1]*.5;tz=P.z+r[1]*sl[1]*.5}
-          const d=Math.hypot(tx-n.x,tz-n.z),dp=Math.hypot(P.x-n.x,P.z-n.z);
-          if(dp>70){placeNear(n,tx,tz);spark(n.x,n.z)}
-          const pspd=Math.max(pv,mv);
-          if(d>.9){steer(n,tx,tz,clamp(d*2.4,0,Math.max(4.2,pspd*1.2+2.5)+(dp>14?5:0)),dt)}
+          const f=[Math.cos(heading),Math.sin(heading)],r=[-f[1],f[0]],sl=SLOTS[i],pace=clamp(Math.max(pv,mv)/9,0,1);
+          const front=sl.f*(1+.22*pace),side=sl.r*(1+.16*pace),drift=Math.sin(clock*.85+g.phase)*.22;
+          let tx=P.x+f[0]*front+r[0]*(side+drift),tz=P.z+f[1]*front+r[1]*(side+drift);
+          if(blocked(tx,tz,.7)){tx=P.x+r[0]*side;tz=P.z+r[1]*side}
+          const d=Math.hypot(tx-n.x,tz-n.z),dp=Math.hypot(P.x-n.x,P.z-n.z),pspd=Math.max(pv,mv);
+          if(dp>58){placeNear(n,tx,tz);spark(n.x,n.z)}
+          if(d>.75){const roleBoost=sl.f>0?1.08:1.02;steer(n,tx,tz,clamp(d*2.8,0,Math.max(4.5,pspd*1.35+2.8)+(dp>12?5:0))*roleBoost,dt)}
           else{halt(n,dt);
-            g.scan-=dt;if(stillT>1){if(g.scan<=0){g.scan=rnd(2.2,4.5);g.scanDir*=-1}const a=Math.atan2(n.z-P.z,n.x-P.x)+g.scanDir*.9;look(n,Math.cos(a),Math.sin(a))}
-            else look(n,P.x-n.x+Math.cos(heading)*3,P.z-n.z+Math.sin(heading)*3)}
-          if(g.sayCd<=0&&dp<9){g.sayCd=rnd(25,50);say(n,pick(['All clear.','Eyes open.','Clear on the left.','Stay close, boss.','Area secure.']),2.6)}
+            g.scan-=dt;if(stillT>1){if(g.scan<=0){g.scan=rnd(1.8,3.8);g.scanDir*=-1}
+              const outward=sl.r<0?-.82:.82,ang=Math.atan2(n.z-P.z,n.x-P.x)+g.scanDir*.52+outward;look(n,Math.cos(ang),Math.sin(ang))}
+            else look(n,P.x-n.x+f[0]*2.5,P.z-n.z+f[1]*2.5)}
+          if(g.sayCd<=0&&dp<10){g.sayCd=rnd(22,44);say(n,pick(['All clear.','Eyes open.','Clear on the left.','Stay close, boss.','Area secure.','Formation tight.']),2.6)}
           break}
         case 'toCar':{
           g.seatT+=dt;const side=(n.x-c.x)*Math.cos(c.h)-(n.z-c.z)*Math.sin(c.h)>=0?1:-1,dr=door(c,side),d=Math.hypot(dr.x-n.x,dr.z-n.z);
@@ -158,7 +167,7 @@ export function makeGuards(ctx){
   function reset(){
     wasOn=false;trail.length=0;stillT=0;heading=-1;
     cars.forEach((c,i)=>{c.x=HOME[i].x;c.z=HOME[i].z;c.h=HOME[i].h;c.v=0;c.sa=0;c.state='parked';c.seated=0;c.trail.length=0;c.b.group.position.set(c.x,.02,c.z);c.b.group.rotation.y=c.h;c.b.group.visible=enabled;c.tag.visible=enabled});
-    guards.forEach((g,i)=>{g.st='foot';const sl=SLOTS[i];g.n.hide=enabled?0:1;placeNear(g.n,P.x+sl[0]*1.2+3,P.z+sl[1]*1.2+3)})}
+    guards.forEach((g,i)=>{g.st='foot';g.scan=rnd(0,2);const sl=SLOTS[i];g.n.hide=enabled?0:1;const f=[Math.cos(heading),Math.sin(heading)],r=[-f[1],f[0]];placeNear(g.n,P.x+f[0]*sl.f+r[0]*sl.r,P.z+f[1]*sl.f+r[1]*sl.r)})}
   function setEnabled(on){
     if(on===enabled)return;enabled=on;
     for(const c of cars){c.b.group.visible=on;c.tag.visible=on}
@@ -171,5 +180,5 @@ export function makeGuards(ctx){
     if(enabled){const g=guards.find(q=>!q.n.hide)||guards[0];setTimeout(()=>say(g.n,pick(['Yes boss.','We have you covered.','Right behind you, boss.']),3),600)}
     return false}
 
-  return{update,reset,onChat,setEnabled,guards,cars,get enabled(){return enabled},stats(){return{enabled,guards:guards.map(g=>g.st),gpos:guards.map(g=>[+g.n.x.toFixed(1),+g.n.z.toFixed(1),g.n.hide]),cars:cars.map(c=>({s:c.state,seated:c.seated,x:+c.x.toFixed(1),z:+c.z.toFixed(1),v:+c.v.toFixed(1)}))}}};
+  return{update,reset,onChat,setEnabled,guards,cars,get enabled(){return enabled},stats(){return{enabled,guards:guards.map(g=>g.role+':'+g.st),gpos:guards.map(g=>[+g.n.x.toFixed(1),+g.n.z.toFixed(1),g.n.hide]),cars:cars.map(c=>({s:c.state,seated:c.seated,x:+c.x.toFixed(1),z:+c.z.toFixed(1),v:+c.v.toFixed(1)}))}}};
 }
