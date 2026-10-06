@@ -63,11 +63,11 @@ const CSS=`
 const HTML=`
 <div class="tw-stage"></div>
 <div class="tw-top"><div class="tw-brand"><img src="${BASE}assets/lobby/supercycle-logo-sm.png" alt=""><div>SUPER TOWN<small id="twPop">OPEN WORLD · COMMUNITY</small></div></div><div class="tw-mini"><canvas id="twMap" width="150" height="150"></canvas><small>MAP</small></div></div>
-<div class="tw-hint"><b>WASD</b> WALK · <b>SHIFT</b> RUN · <b>SPACE</b> JUMP / UP · <b>V</b> FLY · <b>F</b> INTERACT / DRIVE · <b>R</b> PAINT · <b>1 2 3</b> ELEVATOR · <b>Q E</b> CAMERA · <b>ENTER</b> CHAT</div>
+<div class="tw-hint"><b>WASD</b> WALK · <b>SHIFT</b> RUN · <b>SPACE</b> JUMP / UP · <b>V</b> FLY · <b>F</b> INTERACT / DRIVE · <b>R</b> PAINT · <b>1 2 3</b> ELEVATOR · <b>Q E</b> CAMERA · <b>G</b> GUARDS · <b>ENTER</b> CHAT</div>
 <div class="tw-chat"><div class="tw-log" id="twLog"></div><input id="twIn" maxlength="80" placeholder="Press Enter to chat…" autocomplete="off"></div>
 <div class="tw-elev" id="twElev"><span>ELEVATOR</span><button data-f="2">3 · CINEMA & BAR</button><button data-f="1">2 · BEDROOM & STUDY</button><button data-f="0">G · LOUNGE & KITCHEN</button></div><div class="tw-prompt" id="twPrompt"></div><div class="tw-toast" id="twToast"></div>
 <div class="tw-joy" id="twJoy"><i></i></div><div class="tw-fly"><button id="twUp">▲</button><button id="twDn">▼</button></div>
-<div class="tw-bar"><button class="em" data-em="👋">👋</button><button class="em" data-em="🕺">🕺</button><button class="em" data-em="❤️">❤️</button><button class="em" data-em="🚀">🚀</button><button id="twFly">FLY: OFF</button><button id="twHome">🏠 HOME</button><button id="twBoost">RUN/BOOST</button><button id="twAll">◂ ALL GAMES</button><button id="twSound">SOUND: ON</button></div>
+<div class="tw-bar"><button class="em" data-em="👋">👋</button><button class="em" data-em="🕺">🕺</button><button class="em" data-em="❤️">❤️</button><button class="em" data-em="🚀">🚀</button><button id="twFly">FLY: OFF</button><button id="twHome">🏠 HOME</button><button id="twBoost">RUN/BOOST</button><button id="twGuards">GUARDS: ON</button><button id="twAll">◂ ALL GAMES</button><button id="twSound">SOUND: ON</button></div>
 <div class="tw-menu" id="twMenu"><div><h2>SUPER ARCADE</h2><p>Pick a game. You'll come back to town when you leave it.</p><div class="tw-games" id="twGames"></div><button class="g" id="twClose">CLOSE</button></div></div>
 <div class="tw-flash" id="twFlash"></div>`;
 
@@ -81,7 +81,7 @@ function create(){
   /* ---------- renderer ---------- */
   const stage=$('.tw-stage');
   const renderer=new THREE.WebGLRenderer({antialias:false,powerPreference:'high-performance'});
-  let pr=Math.min(devicePixelRatio,1.5);renderer.setPixelRatio(pr);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.08;renderer.sortObjects=true;
+  let pr=Math.min(devicePixelRatio,1.25);renderer.setPixelRatio(pr);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.08;renderer.sortObjects=true;
   stage.appendChild(renderer.domElement);
   const scene=new THREE.Scene();scene.fog=new THREE.FogExp2(0x07140c,.0042);
   const camera=new THREE.PerspectiveCamera(58,1,.3,1800);
@@ -406,11 +406,11 @@ function create(){
   }
   const cars=[];
   {const L=[[38.2,false],[33.8,true]];L.forEach(([H,ccw],li)=>{const cv=loopCurve(H,ccw),len=cv.getLength();
-    for(let i=0;i<3;i++){const b=makeTrafficBenz(cars.length);cars.push({g:b.group,b,cv,len,u:(i/5+li*.07)%1,v:rnd(8.5,12.5),cruise:rnd(9.5,13.5),steer:0,roll:0,pit:0,_pv:0,brake:false,loop:true,id:'ring-'+li+'-'+i})}
+    for(let i=0;i<3;i++){const b=makeTrafficBenz(cars.length);cars.push({g:b.group,b,cv,len,u:(i/5+li*.07)%1,v:rnd(7.2,10.2),cruise:rnd(8.0,10.8),steer:0,roll:0,pit:0,_pv:0,brake:false,loop:true,id:'ring-'+li+'-'+i})}
   })}
   [[-1,-72,-10,2.2],[1,72,10,-2.2]].forEach(([dir,start,end,off],i)=>{
     const horiz=i<2,b=makeTrafficBenz(cars.length);
-    cars.push({g:b.group,b,shuttle:true,start,end,off,horiz,t:rnd(0,1),dir:1,v:rnd(8.2,11.8),cruise:rnd(9.2,12.8),steer:0,roll:0,pit:0,_pv:0,brake:false,id:'shuttle-'+i})
+    cars.push({g:b.group,b,shuttle:true,start,end,off,horiz,t:rnd(0,1),dir:1,v:rnd(7.0,10.0),cruise:rnd(7.8,10.6),steer:0,roll:0,pit:0,_pv:0,brake:false,id:'shuttle-'+i})
   });
   function wrapAng(a){return Math.atan2(Math.sin(a),Math.cos(a))}
   function trafficLead(c){
@@ -536,7 +536,7 @@ function create(){
   const walkMat=(r,c,tint)=>walkMats[r*8+c+'_'+tint]??=new THREE.SpriteMaterial({map:walkF[r][c],alphaTest:.3,fog:true,color:tint});
   const WH=2.4,WW=WH*WK.cw/WK.ch;
   // shared particles
-  const MAXP=600,pPos=new Float32Array(MAXP*3),pCol=new Float32Array(MAXP*3),pVel=new Float32Array(MAXP*3),pLife=new Float32Array(MAXP),pMax=new Float32Array(MAXP),pBase=new Float32Array(MAXP*3),pG=new Float32Array(MAXP);pPos.fill(-9999);let pHead=0;
+  const MAXP=360,pPos=new Float32Array(MAXP*3),pCol=new Float32Array(MAXP*3),pVel=new Float32Array(MAXP*3),pLife=new Float32Array(MAXP),pMax=new Float32Array(MAXP),pBase=new Float32Array(MAXP*3),pG=new Float32Array(MAXP);pPos.fill(-9999);let pHead=0;
   const pGeo=new THREE.BufferGeometry();pGeo.setAttribute('position',new THREE.BufferAttribute(pPos,3));pGeo.setAttribute('color',new THREE.BufferAttribute(pCol,3));
   scene.add(Object.assign(new THREE.Points(pGeo,new THREE.PointsMaterial({size:.8,map:glowTex,vertexColors:true,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,fog:false})),{frustumCulled:false}));
   function emit(x,y,z,n,color,sp=2,up=1,grav=3,life=1){const c=new THREE.Color(color);for(let k=0;k<n;k++){const i=pHead;pHead=(pHead+1)%MAXP;const a=rnd(0,6.283),s=sp*rnd(.2,1);pPos.set([x,y,z],i*3);pVel.set([Math.cos(a)*s,rnd(.2,1)*up*sp,Math.sin(a)*s],i*3);pBase.set([c.r,c.g,c.b],i*3);pLife[i]=pMax[i]=life*rnd(.6,1.3);pG[i]=grav}}
@@ -688,7 +688,7 @@ function create(){
     }else{
       if(Math.abs(vr)>.6)P.fx=vr>0?1:-1;const run=spd>8.2,back=vf>.8&&vf>Math.abs(vr)*.7;P.wr=(run?4:0)+(back?2:0)+(P.fx>0?0:1);
       if(spd>.6&&P.ground)P.ph+=dt*(run?15:10);else if(spd<=.6)P.ph=0;
-      if(run&&P.ground&&Math.random()<dt*14)emit(P.x+rnd(-.3,.3),P.y+.1,P.z+rnd(-.3,.3),1,0xaaffaa,.8,.3,2,.5);
+      if(run&&P.ground&&Math.random()<dt*7)emit(P.x+rnd(-.3,.3),P.y+.1,P.z+rnd(-.3,.3),1,0xaaffaa,.8,.3,2,.5);
     }
     updateCar(dt,lockUI);
     if(elevEl){const on=!!P.riding;if(on!==elevOn){elevOn=on;elevEl.classList.toggle('on',on)}if(on&&elevTgt!==HS.E.tgt){elevTgt=HS.E.tgt;elevEl.querySelectorAll('button').forEach(b=>b.classList.toggle('on',+b.dataset.f===HS.E.tgt))}}
@@ -722,7 +722,7 @@ function create(){
     }
     // smart Benz traffic: smooth acceleration, safe following, crossroad yielding and wheel steering
     for(const c of cars){
-      const ts=trafficTargetSpeed(c,dt),prevH=c.g.rotation.y;const rate=ts.brake?18:(ts.target<c.v?12:5.5);
+      const ts=trafficTargetSpeed(c,dt),prevH=c.g.rotation.y;const rate=ts.brake?12:(ts.target<c.v?7:3.6);
       c.v+=clamp(ts.target-c.v,-rate*dt,rate*dt);c.brake=ts.brake&&c.v>3;
       let x,z,hx,hz;
       if(c.loop){
@@ -731,7 +731,7 @@ function create(){
         c.t+=c.dir*c.v*dt/Math.abs(c.end-c.start);if(c.t>1){c.t=1;c.dir=-1;c.v=Math.max(c.v,5)}if(c.t<0){c.t=0;c.dir=1;c.v=Math.max(c.v,5)}
         const s=lerp(c.start,c.end,c.t),dd=Math.sign(c.end-c.start)*c.dir;if(c.horiz){x=s;z=c.off;hx=dd;hz=0}else{x=c.off;z=s;hx=0;hz=dd}
       }
-      const h=Math.atan2(-hx,-hz),turn=wrapAng(h-prevH);c.steer+=(clamp(turn*5,-.48,.48)-c.steer)*(1-Math.exp(-dt*9));c.g.position.set(x,0,z);c.g.rotation.y=h;
+      const h=Math.atan2(-hx,-hz),turn=wrapAng(h-prevH);c.steer+=(clamp(turn*4,-.4,.4)-c.steer)*(1-Math.exp(-dt*11));c.g.position.set(x,0,z);c.g.rotation.y=h;
       c.roll+=((-c.steer*c.v*.0045)-c.roll)*(1-Math.exp(-dt*6));const accel=(c.v-(c._pv||c.v))/Math.max(dt,.001);c._pv=c.v;c.pit+=(clamp(accel*.0035,-.05,.05)-c.pit)*(1-Math.exp(-dt*6));
       c.b.pose(c.v,c.steer,dt,c.roll,c.pit);c.b.setBrake(c.brake);c.b.setLights(true);
     }
@@ -741,7 +741,7 @@ function create(){
     {const a=time*.03;blimp.position.set(Math.cos(a)*90+20,60+Math.sin(time*.4)*2,Math.sin(a)*90);blimp.rotation.y=Math.atan2(-(-Math.sin(a)),-(Math.cos(a)))+Math.PI/2}
     for(const b of blinkers)b.material.opacity=Math.sin(time*3+b.position.x)>0?1:.15;
     coin.rotation.y+=dt*1.2;dressing.tick(dt,time);
-    if(Math.random()<dt*30)emit(Math.cos(time*3)*1.2,3.4,Math.sin(time*3)*1.2,1,0x4dd2ff,1.4,1.6,4,1.2);
+    if(Math.random()<dt*16)emit(Math.cos(time*3)*1.2,3.4,Math.sin(time*3)*1.2,1,0x4dd2ff,1.4,1.6,4,1.2);
     updP(dt);drawMap(dt);
   }
   function plazaSpin(dt){statue.rotation.y+=dt*.5}
