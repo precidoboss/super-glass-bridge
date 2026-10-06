@@ -120,10 +120,41 @@ export function dress(ctx){
       const aw=new THREE.Mesh(box,awnM[Math.abs(Math.floor(x*3+z))%3]);aw.scale.set(5.5,.14,1.9);aw.rotation.set(0,ry,.0);aw.position.set(fx+(alongX?0:sgn*.95),3.5,fz+(alongX?sgn*.95:0));if(!alongX)aw.rotation.y=Math.PI/2;scene.add(aw);
       const name=b.name==='exchange'?null:SHOPS[shopI++%SHOPS.length];
       if(name){const sp=labelSprite(name,{w:5.4,size:56,color:'#fff3cf',glow:pick(['#ffd15c','#7bff3a','#4dd2ff','#ff6ec7']),plate:true});sp.position.set(fx+(alongX?0:sgn*.4),4.6,fz+(alongX?sgn*.4:0));scene.add(sp);signs.push(sp)}
-      const door=poi(b.name==='exchange'?'exchange':'shop',fx+(alongX?0:sgn*2.6),fz+(alongX?sgn*2.6:0),{name:name||'EXCHANGE',bx:x,bz:z,enter:true});
+      const door=poi(b.name==='exchange'?'exchange':'shop',fx+(alongX?0:sgn*2.6),fz+(alongX?sgn*2.6:0),{name:name||'EXCHANGE',bx:x,bz:z,enter:true,activity:name||'EXCHANGE',hw,hd});
     }
   }
-  // road-facing specials become enterable POIs for the NPCs
+  /* ---- enterable shop interiors + activity stations ---- */
+  const interiors=[];
+  const ACT=[['NOODLE BAR','RAMEN LAB',0xffc83d],['PIXEL CAFE','COFFEE BAR',0x9ad8ff],['$SUPER MART','MARKET',0xc8ff43],['SKY GYM','TRAINING',0x4dd2ff],['GLASS BANK','VAULT',0xe9efe9],['MOCHI SHOP','MOCHI LAB',0xff8bcf],['VINYL ROOM','LISTENING ROOM',0xff6ec7],['FLYER GEAR','GEAR STORE',0x7bff3a],['BOBA WORLD','BOBA LAB',0x4dd2ff],['COIN LAUNDRY','LAUNDRY',0x9fe8c8],['NEON BARBER','BARBER',0xff4dd2],['ARCADE SNACKS','SNACK BAR',0xffc83d]];
+  pois.filter(p=>p.type==='shop'&&p.bx!==undefined).forEach((p,i)=>{
+    const b0=B.find(q=>Math.abs(q.x-p.bx)<.01&&Math.abs(q.z-p.bz)<.01);if(!b0)return;
+    const g=new THREE.Group();g.position.set(b0.x,.03,b0.z);scene.add(g);const col=(ACT.find(a=>a[0]===p.name)||['LOUNGE','LOUNGE',0x7bff3a])[2];
+    const fl=new THREE.Mesh(new THREE.BoxGeometry(Math.max(7,b0.hw*1.6),.10,Math.max(7,b0.hd*1.6)),slabM);fl.position.y=.02;g.add(fl);
+    const em=new THREE.MeshBasicMaterial({color:col});
+    for(const z0 of[-b0.hd+.75,b0.hd-.75]){const s=new THREE.Mesh(new THREE.BoxGeometry(Math.max(5,b0.hw*1.5),.07,.08),em);s.position.set(0,.15,z0);g.add(s)}
+    for(let k=0;k<3;k++){const d=new THREE.Mesh(new THREE.BoxGeometry(2.7,.12,1),woodM);d.position.set(-b0.hw*.45+k*b0.hw*.45,.86,-b0.hd*.12);g.add(d);const m=new THREE.Mesh(new THREE.BoxGeometry(1.25,.7,.08),em);m.position.set(d.position.x,1.4,d.position.z-.08);g.add(m)}
+    const hub=new THREE.Mesh(new THREE.CylinderGeometry(1,.72,.24,24),em);hub.position.y=.45;g.add(hub);
+    const act=(ACT.find(a=>a[0]===p.name)||['','LOUNGE'])[1],label=labelSprite(act,{w:4.7,size:62,color:'#efffe9',glow:'#c8ff43',plate:true});label.position.set(0,3.0,0);g.add(label);
+    interiors.push({key:'shop-'+i,label:p.name||act,kind:'shop',x:b0.x,z:b0.z,outsideX:p.x,outsideZ:p.z,bx:b0.x,bz:b0.z,activity:act});
+  });
+  /* ---- major building interiors ---- */
+  for(const [key,label,w,d,activity] of[['hq','SUPERCYCLE HQ',18,18,'HQ MISSION TABLE'],['arcade','SUPER ARCADE',26,18,'ARCADE FLOOR'],['dock','SHIP DOCK CONTROL',14,14,'SHIP CONTROL'],['exchange','$SUPER EXCHANGE',16,16,'LIVE MARKET'],['office','SUPER OFFICE · CEO FLOOR',24,22,'CEO OFFICE']]){
+    const b0=B.find(q=>q.name===key);if(!b0)continue;const g=new THREE.Group();g.position.set(b0.x,.03,b0.z);scene.add(g);
+    const fl=new THREE.Mesh(new THREE.BoxGeometry(w*.78,.12,d*.78),slabM);fl.position.y=.02;g.add(fl);
+    const col=key==='arcade'?0xffc83d:key==='dock'?0x4dd2ff:key==='exchange'?0x7bff3a:0xc8ff43,em=new THREE.MeshBasicMaterial({color:col});
+    for(let k=0;k<4;k++){const desk=new THREE.Mesh(new THREE.BoxGeometry(2.8,.11,1),woodM);desk.position.set(-w*.25+(k%2)*w*.5,.72,-d*.18+Math.floor(k/2)*d*.48);g.add(desk);const screen=new THREE.Mesh(new THREE.BoxGeometry(1.2,.65,.06),em);screen.position.set(desk.position.x,1.32,desk.position.z-.08);g.add(screen)}
+    const ring=new THREE.Mesh(new THREE.TorusGeometry(Math.min(w,d)*.15,.08,8,40),em);ring.rotation.x=Math.PI/2;ring.position.y=.38;g.add(ring);
+    const title=labelSprite(activity,{w:Math.min(7,w*.46),size:54,color:'#eaffef',glow:'#c8ff43',plate:true});title.position.set(0,3,0);g.add(title);
+    const out=specials?.[key];interiors.push({key,label,kind:'major',x:b0.x,z:b0.z,outsideX:out?.x??b0.x,outsideZ:out?.z??b0.z,activity,mesh:b0.mesh,bx:b0.x,bz:b0.z});
+  }
+  /* ---- advanced city display layer ---- */
+  const holo=[];
+  const holoM=new THREE.MeshBasicMaterial({color:0x9effc7,transparent:true,opacity:.20,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide});
+  for(const [x,z,ry] of[[-22,-43,0],[22,-43,Math.PI],[43,-22,Math.PI/2],[43,22,-Math.PI/2],[-43,22,Math.PI/2],[-43,-22,-Math.PI/2]]){
+    const g=new THREE.Group();g.position.set(x,4.4,z);g.rotation.y=ry;scene.add(g);const fr=new THREE.Mesh(new THREE.BoxGeometry(8,5.2,.16),metalM);g.add(fr);const p=new THREE.Mesh(new THREE.PlaneGeometry(7.2,4.6),holoM);p.position.z=.1;g.add(p);holo.push({p,ph:R()*6.28});
+  }
+  tickers.push((dt,t)=>holo.forEach(o=>o.p.material.opacity=.14+.13*(.5+.5*Math.sin(t*2+o.ph))));
+  
   if(specials){for(const k of['hq','arcade','dock','exchange']){const s=specials[k];if(s&&!pois.some(p=>p.type===k))poi(k,s.x,s.z,{name:k.toUpperCase(),enter:k!=='dock'})}}
   tickers.push((dt,t)=>{const dc=ctx.camera.position;for(const s of signs){const q=Math.hypot(s.position.x-dc.x,s.position.z-dc.z);s.visible=q<60}
     for(let i=0;i<BMAT.length;i++)BMAT[i].emissiveIntensity=.85+.1*Math.sin(t*.6+i*1.7)});

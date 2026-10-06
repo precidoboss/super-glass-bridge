@@ -14,9 +14,10 @@ const ARCH={ // base walk speed, sociability, which place types they like
   gamer:  {spd:2.1,soc:.5,aff:{arcade:6,bench:1.5,shop:1.5,fountain:.5,stop:.5}},
   tourist:{spd:1.7,soc:.7,aff:{statue:3,fountain:3,hq:3,dock:3,exchange:2.5,arcade:2.5,pond:1.5,shop:1}},
   guard:  {spd:1.6,soc:.3,aff:{hq:4,dock:2,arcade:1.5,exchange:1.5,fountain:1}},
+  worker: {spd:2.0,soc:.55,aff:{office:7,shop:1.2,bench:1.4,fountain:.7,exchange:1.4}},
 };
 const MIX=['local','local','local','local','local','local','local','local','local','local','local','local','local','local','jogger','jogger','jogger','jogger','jogger','jogger','trader','trader','trader','trader','trader','trader','gamer','gamer','gamer','gamer','gamer','gamer','tourist','tourist','tourist','tourist','tourist','guard','guard','guard'];
-const ENTER={shop:[6,16],arcade:[10,30],hq:[6,14],exchange:[8,20]};
+const ENTER={shop:[6,16],arcade:[10,30],hq:[6,14],exchange:[8,20],office:[9,28]};
 const SAY={
   sit:['nice bench','people watching 😌','rest stop','legs: done','good spot for the blimp'],
   fountain:['love this fountain','meet at the fountain','so peaceful here','the water looks so good tonight'],
@@ -28,8 +29,9 @@ const SAY={
     trader:['$SUPER looking green','checking the chart','buying the dip, flying the dip','gm, charts open?','number go up'],
     gamer:['one more run','the glass bridge got me again','who wants to race?','step 9 is a trap','red light... green light!'],
     tourist:['wow, so clean!','where is the arcade?','photo time 📸','this island floats?!','best town ever'],
-    guard:['all quiet','moving along, frens','HQ looks good','stay safe out there']},
-  exit:{shop:['great find!','too pricey lol','got snacks 🍡','new fit unlocked'],arcade:['new high score!','so close 😤','one more round tomorrow','insert coin (real)'],hq:['mission briefed','HQ never sleeps'],exchange:['chart is looking good','wagmi','sold the top (jk)']},
+    guard:['all quiet','moving along, frens','HQ looks good','stay safe out there'],
+    worker:['on the clock ☕','morning stand-up','shipping the build','CEO wants this by lunch','office life 😭','checking the dashboard']},
+  exit:{shop:['great find!','too pricey lol','got snacks 🍡','new fit unlocked'],arcade:['new high score!','so close 😤','one more round tomorrow','insert coin (real)'],hq:['mission briefed','HQ never sleeps'],exchange:['chart is looking good','wagmi','sold the top (jk)'],office:['back to the desk','another meeting done','CEO approved ✅','shipping it']},
 };
 const SCRIPTS=[
   ['gm {b}','gm gm! nice day to fly','facts, the town looks great'],
@@ -62,8 +64,8 @@ const INTENTS=[
   ['how',/how are you|how r u|how.?s it going|whats up|what.?s up|hbu/],
 ];
 const JOKES=['why did the coin cross the bridge? to get to the other chain 🪙','my portfolio and the glass bridge have one thing in common: step 9','i told my wallet a joke, it had no balance','i would tell a pun about the blimp but it would go over your head'];
-const KEYS=[['arcade',/arcade|game/],['hq',/hq|headquarters/],['dock',/dock|ship/],['exchange',/exchange|chart/],['fountain',/fountain|plaza/],['pond',/park|pond/],['shop',/shop|store/],['bench',/bench/],['stop',/bus/]];
-const PLACE={arcade:'the Arcade',hq:'Supercycle HQ',dock:'the Ship Dock',exchange:'the $SUPER Exchange',fountain:'the fountain',pond:'the park pond',shop:'a shop',bench:'a bench',stop:'the bus stop'};
+const KEYS=[['arcade',/arcade|game/],['hq',/hq|headquarters/],['dock',/dock|ship/],['exchange',/exchange|chart/],['office',/office|tower|ceo|company/],['fountain',/fountain|plaza/],['pond',/park|pond/],['shop',/shop|store/],['bench',/bench/],['stop',/bus/]];
+const PLACE={arcade:'the Arcade',hq:'Supercycle HQ',dock:'the Ship Dock',exchange:'the $SUPER Exchange',office:'the Super Office',fountain:'the fountain',pond:'the park pond',shop:'a shop',bench:'a bench',stop:'the bus stop'};
 const ARCHLINE={
   local:['sounds good to me','honestly, same','this town grows on you','you should check out the shops'],
   jogger:['sorry, mid-run! but yes 🏃','can talk and run, barely','love that energy'],
@@ -71,6 +73,7 @@ const ARCHLINE={
   gamer:['respect, add me on mingle','that is a valid strat','gg'],
   tourist:['everything here is so cool!','i am just visiting but wow','can you recommend a place?'],
   guard:['keep it friendly, frens','copy that','all good here'],
+  worker:['give me five minutes','I am on it','sending the numbers now','coffee first, then shipping','the office is buzzing'],
 };
 export function intent(text){const t=text.toLowerCase();for(const [k,re] of INTENTS)if(re.test(t))return k;return 'other'}
 export function placeKey(text){const t=text.toLowerCase();for(const [k,re] of KEYS)if(re.test(t))return k;return null}
@@ -143,6 +146,7 @@ export function makeFolk(ctx){
     if(w.arcade)w.arcade*=1+(1-a.fun)*2;if(w.park)w.park*=1+(1-a.fun);if(w.pond)w.pond*=1+(1-a.fun);
     if(a.social<.35){for(const k of['fountain','stop','statue'])if(w[k])w[k]*=2.2}
     if(a.arch==='guard'&&Math.random()<.5)return LOOP[Math.floor(Math.random()*LOOP.length)];
+    if(a.arch==='worker'&&Math.random()<.64){const office=byType.office||[];if(office.length)return pick(office)}
     let tot=0;const ks=Object.keys(w).filter(k=>(k==='loop'||byType[k]?.length)&&w[k]>0);for(const k of ks)tot+=w[k];
     let r=Math.random()*tot,type=ks[0];for(const k of ks){r-=w[k];if(r<=0){type=k;break}}
     if(type==='loop'){a.loopLeft=Math.floor(rnd(6,14));let bi=0,bd=1e9;LOOP.forEach((p,i)=>{const d=Math.hypot(p.x-n.x,p.z-n.z);if(d<bd){bd=d;bi=i}});a.loopI=bi;a.loopDir=Math.random()<.5?1:-1;return LOOP[bi]}
@@ -240,7 +244,7 @@ export function makeFolk(ctx){
     if(ev.t<=0)endEvent()}
 
   /* ---------- the per-NPC step ---------- */
-  function adopt(n,i){const arch=ctx.archOf?ctx.archOf(i):MIX[i%MIX.length],def=ARCH[arch];
+  function adopt(n,i){const arch=ctx.archOf?ctx.archOf(i):MIX[i%MIX.length],def=ARCH[arch]||ARCH.local;
     n.ai={arch,def,state:'idle',t:rnd(.2,3),path:[],goal:null,energy:rnd(.5,1),social:rnd(.3,1),fun:rnd(.3,1),rel:0,ox:pick([-1,1])*lanes,oz:pick([-1,1])*lanes,cool:{talk:rnd(2,12),greet:0,look:rnd(0,20),car:0,flee:0},stuck:0,base:def.spd*rnd(.9,1.12),speedMul:1};
     n.hide=0;n.sit=0;n.hop=0;n.spd=n.ai.base}
   function walkerStep(n,dt){
