@@ -112,7 +112,7 @@ function create(){
     x.fillStyle='#f2ffe0';x.textAlign='center';x.textBaseline='middle';x.fillText(text.length>26?text.slice(0,25)+'…':text,256,52);
     const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;const s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,transparent:true,depthWrite:false,fog:false}));s.scale.set(5,1.25,1);s.renderOrder=9;return s}
   const metalM=new THREE.MeshStandardMaterial({color:0x17261c,roughness:.35,metalness:.85});
-  const limeM=new THREE.MeshBasicMaterial({color:new THREE.Color(2.2,3,.5)}),redM=new THREE.MeshBasicMaterial({color:new THREE.Color(3,.4,.45)}),greenM=new THREE.MeshBasicMaterial({color:new THREE.Color(.5,2.6,.8)});
+  const limeM=new THREE.MeshBasicMaterial({color:new THREE.Color(2.2,3,.5)}),redM=new THREE.MeshBasicMaterial({color:new THREE.Color(3,.4,.45)}),greenM=new THREE.MeshBasicMaterial({color:new THREE.Color(.5,2.6,.8)}),cyanM=new THREE.MeshBasicMaterial({color:new THREE.Color(.35,1.6,3.2)});
 
   /* ---------- sky, stars, moon, void under the island ---------- */
   const skyMat=new THREE.ShaderMaterial({uniforms:U,side:THREE.BackSide,depthWrite:false,fog:false,vertexShader:`varying vec3 vP;void main(){vP=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
