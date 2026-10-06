@@ -406,9 +406,9 @@ function create(){
   }
   const cars=[];
   {const L=[[38.2,false],[33.8,true]];L.forEach(([H,ccw],li)=>{const cv=loopCurve(H,ccw),len=cv.getLength();
-    for(let i=0;i<5;i++){const b=makeTrafficBenz(cars.length);cars.push({g:b.group,b,cv,len,u:(i/5+li*.07)%1,v:rnd(8.5,12.5),cruise:rnd(9.5,13.5),steer:0,roll:0,pit:0,_pv:0,brake:false,loop:true,id:'ring-'+li+'-'+i})}
+    for(let i=0;i<3;i++){const b=makeTrafficBenz(cars.length);cars.push({g:b.group,b,cv,len,u:(i/5+li*.07)%1,v:rnd(8.5,12.5),cruise:rnd(9.5,13.5),steer:0,roll:0,pit:0,_pv:0,brake:false,loop:true,id:'ring-'+li+'-'+i})}
   })}
-  [[-1,-72,-10,2.2],[1,72,10,-2.2],[-1,-72,-10,-2.2],[1,72,10,2.2]].forEach(([dir,start,end,off],i)=>{
+  [[-1,-72,-10,2.2],[1,72,10,-2.2]].forEach(([dir,start,end,off],i)=>{
     const horiz=i<2,b=makeTrafficBenz(cars.length);
     cars.push({g:b.group,b,shuttle:true,start,end,off,horiz,t:rnd(0,1),dir:1,v:rnd(8.2,11.8),cruise:rnd(9.2,12.8),steer:0,roll:0,pit:0,_pv:0,brake:false,id:'shuttle-'+i})
   });
@@ -550,12 +550,12 @@ function create(){
   /* ---------- NPC residents ---------- */
   const npcs=[];const used=new Set();
   const uname=()=>{let n;do{n=pick(NAMES)+(Math.random()<.5?'':Math.floor(rnd(1,99)))}while(used.has(n));used.add(n);return n};
-  for(let i=0;i<40;i++){const [x,z]=randWalk(),variant=1+(i%7),name=uname(),sp=new THREE.Sprite(new THREE.SpriteMaterial({alphaTest:.3,fog:true}));sp.scale.set(2.1,2.4,1);scene.add(sp);
+  for(let i=0;i<24;i++){const [x,z]=randWalk(),variant=1+(i%7),name=uname(),sp=new THREE.Sprite(new THREE.SpriteMaterial({alphaTest:.3,fog:true}));sp.scale.set(2.1,2.4,1);scene.add(sp);
     const tag=labelSprite(name,{w:2.6,size:54,color:'#e9f6ea',glow:'#7ddc1f',plate:true});scene.add(tag);const sh=new THREE.Mesh(new THREE.CircleGeometry(.7,16),new THREE.MeshBasicMaterial({color:0,transparent:true,opacity:.4,depthWrite:false}));sh.rotation.x=-Math.PI/2;sh.position.y=.08;scene.add(sh);
     npcs.push({kind:'walk',newS:i%3===0,tint:[0xffffff,0xffb0b0,0xb0d0ff,0xe0b0ff,0xffe0a0,0xb0ffe0][i%6],name,variant,sp,tag,sh,x,z,vx:0,vz:0,tx:x,tz:z,wait:rnd(0,3),spd:rnd(1.5,2.6),ph:rnd(0,1),face:1,say:rnd(6,30),bub:null,bt:0,hop:0,stuck:0})}
   // 12 Super Office workers.
-  for(let i=0;i<12;i++){const name=['aria','milo','sora','niko','tess','leo','remy','ivy','kai','zuri','max','noah'][i],sp=new THREE.Sprite(new THREE.SpriteMaterial({alphaTest:.3,fog:true}));sp.scale.set(2.1,2.4,1);scene.add(sp);const tag=labelSprite(name.toUpperCase(),{w:3,size:50,color:'#dff5e7',glow:'#4dd2ff',plate:true});scene.add(tag);const sh=new THREE.Mesh(new THREE.CircleGeometry(.7,16),new THREE.MeshBasicMaterial({color:0,transparent:true,opacity:.4,depthWrite:false}));sh.rotation.x=-Math.PI/2;sh.position.y=.08;scene.add(sh);npcs.push({kind:'walk',worker:true,newS:true,tint:[0xffd9a0,0xd9f0ff,0xe9ffd9,0xffc7da,0xf0d9ff,0xd6fff0][i%6],name,variant:1+(i%7),sp,tag,sh,x:OFF.x+((i%4)-1.5)*3.2,z:OFF.z+((i%3)-1)*3.5,vx:0,vz:0,tx:OFF.x,tz:OFF.z,wait:rnd(0,2),spd:rnd(1.6,2.3),ph:rnd(0,1),face:1,fs:1,say:rnd(4,15),bub:null,bt:0,hop:0,stuck:0})}
-  for(let i=0;i<8;i++){const name=uname(),sp=new THREE.Sprite(new THREE.SpriteMaterial({alphaTest:.25,fog:true}));sp.scale.set(FW*.9,FH*.9,1);scene.add(sp);const tag=labelSprite(name,{w:2.6,size:54,color:'#e9f6ea',glow:'#4dd2ff',plate:true});scene.add(tag);
+  for(let i=0;i<8;i++){const name=['aria','milo','sora','niko','tess','leo','remy','ivy'][i],sp=new THREE.Sprite(new THREE.SpriteMaterial({alphaTest:.3,fog:true}));sp.scale.set(2.1,2.4,1);scene.add(sp);const tag=labelSprite(name.toUpperCase(),{w:3,size:50,color:'#dff5e7',glow:'#4dd2ff',plate:true});scene.add(tag);const sh=new THREE.Mesh(new THREE.CircleGeometry(.7,16),new THREE.MeshBasicMaterial({color:0,transparent:true,opacity:.4,depthWrite:false}));sh.rotation.x=-Math.PI/2;sh.position.y=.08;scene.add(sh);npcs.push({kind:'walk',worker:true,newS:true,tint:[0xffd9a0,0xd9f0ff,0xe9ffd9,0xffc7da,0xf0d9ff,0xd6fff0][i%6],name,variant:1+(i%7),sp,tag,sh,x:OFF.x+((i%4)-1.5)*3.2,z:OFF.z+((i%3)-1)*3.5,vx:0,vz:0,tx:OFF.x,tz:OFF.z,wait:rnd(0,2),spd:rnd(1.6,2.3),ph:rnd(0,1),face:1,fs:1,say:rnd(4,15),bub:null,bt:0,hop:0,stuck:0})}
+  for(let i=0;i<4;i++){const name=uname(),sp=new THREE.Sprite(new THREE.SpriteMaterial({alphaTest:.25,fog:true}));sp.scale.set(FW*.9,FH*.9,1);scene.add(sp);const tag=labelSprite(name,{w:2.6,size:54,color:'#e9f6ea',glow:'#4dd2ff',plate:true});scene.add(tag);
     npcs.push({kind:'fly',name,tint:flyTint[i%flyTint.length],sp,tag,x:rnd(-80,80),y:rnd(8,34),z:rnd(-80,80),vx:0,vy:0,vz:0,tx:rnd(-90,90),ty:rnd(8,40),tz:rnd(-90,90),spd:rnd(8,14),ph:rnd(0,3),row:1,say:rnd(8,30),bub:null,bt:0})}
   $('#twPop').textContent=npcs.length+1+' IN TOWN · OPEN WORLD';
 
@@ -627,7 +627,7 @@ function create(){
   /* ---------- resident brain (personalities, routines, chat, events) ---------- */
   const carPt={x:0,z:0},trafficPts=[...cars.map(c=>c.g.position),carPt];
   const folk=makeFolk({THREE,scene,npcs,B,ROADS,RW,pois:dressing.pois,P,car,say,log,toast,emit,getRight:()=>[RX,RZ],blocked,pushOut,randWalk,blimp,LINES,
-    traffic:()=>{carPt.x=car.x;carPt.z=car.z;return trafficPts},archOf:i=>i>=40&&i<52?'worker':null,
+    traffic:()=>{carPt.x=car.x;carPt.z=car.z;return trafficPts},archOf:i=>i>=24&&i<32?'worker':null,
     circles:[{x:0,z:0,r:7.4},...PARKS.map(([x,z])=>({x,z,r:6.5}))]});
   npcs.forEach((n,i)=>{if(n.kind==='walk')folk.adopt(n,i)});
   /* ---------- bodyguards + escort Benzes ---------- */
