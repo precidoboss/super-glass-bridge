@@ -1400,32 +1400,38 @@ function setView(v){window.__sgView=v;document.body.dataset.view=v;hub.classList
 // the Red Light module flips window.__rlOn on enter/exit; mirror that into the router
 Object.defineProperty(window,'__rlOn',{configurable:true,get:()=>_rlOn,set:v=>{_rlOn=!!v;if(v&&window.__sgView!=='rl')setView('rl');else if(!v&&window.__sgView==='rl'&&!navigating)back()}});
 let lb=null,tw=null,from='hub',navigating=false;
-function leaveAll(){navigating=true;try{if(RL&&_rlOn)RL.exit();if(mg)mg.close();if(lb)lb.close();if(st)st.close();if(tw)tw.close()}finally{navigating=false}}
+function safeClose(name,obj){try{if(obj&&typeof obj.close==='function')obj.close()}catch(err){console.warn(name+' close failed',err)}}
+function leaveAll(){navigating=true;try{if(RL&&_rlOn)try{RL.exit()}catch(err){console.warn('Red Light exit failed',err)}safeClose('Mingle',mg);safeClose('Leaderboard',lb);safeClose('Story',st);safeClose('Town',tw)}finally{navigating=false}}
+function runGame(key){const fn=GAMES[key];if(typeof fn!=='function'){console.warn('Unknown game route',key);setView('hub');return}try{const p=fn();if(p&&typeof p.catch==='function')p.catch(err=>{console.warn('Game route failed',key,err);setView('hub')})}catch(err){console.warn('Game route failed',key,err);setView('hub')}}
 function openHub(){from='hub';leaveAll();setView('hub')}
 function back(){from==='lobby'?openLobby():from==='town'?openTown():openHub()}
 function openBridge(){leaveAll();setView('sgb');goHome()}
-function openRL(){if(!RL)return;leaveAll();setView('rl');RL.enter()}
+function openRL(){if(!RL){console.warn('Red Light module unavailable');setView('hub');return}leaveAll();setView('rl');RL.enter()}
 async function openMingle(){
   leaveAll();setView('mg');
-  try{mg=await import('./mingle.js');await mg.open(back)}catch(err){console.warn('Mingle failed to load',err);setView('hub')}
+  try{mg=await import('./mingle.js');if(typeof mg.open!=='function')throw new Error('Mingle module has no open()');await mg.open(back)}catch(err){console.warn('Mingle failed to load',err);setView('hub')}
 }
 async function openStory(){
   leaveAll();setView('st');
-  try{st=await import('./story.js');await st.open(back)}catch(err){console.warn('Story mode failed to load',err);setView('hub')}
+  try{st=await import('./story.js');if(typeof st.open!=='function')throw new Error('Story module has no open()');await st.open(back)}catch(err){console.warn('Story mode failed to load',err);setView('hub')}
 }
 async function openTown(){
   leaveAll();setView('tw');
-  try{tw=await import('./town.js');tw.open({onExit:openHub,onPortal:g=>{if(g==='lobby'){from='hub';openLobby()}else{from='town';GAMES[g]()}}})}catch(err){console.warn('Town failed to load',err);setView('hub')}
+  try{tw=await import('./town.js');if(typeof tw.open!=='function')throw new Error('Town module has no open()');tw.open({onExit:openHub,onPortal:g=>{if(g==='lobby'){from='hub';openLobby()}else{from='town';runGame(g)}}})}catch(err){console.warn('Town failed to load',err);setView('hub')}
 }
 const GAMES={bridge:openBridge,rl:openRL,mingle:openMingle,story:openStory,town:openTown};
 async function openLobby(){
   leaveAll();setView('lobby');
-  try{lb=await import('./lobby.js');lb.open({onExit:openHub,onPortal:g=>{from='lobby';GAMES[g]()}})}catch(err){console.warn('Lobby failed to load',err);setView('hub')}
+  try{lb=await import('./lobby.js');if(typeof lb.open!=='function')throw new Error('Lobby module has no open()');lb.open({onExit:openHub,onPortal:g=>{from='lobby';runGame(g)}})}catch(err){console.warn('Lobby failed to load',err);setView('hub')}
 }
-document.querySelectorAll('.gcard[data-g]').forEach(c=>{
-  c.addEventListener('click',()=>{from='hub';GAMES[c.dataset.g]()});
-  c.addEventListener('mouseenter',()=>{hubBg.style.backgroundImage='url('+c.dataset.bg+')'});
+hub.addEventListener('click',e=>{
+  const c=e.target.closest&&e.target.closest('.gcard[data-g]');
+  if(c){e.preventDefault();from='hub';runGame(c.dataset.g)}
 });
+hub.addEventListener('mouseenter',e=>{
+  const c=e.target.closest&&e.target.closest('.gcard[data-g]');
+  if(c&&c.dataset.bg)hubBg.style.backgroundImage='url('+c.dataset.bg+')';
+},true);
 hubBg.style.backgroundImage='url(assets/previews/glass-bridge.jpg)';
 $('#rlSound').onclick=()=>{soundOn=!soundOn;const t='SOUND: '+(soundOn?'ON':'OFF');$('#rlSound').textContent=t;$('#sound').textContent=t;if(soundOn)kick();else{bgm.pause();window.__rlBgm&&window.__rlBgm.pause()}};
 $('#hubMute').onclick=()=>{hubMute=!hubMute;$('#hubMute').textContent='♪ MUSIC: '+(hubMute?'OFF':'ON');hubMusicSync(window.__sgView)};
