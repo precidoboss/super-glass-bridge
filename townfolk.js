@@ -312,7 +312,7 @@ export function makeFolk(ctx){
     tick(dt){clock+=dt;const cars=traffic();carVel.length=0;
       for(let i=0;i<cars.length;i++){const c=cars[i],pv=prevCar[i];if(pv&&dt>1e-4)carVel.push({x:c.x,z:c.z,vx:(c.x-pv.x)/dt,vz:(c.z-pv.z)/dt});(prevCar[i]??={}).x=c.x;prevCar[i].z=c.z}
       eventTick(dt)},
-    step(n,dt){if(n.kind==='walk')walkerStep(n,dt);else flyBrain(n,dt)},
+    step(n,dt){if(n.guard)return;if(n.kind==='walk')walkerStep(n,dt);else flyBrain(n,dt)},
     line(n){const a=n.ai;if(!a)return pick(LINES);if(a.sitting)return pick(SAY.sit);if(a.state==='do'&&SAY[a.act]&&Math.random()<.8)return pick(SAY[a.act]);return Math.random()<.75?pick(SAY.walk[a.arch]):pick(LINES)},
     onChat,onEmote,
     stats(){const s={};for(const n of arr){const k=n.ai.state+(n.hide?':in':'');s[k]=(s[k]||0)+1}return s},
