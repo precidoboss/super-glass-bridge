@@ -126,7 +126,7 @@ export function createBenz(renderer,opts={}){
   const body=new THREE.Group();group.add(body);
 
   const paintMat=new THREE.MeshPhysicalMaterial({color:PAINTS[0].color,metalness:PAINTS[0].metal,roughness:PAINTS[0].rough,clearcoat:1,clearcoatRoughness:.04,envMap:env,envMapIntensity:1.5});
-  const glassMat=new THREE.MeshPhysicalMaterial({color:0x07130e,metalness:.55,roughness:.04,envMap:env,envMapIntensity:1.55,transparent:true,opacity:.62,depthWrite:false,depthTest:true});glassMat.forceSinglePass=true;
+  const glassMat=new THREE.MeshPhysicalMaterial({color:0x0b1714,metalness:.42,roughness:.16,envMap:env,envMapIntensity:1.05,transparent:false,opacity:1,depthWrite:true,depthTest:true,clearcoat:.7,clearcoatRoughness:.12});
   const chrome=new THREE.MeshStandardMaterial({color:0xe3eaee,metalness:1,roughness:.12,envMap:env,envMapIntensity:1.7});
   const blackGloss=new THREE.MeshPhysicalMaterial({color:0x040506,metalness:.6,roughness:.18,clearcoat:1,envMap:env,envMapIntensity:1});
   const rubber=new THREE.MeshStandardMaterial({color:0x0b0c0d,metalness:0,roughness:.85});
