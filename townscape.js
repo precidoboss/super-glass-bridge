@@ -11,8 +11,8 @@ export function dress(ctx){
   const {scene,B,ROADS,RW,ISL,U,limeM,redM,greenM,metalM,roofM,BMAT,glowTex,labelSprite,specials,parkCenters}=ctx;
   const rnd=(a,b)=>a+Math.random()*(b-a),pick=a=>a[Math.floor(Math.random()*a.length)];
   let sd=11;const R=()=>{sd=(sd*16807)%2147483647;return(sd-1)/2147483646}; // deterministic layout
-  const pois=[];const poi=(type,x,z,extra={})=>{const p={type,x,z,...extra};pois.push(p);return p};
-  const tickers=[];
+  const pois=[];const poi=(type,x,z,extra={})=>{const p={type,x,z,...extra};pois.push(p);if(type==='bench')occ(x,z,1.9);else if(type==='stop')occ(x,z,3.4);else if(type==='shop'||type==='exchange')occ(x,z,3.8);return p};
+  const tickers=[];const occupied=[];const occ=(x,z,r)=>occupied.push([x,z,r]);
 
   /* ---- instancing helper: collect matrices, flush into InstancedMeshes ---- */
   const batches=[];
@@ -71,8 +71,8 @@ export function dress(ctx){
        if(ROADS.some(r=>Math.abs(t-r)<RW/2+4))continue; // keep crossings clear
        const kind=R();
        // horizontal street (z=c), sidewalk at z=c+s*off, bench faces the road
-       const hx=t+R()*3,hz=c+s*(off+.2);if(!inBlock(hx,hz)){ if(kind<.45)bench(hx,hz,s>0?-Math.PI/2:Math.PI/2);else if(kind<.7){put(bins,hx,.45,hz,.3,.9,.3)}else{put(pl,hx,.3,hz,1.6,.6,.8);put(sh,hx,.85,hz,.7,.5,.5)}}
-       const vx=c+s*(off+.2),vz=t+R()*3;if(!inBlock(vx,vz)){ if(kind<.4)bench(vx,vz,s>0?Math.PI:0);else if(kind<.65){put(bins,vx,.45,vz,.3,.9,.3)}else{put(pl,vx,.3,vz,.8,.6,1.6);put(sh,vx,.85,vz,.5,.5,.7)}}
+       const hx=t+R()*3,hz=c+s*(off+.2);if(!inBlock(hx,hz)){ if(kind<.45)bench(hx,hz,s>0?-Math.PI/2:Math.PI/2);else if(kind<.7){occ(hx,hz,1.1);put(bins,hx,.45,hz,.3,.9,.3)}else{occ(hx,hz,1.9);put(pl,hx,.3,hz,1.6,.6,.8);put(sh,hx,.85,hz,.7,.5,.5)}}
+       const vx=c+s*(off+.2),vz=t+R()*3;if(!inBlock(vx,vz)){ if(kind<.4)bench(vx,vz,s>0?Math.PI:0);else if(kind<.65){occ(vx,vz,1.1);put(bins,vx,.45,vz,.3,.9,.3)}else{occ(vx,vz,1.9);put(pl,vx,.3,vz,.8,.6,1.6);put(sh,vx,.85,vz,.5,.5,.7)}}
      }
      // bollards with warm caps at every crossing
      for(const c2 of ROADS){const bx=c2+(RW/2+.2),bz=c+s*(RW/2+.35);put(bol,bx,.4,bz,.1,.8,.1);put(bolL,bx,.85,bz,.12,.12,.12);put(bol,c+s*(RW/2+.35),.4,c2+(RW/2+.2),.1,.8,.1);put(bolL,c+s*(RW/2+.35),.85,c2+(RW/2+.2),.12,.12,.12)}
@@ -138,14 +138,13 @@ export function dress(ctx){
   }
 
   /* ---- parks: paths, lanterns, blossom trees, flowers, pond rim spots ---- */
-  {const lant=batch(sph,warmM),post=batch(cyl,metalM),blos=[batch(sph,pinkM),batch(sph,cyanM)],stem=batch(cyl,woodM),flw=[batch(sph,pinkM),batch(sph,warmM),batch(sph,cyanM)],path=batch(box,slabM);
+  {const lant=batch(sph,warmM),post=batch(cyl,metalM),flw=[batch(sph,pinkM),batch(sph,warmM),batch(sph,cyanM)],path=batch(box,slabM);
    const centers=parkCenters||[[-54,-54],[54,-54],[-54,54],[54,54]];
    for(const [cx,cz] of centers){
      // stepping-stone ring + 4 spokes to the pond
      for(let i=0;i<28;i++){const a=i/28*Math.PI*2;put(path,cx+Math.cos(a)*10.5,.07,cz+Math.sin(a)*10.5,1.5,.1,1.0,-a+Math.PI/2)}
      for(let s=0;s<4;s++){const a=s*Math.PI/2+.4;for(let k=0;k<6;k++){const r=7+k*2.4;put(path,cx+Math.cos(a)*r,.07,cz+Math.sin(a)*r,1.2,.1,1.2,-a)}}
      for(let i=0;i<8;i++){const a=i/8*Math.PI*2+.2,x=cx+Math.cos(a)*12.2,z=cz+Math.sin(a)*12.2;put(post,x,1.4,z,.06,2.8,.06);put(lant,x,3,z,.32,.32,.32)}
-     for(let i=0;i<9;i++){const a=R()*6.28,r=14+R()*8,x=cx+Math.cos(a)*r,z=cz+Math.sin(a)*r,s=.9+R()*.7;put(stem,x,1.1*s,z,.16,2.2*s,.16);put(blos[i%2],x,2.8*s,z,1.5*s,1.2*s,1.5*s)}
      for(let i=0;i<46;i++){const a=R()*6.28,r=7.2+R()*3.6;put(flw[i%3],cx+Math.cos(a)*r,.18,cz+Math.sin(a)*r,.2,.2,.2)}
      for(let i=0;i<6;i++){const a=i/6*Math.PI*2+.5;poi('pond',cx+Math.cos(a)*8.2,cz+Math.sin(a)*8.2,{face:a+Math.PI});}
      poi('park',cx+rnd(-6,6),cz+rnd(-6,6),{});
@@ -179,6 +178,83 @@ export function dress(ctx){
     g.scale.setScalar(s);g.position.set(Math.cos(a)*r,-10+R()*90,Math.sin(a)*r);g.rotation.y=R()*6;scene.add(g);isles.push({g,y:g.position.y,ph:R()*6,sp:.15+R()*.2})}
   tickers.push((dt,t)=>{for(const o of isles){o.g.position.y=o.y+Math.sin(t*o.sp+o.ph)*3.2;o.g.rotation.y+=dt*.01}});
 
+
+  const allTrees=[];
+  /* ---- trees: planted on purpose (never on roads, buildings, doors or furniture) ----
+     tree-lined avenues (rhythm: lamp, tree, lamp), park groves around each pond, wild groves on the outer ring.
+     Four species, all instanced with per-tree colour, grounded with a soft shadow, and a gentle wind sway. */
+  {
+    const solids=ctx.solids||[];
+    const trunkG=new THREE.CylinderGeometry(.13,.27,1,7);trunkG.translate(0,.5,0);
+    const coneG=new THREE.ConeGeometry(1,1,9);coneG.translate(0,.5,0);
+    const discG=new THREE.CylinderGeometry(1,1,1,16);
+    const ringG=new THREE.TorusGeometry(.52,.035,4,14);ringG.rotateX(Math.PI/2);
+    const sway=m=>{m.onBeforeCompile=sh=>{sh.uniforms.uTime=U.time;
+      sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nuniform float uTime;')
+        .replace('#include <begin_vertex>','#include <begin_vertex>\n#ifdef USE_INSTANCING\nfloat ph=instanceMatrix[3].x*.21+instanceMatrix[3].z*.17;transformed.x+=sin(uTime*1.3+ph)*.06*(position.y+1.);transformed.z+=cos(uTime*1.1+ph*1.3)*.045*(position.y+1.);\n#endif')};return m};
+    const leafM=sway(new THREE.MeshStandardMaterial({color:0xffffff,flatShading:true,roughness:.78,emissive:0x0b3a16,emissiveIntensity:.55}));
+    const pineM=sway(new THREE.MeshStandardMaterial({color:0xffffff,flatShading:true,roughness:.8,emissive:0x06301f,emissiveIntensity:.5}));
+    const petalM=sway(new THREE.MeshStandardMaterial({color:0xffffff,flatShading:true,roughness:.7,emissive:0x4a1230,emissiveIntensity:.55}));
+    const barkM=new THREE.MeshStandardMaterial({color:0x5a4030,roughness:.9,emissive:0x140a05,emissiveIntensity:.6});
+    const shadM=new THREE.MeshBasicMaterial({color:0x020805,transparent:true,opacity:.38,depthWrite:false});
+    const T={trunk:batch(trunkG,barkM),leaf:batch(sph,leafM),pine:batch(coneG,pineM),petal:batch(sph,petalM),shad:batch(discG,shadM),ring:batch(ringG,curbM),bush:batch(sph,leafM)};
+    const _e=new THREE.Euler(),_q=new THREE.Quaternion(),_p=new THREE.Vector3(),_s=new THREE.Vector3(),_m=new THREE.Matrix4();
+    const inst=(b,x,y,z,sx,sy,sz,rx=0,ry=0,rz=0,col=null)=>{_e.set(rx,ry,rz);_q.setFromEuler(_e);_p.set(x,y,z);_s.set(sx,sy,sz);_m.compose(_p,_q,_s);b.m.push(_m.clone());if(col)(b.col??=[]).push(col)};
+    const shade=(hex,k)=>{const c=new THREE.Color(hex);c.offsetHSL(0,0,k);return c.getHex()};
+    const GREENS=[0x3fae3a,0x2f9a46,0x5cc23a,0x2a8a5a,0x4bb84a,0x7acb3a],PINES=[0x1f7a3a,0x186a40,0x2a8a42,0x1c7050],CHERRY=[0xff8fc4,0xffb0d4,0xf06aa8,0xff9ad0,0x8fe8ff];
+    const trees=allTrees; // {x,z,r} for spacing + checks
+    const roadNear=(x,z,m)=>{for(const c of ROADS){if(Math.abs(x-c)<RW/2+m||Math.abs(z-c)<RW/2+m)return true}return false};
+    function ok(x,z,{road=3.6,bld=2.6,gap=0,pad=0}={}){
+      if(Math.hypot(x,z)>ISL-6)return false;
+      if(roadNear(x,z,road))return false;
+      if(Math.hypot(x,z)<16.5)return false;                                  // plaza + roundabout
+      for(const b of B)if(Math.abs(x-b.x)<b.hw+bld&&Math.abs(z-b.z)<b.hd+bld)return false;
+      for(const b of solids)if(Math.abs(x-b.x)<b.hw+bld+1&&Math.abs(z-b.z)<b.hd+bld+1)return false;
+      for(const [ox,oz,r] of occupied)if(Math.hypot(x-ox,z-oz)<r+pad)return false;
+      for(const [cx,cz] of(parkCenters||[]))if(Math.hypot(x-cx,z-cz)<13.5)return false; // pond + path ring stay open
+      for(const t of trees)if(Math.hypot(x-t.x,z-t.z)<t.r+gap)return false;
+      return true}
+    const shadow=(x,z,r,gy)=>inst(T.shad,x,gy+.012,z,r,1,r);
+    function broadleaf(x,z,s,gy=0){const col=pick(GREENS),lean=(R()-.5)*.1,h=2.3*s;
+      inst(T.trunk,x,gy,z,s,h,s,lean,R()*6,lean*.6,null);shadow(x,z,1.8*s,gy);
+      for(const [bx,by,bz,br] of[[0,3.3,0,1.55],[.85,2.85,.3,1.1],[-.75,3.0,-.45,1.2],[.1,4.15,.15,1.0],[-.2,2.75,.85,.95]])
+        inst(T.leaf,x+bx*s,gy+by*s,z+bz*s,br*s,br*s*.88,br*s,R()*3,R()*6,R()*3,shade(col,(R()-.5)*.07+by*.012));
+      trees.push({x,z,r:2.7*s})}
+    function street(x,z,gy,alt){const s=.82+R()*.14,col=alt?0x58c73f:0x2fa05a;
+      inst(T.trunk,x,gy,z,.9*s,2.9*s,.9*s,0,R()*6,0);inst(T.ring,x,gy+.02,z,1,1,1);shadow(x,z,1.35*s,gy);
+      inst(T.leaf,x,gy+3.9*s,z,1.25*s,1.65*s,1.25*s,0,R()*6,0,shade(col,0));inst(T.leaf,x+.45*s,gy+3.2*s,z+.2*s,.8*s,.75*s,.8*s,0,0,0,shade(col,-.04));
+      inst(T.leaf,x-.4*s,gy+3.35*s,z-.25*s,.75*s,.7*s,.75*s,0,0,0,shade(col,.03));inst(T.leaf,x,gy+5.0*s,z,.65*s,.6*s,.65*s,0,0,0,shade(col,.06));
+      trees.push({x,z,r:1.9*s})}
+    function pine(x,z,s,gy=0){const col=pick(PINES);inst(T.trunk,x,gy,z,.85*s,1.5*s,.85*s);shadow(x,z,1.7*s,gy);
+      [[2.1,2.7,1.2],[1.7,2.5,2.65],[1.25,2.3,3.95],[.8,1.7,5.15]].forEach(([r,h,y],i)=>inst(T.pine,x,gy+y*s,z,r*s,h*s,r*s,0,R()*6,0,shade(col,i*.025)));
+      trees.push({x,z,r:2.3*s})}
+    function cherry(x,z,s,gy=0){const col=pick(CHERRY),lean=(R()-.5)*.16;
+      inst(T.trunk,x,gy,z,1.15*s,2.1*s,1.15*s,lean,R()*6,lean);inst(T.trunk,x+.25*s,gy+1.2*s,z,.6*s,1.5*s,.6*s,.5,0,-.55);shadow(x,z,2.4*s,gy);
+      for(const [bx,by,bz,br] of[[0,3.1,0,1.7],[1.15,2.8,.4,1.25],[-1.1,2.9,-.3,1.3],[.2,3.7,-.9,1.1],[-.3,3.0,1.1,1.05]])
+        inst(T.petal,x+bx*s,gy+by*s,z+bz*s,br*s*1.2,br*s*.7,br*s*1.2,0,R()*6,0,shade(col,(R()-.5)*.08));
+      trees.push({x,z,r:3.0*s})}
+    const bushes=(x,z,n=2)=>{for(let i=0;i<n;i++){const a=R()*6.28,d=1.4+R()*.8;inst(T.bush,x+Math.cos(a)*d,.35,z+Math.sin(a)*d,.8+R()*.4,.55,.8+R()*.4,0,R()*6,0,shade(pick(GREENS),-.04))}};
+    // 1) avenues: one tree between every pair of street lamps, off the crossings
+    for(const c of ROADS)for(const sg of[-1,1])for(let t=-94,k=0;t<=94;t+=12,k++){
+      for(const horiz of[true,false]){
+        const x=horiz?t:c+sg*6.45,z=horiz?c+sg*6.45:t;
+        if(ROADS.some(r=>Math.abs(t-r)<RW/2+5.2))continue;
+        if(!ok(x,z,{road:0,bld:1.3,gap:1,pad:.4}))continue;
+        street(x,z,.19,k%2===0)}}
+    // 2) parks: groves on the outer side of each pond, plus one hero cherry
+    for(const [cx,cz] of(parkCenters||[])){
+      const out=Math.atan2(cz,cx);let placed=0;
+      for(let k=0;k<160&&placed<24;k++){const a=out+(R()-.5)*3.6,r=14+Math.sqrt(R())*14,x=cx+Math.cos(a)*r,z=cz+Math.sin(a)*r;
+        if(!ok(x,z,{gap:1.4}))continue;const q=R(),s=.85+R()*.7;
+        if(q<.42)broadleaf(x,z,s);else if(q<.72)pine(x,z,s);else cherry(x,z,s*.85);
+        if(R()<.35)bushes(x,z,2);placed++}
+      for(let k=0;k<40;k++){const a=out+(R()-.5)*1.2,r=16+R()*3,x=cx+Math.cos(a)*r,z=cz+Math.sin(a)*r;if(ok(x,z,{gap:2.5})){cherry(x,z,1.5);break}}}
+    // 3) wild groves on the outer ring of the island
+    for(let g=0;g<18;g++){const a=R()*6.283,r=80+R()*18,gx=Math.cos(a)*r,gz=Math.sin(a)*r;let n=0;
+      for(let k=0;k<30&&n<7;k++){const x=gx+(R()-.5)*14,z=gz+(R()-.5)*14;if(!ok(x,z,{gap:1.2}))continue;const q=R(),s=.9+R()*.8;
+        if(q<.55)pine(x,z,s);else if(q<.88)broadleaf(x,z,s);else cherry(x,z,s*.9);n++}}
+  }
+
   flush();
-  return {pois,tick(dt,t){for(const f of tickers)f(dt,t)}};
+  return {pois,trees:allTrees,tick(dt,t){for(const f of tickers)f(dt,t)}};
 }
