@@ -120,8 +120,8 @@ function starMesh(r,mat){
   return g;
 }
 
-export function createBenz(renderer){
-  const env=makeEnv(renderer);
+export function createBenz(renderer,opts={}){
+  const env=opts.env||makeEnv(renderer);
   const group=new THREE.Group();group.name='SUPER HOME BENZ';
   const body=new THREE.Group();group.add(body);
 
@@ -254,11 +254,11 @@ export function createBenz(renderer){
   glow.rotation.x=-Math.PI/2;glow.position.y=.04;group.add(glow);
 
   /* headlight beam */
-  const beam=new THREE.SpotLight(0xdff6ff,0,46,.55,.7,1.4);beam.position.set(0,.8,-2.3);beam.target.position.set(0,.2,-14);group.add(beam);group.add(beam.target);
+  const beam=new THREE.SpotLight(0xdff6ff,0,46,.55,.7,1.4);beam.position.set(0,.8,-2.3);beam.target.position.set(0,.2,-14);if(!opts.noBeam){group.add(beam);group.add(beam.target)}
 
   let paintIdx=0;
   const api={
-    group,body,wheels,steer,beam,paints:PAINTS,
+    group,body,wheels,steer,beam,env,paints:PAINTS,
     dims:{L,W:HW*2,R,AX},
     seat:{x:-.42,y:.62,z:.3},
     setPaint(i){paintIdx=((i%PAINTS.length)+PAINTS.length)%PAINTS.length;const p=PAINTS[paintIdx];paintMat.color.setHex(p.color);paintMat.metalness=p.metal;paintMat.roughness=p.rough;return p},
