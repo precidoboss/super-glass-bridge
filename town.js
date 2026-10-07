@@ -4,6 +4,7 @@ import {RenderPass} from 'three/addons/postprocessing/RenderPass.js';
 import {UnrealBloomPass} from 'three/addons/postprocessing/UnrealBloomPass.js';
 import {OutputPass} from 'three/addons/postprocessing/OutputPass.js';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
+import {makeOffice} from './office.js';
 import {ShaderPass} from 'three/addons/postprocessing/ShaderPass.js';
 
 /* ===================== SUPER TOWN =====================
@@ -171,6 +172,7 @@ function create(){
   // generic blocks
   for(const [cx,cz] of[[-54,-18],[-54,18],[54,-18],[54,18],[-18,-54],[18,-54],[-18,54],[18,54]]){
     if(cx===-54&&cz===18)continue; // the Super Home lives here
+    if(cx===18&&cz===54)continue; // the President's Office lives here
     const two=rng()<.55;if(two){const w1=rng()*6+10,w2=rng()*6+10,h1=rng()*20+8,h2=rng()*22+8;building(cx-7,cz+(rng()-.5)*6,w1,18+rng()*4,h1,Math.floor(rng()*4));building(cx+8,cz+(rng()-.5)*6,w2,16+rng()*4,h2,Math.floor(rng()*4))}
     else building(cx,cz,rng()*8+16,rng()*6+17,rng()*26+10,Math.floor(rng()*4))}
   // specials
@@ -191,6 +193,10 @@ function create(){
   {const c=new THREE.Mesh(new THREE.CylinderGeometry(3.4,3.4,.6,40),new THREE.MeshStandardMaterial({color:0x2a4a30,metalness:.9,roughness:.25,emissive:0x2a6a18}));c.rotation.x=Math.PI/2;coin.add(c);const r=new THREE.Mesh(new THREE.TorusGeometry(3.4,.2,8,48),limeM);coin.add(r);const mk=new THREE.Mesh(new THREE.PlaneGeometry(4.4,4.4),new THREE.MeshBasicMaterial({transparent:true,depthWrite:false,color:0xdfffc0}));mk.position.z=.35;coin.add(mk);const mk2=mk.clone();mk2.position.z=-.35;mk2.rotation.y=Math.PI;coin.add(mk2);loadTex('assets/lobby/supercycle-logo.webp',t=>{mk.material.map=t;mk.material.needsUpdate=true})}
   {const s=labelSprite('$SUPER EXCHANGE',{w:12,size:70});s.position.set(EX.x,EX.h+14,EX.z);scene.add(s)}
   specials.exchange={x:EX.x,z:EX.z+EX.d/2+3.5,label:'$SUPER EXCHANGE · OPEN THE LIVE CHART',act:()=>window.open(DEX_URL,'_blank','noopener')};
+  /* ---------- OFFICE OF THE PRESIDENT (north-east block, front door on the main street) ---------- */
+  const OF=makeOffice({THREE,scene,labelSprite,B,cx:18,cz:56,title:'PRESIDENT CRYPTO'});
+  specials.officeDoor={x:OF.door.x,z:OF.door.z,label:"OFFICE OF THE PRESIDENT · WALK IN",act:()=>{P.mode='walk';P.x=OF.lobby.x;P.z=OF.lobby.z;P.y=0;P.vx=P.vy=P.vz=0;yaw=Math.PI;pitch=.34;camD=8;toast('WELCOME, MR. PRESIDENT')}};
+  specials.officeDesk={x:OF.desk.x,z:OF.desk.z,label:"PRESIDENT'S DESK · TAKE YOUR SEAT",act:()=>{P.mode='walk';P.x=OF.seat.x;P.z=OF.seat.z;P.y=0;P.vx=P.vy=P.vz=0;yaw=0;pitch=.3;camD=6;toast('SEATED · OFFICE OF THE PRESIDENT')}};
   // parks (corner blocks): trees, pond, benches
   const trees=[];for(const [cx,cz] of[[-54,-54],[54,-54],[-54,54],[54,54]]){for(let i=0;i<30;i++){const a=rnd(0,6.283),r=Math.sqrt(Math.random())*22;const x=cx+Math.cos(a)*r,z=cz+Math.sin(a)*r;if(Math.hypot(x-cx,z-cz)>6)trees.push([x,z,rnd(.8,1.6)])}
     const pond=new THREE.Mesh(new THREE.CircleGeometry(6,32),new THREE.MeshBasicMaterial({color:new THREE.Color(.1,.9,.8)}));pond.rotation.x=-Math.PI/2;pond.position.set(cx,.05,cz);scene.add(pond);const pr3=new THREE.Mesh(new THREE.TorusGeometry(6,.2,8,40),greenM);pr3.rotation.x=Math.PI/2;pr3.position.set(cx,.1,cz);scene.add(pr3)}
@@ -582,7 +588,7 @@ function create(){
     }
     const pr0=Math.hypot(P.x,P.z);if(pr0>ISL+25){P.x*=(ISL+25)/pr0;P.z*=(ISL+25)/pr0}
     pushOut(P,P.mode==='walk'?.8:1,P.y);
-    const hs=HS.step(dt,P,time);
+    const hs=HS.step(dt,P,time);OF.update(dt,P,time);
     if(P.riding)P.floor=Math.round(HS.E.y/HS.FH);
     const inH2=HS.inHouse(P.x,P.z),roofOver=Math.abs(P.x-HS.HX0)<HS.hx+.6&&Math.abs(P.z-HS.HZ0)<HS.hz+.6;
     if(!inH2&&!(roofOver&&P.y>HS.TOP-1))P.floor=0;
