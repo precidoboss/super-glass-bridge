@@ -156,8 +156,9 @@ export function dress(ctx){
   tickers.push((dt,t)=>holo.forEach(o=>o.p.material.opacity=.14+.13*(.5+.5*Math.sin(t*2+o.ph))));
   
   if(specials){for(const k of['hq','arcade','dock','exchange']){const s=specials[k];if(s&&!pois.some(p=>p.type===k))poi(k,s.x,s.z,{name:k.toUpperCase(),enter:k!=='dock'})}}
-  tickers.push((dt,t)=>{const dc=ctx.camera.position;for(const s of signs){const q=Math.hypot(s.position.x-dc.x,s.position.z-dc.z);s.visible=q<60}
-    for(let i=0;i<BMAT.length;i++)BMAT[i].emissiveIntensity=.85+.1*Math.sin(t*.6+i*1.7)});
+  tickers.push((dt,t)=>{const dc=ctx.camera.position;for(const s of signs){const q=Math.hypot(s.position.x-dc.x,s.position.z-dc.z);
+      const k=q<58?Math.min(1,(58-q)/9):0;s.material.opacity=k;s.visible=k>.02} // fade in/out instead of popping
+    for(let i=0;i<BMAT.length;i++)BMAT[i].emissiveIntensity=.86+.035*Math.sin(t*.5+i*1.7)}); // barely-there window breathing
 
   /* ---- plaza: fountain ripples, bench ring, statue/fountain POIs ---- */
   {const rip=[0,1,2].map(i=>{const m=new THREE.Mesh(new THREE.TorusGeometry(1,.05,6,48),new THREE.MeshBasicMaterial({color:new THREE.Color(.4,1.8,2.2),transparent:true,opacity:.6,depthWrite:false}));m.rotation.x=Math.PI/2;m.position.y=.54;scene.add(m);return m});
@@ -190,7 +191,7 @@ export function dress(ctx){
     const mat=new THREE.ShaderMaterial({uniforms:{time:U.time,size:{value:size},kind:{value:kind},col:{value:new THREE.Color(color)},hMin:{value:hMin},hMax:{value:hMax}},transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
       vertexShader:`attribute float aSeed;uniform float time,size,kind,hMin,hMax;varying float vA;void main(){vec3 p=position;float t=time+aSeed;
         if(kind>.5){p.y=hMin+mod(position.y-hMin+time*(1.2+fract(aSeed)*.9),hMax-hMin);p.x+=sin(t*.4+aSeed)*3.;p.z+=cos(t*.33+aSeed)*3.;vA=smoothstep(0.,6.,p.y-hMin)*(1.-smoothstep(hMax-hMin-10.,hMax-hMin,p.y-hMin));}
-        else{p.x+=sin(t*.9)*1.6+sin(t*2.1)*.4;p.z+=cos(t*.8)*1.6;p.y+=sin(t*1.3)*.7;vA=.4+.6*sin(t*3.+aSeed*7.);}
+        else{p.x+=sin(t*.9)*1.6+sin(t*2.1)*.4;p.z+=cos(t*.8)*1.6;p.y+=sin(t*1.3)*.7;vA=.78+.22*sin(t*1.4+aSeed*7.);}
         vec4 mv=modelViewMatrix*vec4(p,1.);gl_Position=projectionMatrix*mv;gl_PointSize=size*(260./-mv.z);}`,
       fragmentShader:`uniform vec3 col;varying float vA;void main(){float d=length(gl_PointCoord-.5);float a=smoothstep(.5,.0,d)*vA;gl_FragColor=vec4(col*1.6,a);}`});
     const p=new THREE.Points(g,mat);p.frustumCulled=false;scene.add(p);return p}
