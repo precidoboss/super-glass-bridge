@@ -1,0 +1,87 @@
+{
+ "cw": 128,
+ "ch": 144,
+ "cols": 6,
+ "rows": [
+  {
+   "kind": "walk",
+   "dir": "front",
+   "frames": 6
+  },
+  {
+   "kind": "walk",
+   "dir": "fr",
+   "frames": 4
+  },
+  {
+   "kind": "walk",
+   "dir": "right",
+   "frames": 5
+  },
+  {
+   "kind": "walk",
+   "dir": "br",
+   "frames": 4
+  },
+  {
+   "kind": "walk",
+   "dir": "back",
+   "frames": 5
+  },
+  {
+   "kind": "walk",
+   "dir": "bl",
+   "frames": 4
+  },
+  {
+   "kind": "walk",
+   "dir": "left",
+   "frames": 6
+  },
+  {
+   "kind": "walk",
+   "dir": "fl",
+   "frames": 4
+  },
+  {
+   "kind": "run",
+   "dir": "front",
+   "frames": 6
+  },
+  {
+   "kind": "run",
+   "dir": "fr",
+   "frames": 4
+  },
+  {
+   "kind": "run",
+   "dir": "right",
+   "frames": 5
+  },
+  {
+   "kind": "run",
+   "dir": "br",
+   "frames": 4
+  },
+  {
+   "kind": "run",
+   "dir": "back",
+   "frames": 5
+  },
+  {
+   "kind": "run",
+   "dir": "bl",
+   "frames": 4
+  },
+  {
+   "kind": "run",
+   "dir": "left",
+   "frames": 6
+  },
+  {
+   "kind": "run",
+   "dir": "fl",
+   "frames": 4
+  }
+ ]
+}
