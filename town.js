@@ -8,6 +8,7 @@ import {makeOffice} from './office.js';
 import {makeGarage} from './garage.js';
 import {createBenz} from './benz.js';
 import {ShaderPass} from 'three/addons/postprocessing/ShaderPass.js';
+import {createTownUpgrade,makeCarModel} from './upgrade.js';
 
 /* ===================== SUPER TOWN =====================
    A small open-world community on a floating island: fly (or hover-walk) as the flyer, meet bot residents,
@@ -171,12 +172,14 @@ function create(){
   const blinkers=[];
   function block(cx,cz,fn){fn(cx,cz)}
   const rng=(()=>{let s=7;return()=>{s=(s*16807)%2147483647;return(s-1)/2147483646}})();
+  const UP=createTownUpgrade(scene);const genStart=B.length;
   // generic blocks
   for(const [cx,cz] of[[-54,-18],[-54,18],[54,-18],[54,18],[-18,-54],[18,-54],[-18,54],[18,54]]){
     if(cx===-54&&cz===18)continue; // the Super Home lives here
     if(cx===18&&cz===54)continue; // the President's Office lives here
     const two=rng()<.55;if(two){const w1=rng()*6+10,w2=rng()*6+10,h1=rng()*20+8,h2=rng()*22+8;building(cx-7,cz+(rng()-.5)*6,w1,18+rng()*4,h1,Math.floor(rng()*4));building(cx+8,cz+(rng()-.5)*6,w2,16+rng()*4,h2,Math.floor(rng()*4))}
     else building(cx,cz,rng()*8+16,rng()*6+17,rng()*26+10,Math.floor(rng()*4))}
+  UP.dressBlocks(B.slice(genStart));
   // specials
   const HQ={x:-18,z:-18,w:18,d:18,h:46};building(HQ.x,HQ.z,HQ.w,HQ.d,HQ.h,0,'hq');
   {const lg=new THREE.Mesh(new THREE.PlaneGeometry(11,11),new THREE.MeshBasicMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,color:0xcfffd8}));lg.position.set(HQ.x,HQ.h*.62,HQ.z+HQ.d/2+.1);scene.add(lg);loadTex('assets/lobby/supercycle-logo.webp',t=>{lg.material.map=t;lg.material.needsUpdate=true});
@@ -207,6 +210,8 @@ function create(){
   for(let i=trees.length-1;i>=0;i--)if(Math.abs(trees[i][0]-GA.box.x)<GA.box.hw+4&&Math.abs(trees[i][1]-GA.box.z)<GA.box.hd+6)trees.splice(i,1);
   {const n=trees.length,tr=new THREE.InstancedMesh(new THREE.CylinderGeometry(.18,.28,2.2,6),metalM,n),cn=new THREE.InstancedMesh(new THREE.ConeGeometry(1.6,4.6,8),new THREE.MeshStandardMaterial({color:0x2f8a2a,emissive:0x1a5a14,emissiveIntensity:.7,roughness:.7}),n),d=new THREE.Object3D();
    trees.forEach(([x,z,s],i)=>{d.position.set(x,1.1*s,z);d.scale.setScalar(s);d.updateMatrix();tr.setMatrixAt(i,d.matrix);d.position.set(x,3.6*s,z);d.updateMatrix();cn.setMatrixAt(i,d.matrix)});scene.add(tr,cn)}
+  UP.streetscape(ROADS,RW,B,ISL);
+  UP.flush();
   // street lamps
   {const pts=[];for(const c of ROADS)for(let t=-100;t<=100;t+=12)for(const s of[-1,1]){pts.push([t,c+s*(RW/2+.6)]);pts.push([c+s*(RW/2+.6),t])}
    const n=pts.length,pm=new THREE.InstancedMesh(new THREE.CylinderGeometry(.08,.12,5,6),metalM,n),d=new THREE.Object3D(),pos=new Float32Array(n*3);
@@ -374,14 +379,10 @@ function create(){
     for(const [cx,cz,a0] of corners){for(let i=0;i<=4;i++){const a=ccw?a0+i/4*Math.PI/2:a0-i/4*Math.PI/2;pts.push(new V3(cx+Math.cos(a)*r,.55,cz+Math.sin(a)*r))}}return new THREE.CatmullRomCurve3(pts,true,'catmullrom',.4)}
   const carBodyG=new THREE.BoxGeometry(2,.7,4.2),carCabG=new THREE.BoxGeometry(1.7,.62,2.1),wheelG=new THREE.CylinderGeometry(.42,.42,.35,12),glassM=new THREE.MeshStandardMaterial({color:0x0a1a16,roughness:.1,metalness:.9}),wheelM=new THREE.MeshStandardMaterial({color:0x080c0a,roughness:.6}),headM=new THREE.MeshBasicMaterial({color:new THREE.Color(3,3,2.4)}),tailM=new THREE.MeshBasicMaterial({color:new THREE.Color(3,.2,.25)});
   const CARCOL=[0x7bff3a,0xff4d4f,0xe9f4ea,0x4dd2ff,0xffc83d,0xc8ff43,0xff2a9a];
-  function makeCar(col){const g=new THREE.Group(),bm=new THREE.MeshStandardMaterial({color:col,roughness:.25,metalness:.7,emissive:col,emissiveIntensity:.18});
-    const b=new THREE.Mesh(carBodyG,bm);b.position.y=.55;g.add(b);const c=new THREE.Mesh(carCabG,glassM);c.position.set(0,1.12,.2);g.add(c);
-    for(const x of[-1,1])for(const z of[-1.35,1.35]){const w=new THREE.Mesh(wheelG,wheelM);w.rotation.z=Math.PI/2;w.position.set(x*1.02,.42,z);g.add(w)}
-    for(const x of[-.7,.7]){const h=new THREE.Mesh(new THREE.BoxGeometry(.4,.2,.1),headM);h.position.set(x,.62,-2.12);g.add(h);const t=new THREE.Mesh(new THREE.BoxGeometry(.4,.2,.1),tailM);t.position.set(x,.62,2.12);g.add(t)}
-    const ug=new THREE.Mesh(new THREE.PlaneGeometry(2.6,4.8),new THREE.MeshBasicMaterial({color:new THREE.Color(col).multiplyScalar(1.6),transparent:true,opacity:.35,blending:THREE.AdditiveBlending,depthWrite:false}));ug.rotation.x=-Math.PI/2;ug.position.y=.06;g.add(ug);scene.add(g);return g}
+  const makeCar=(col,type='sedan')=>{const g=makeCarModel(col,type);scene.add(g);return g};
   const cars=[];
-  {const L=[[38.2,false],[33.8,true]];L.forEach(([H,ccw],li)=>{const cv=loopCurve(H,ccw),len=cv.getLength();for(let i=0;i<5;i++)cars.push({g:makeCar(CARCOL[(li*5+i)%CARCOL.length]),cv,len,u:i/5+li*.07,spd:rnd(9,13),loop:true})})}
-  [[-1,-72,-10,2.2],[1,72,10,-2.2],[-1,-72,-10,-2.2],[1,72,10,2.2]].forEach(([dir,a,b,off],i)=>{const horiz=i<2;cars.push({g:makeCar(CARCOL[(i+3)%CARCOL.length]),shuttle:true,a,b,off,horiz,t:rnd(0,1),dir:1,spd:rnd(8,12)})});
+  {const L=[[38.2,false],[33.8,true]];L.forEach(([H,ccw],li)=>{const cv=loopCurve(H,ccw),len=cv.getLength();const TY=['sedan','suv','sedan','sports','truck','sedan'];for(let i=0;i<6;i++)cars.push({g:makeCar(CARCOL[(li*6+i)%CARCOL.length],TY[i]),cv,len,u:i/6+li*.07,spd:rnd(9,13),loop:true})})}
+  [[-1,-72,-10,2.2],[1,72,10,-2.2],[-1,-72,-10,-2.2],[1,72,10,2.2]].forEach(([dir,a,b,off],i)=>{const horiz=i<2;cars.push({g:makeCar(CARCOL[(i+3)%CARCOL.length],i%2?'suv':'sedan'),shuttle:true,a,b,off,horiz,t:rnd(0,1),dir:1,spd:rnd(8,12)})});
 
   /* ---------- SUPER BENZ (benz.js): lives in the Super Home garage, drivable ---------- */
   const benz=createBenz(renderer);scene.add(benz.group);
