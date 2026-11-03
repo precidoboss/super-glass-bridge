@@ -529,11 +529,11 @@ function create(){
 
   // cars: loop traffic keeps a gap to the car ahead; shuttles obey the signals; everyone yields to people on a crosswalk
   function updateTraffic(dt){
-    const hG=hGreenNow();
+    const hG=hGreenNow();dt=Number.isFinite(dt)?Math.min(Math.max(dt,0),.05):0;
     for(const li of[0,1]){
       const lane=cars.filter(c=>c.loop&&c.li===li).sort((a,b)=>a.u-b.u);
       lane.forEach((c,i)=>{
-        if(c.v===undefined)c.v=c.spd;
+        if(!Number.isFinite(c.v))c.v=c.spd;if(!Number.isFinite(c.u))c.u=0;c.u=((c.u%1)+1)%1;
         let target=c.spd;
         if(lane.length>1){const ahead=lane[(i+1)%lane.length],gap=((ahead.u-c.u+1)%1)*c.len-6;target=c.spd*clamp(gap/10,0,1)}
         const p=c.cv.getPointAt(c.u);
@@ -753,7 +753,7 @@ function create(){
   }
   const perf={a:0,n:0,t:performance.now()};
   function frame(now){
-    raf=requestAnimationFrame(frame);const nt=now||performance.now(),dt=Math.min((nt-last)/1000,.05);last=nt;
+    raf=requestAnimationFrame(frame);const nt=now||performance.now(),dt=Math.min(Math.max((nt-last)/1000||0,0),.05);last=nt;
     update(dt);place();camUpdate(dt);composer.render();
     perf.a+=(nt-perf.t)/1000;perf.t=nt;perf.n++;if(perf.a>2.5){const fps=perf.n/perf.a;perf.a=0;perf.n=0;if(fps<42&&pr>1){pr=Math.max(1,pr-.25);renderer.setPixelRatio(pr);composer.setPixelRatio(pr);resize()}else if(fps<26&&bloom.enabled){bloom.enabled=false;grade.enabled=false}}
   }
