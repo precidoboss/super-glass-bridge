@@ -9,6 +9,7 @@ import {makeGarage} from './garage.js';
 import {createBenz} from './benz.js';
 import {ShaderPass} from 'three/addons/postprocessing/ShaderPass.js';
 import {createTownUpgrade,makeCarModel} from './upgrade.js';
+import {makeVenue} from './venues.js';
 
 /* ===================== SUPER TOWN =====================
    A small open-world community on a floating island: fly (or hover-walk) as the flyer, meet bot residents,
@@ -203,6 +204,11 @@ function create(){
   const GA=makeGarage({THREE,scene,labelSprite,B});   // Super Home garage (west annex, door on the north street)
   specials.officeDoor={x:OF.door.x,z:OF.door.z,label:"OFFICE OF THE PRESIDENT · WALK IN",act:()=>{P.mode='walk';P.x=OF.lobby.x;P.z=OF.lobby.z;P.y=0;P.vx=P.vy=P.vz=0;yaw=Math.PI;pitch=.34;camD=8;toast('WELCOME, MR. PRESIDENT')}};
   specials.officeDesk={x:OF.desk.x,z:OF.desk.z,label:"PRESIDENT'S DESK · TAKE YOUR SEAT",act:()=>{P.mode='walk';P.x=OF.seat.x;P.z=OF.seat.z;P.y=0;P.vx=P.vy=P.vz=0;yaw=0;pitch=.3;camD=6;toast('SEATED · OFFICE OF THE PRESIDENT')}};
+  // the eastern district: a walk-in diner and a shopping mall
+  const REST=makeVenue({THREE,scene,labelSprite,B,cx:74,cz:22,kind:'restaurant',title:'SUPER DINER'});
+  const MALL=makeVenue({THREE,scene,labelSprite,B,cx:84,cz:-16,kind:'mall',title:'SUPER MALL'});
+  specials.restDoor={x:REST.door.x,z:REST.door.z,label:'SUPER DINER · WALK IN',act:()=>{P.mode='walk';P.x=REST.lobby.x;P.z=REST.lobby.z;P.y=0;P.vx=P.vy=P.vz=0;toast('WELCOME TO SUPER DINER')}};
+  specials.mallDoor={x:MALL.door.x,z:MALL.door.z,label:'SUPER MALL · WALK IN',act:()=>{P.mode='walk';P.x=MALL.lobby.x;P.z=MALL.lobby.z;P.y=0;P.vx=P.vy=P.vz=0;toast('WELCOME TO SUPER MALL')}};
   // parks (corner blocks): trees, pond, benches
   const trees=[];for(const [cx,cz] of[[-54,-54],[54,-54],[-54,54],[54,54]]){for(let i=0;i<30;i++){const a=rnd(0,6.283),r=Math.sqrt(Math.random())*22;const x=cx+Math.cos(a)*r,z=cz+Math.sin(a)*r;if(Math.hypot(x-cx,z-cz)>6)trees.push([x,z,rnd(.8,1.6)])}
     const pond=new THREE.Mesh(new THREE.CircleGeometry(6,32),new THREE.MeshBasicMaterial({color:new THREE.Color(.1,.9,.8)}));pond.rotation.x=-Math.PI/2;pond.position.set(cx,.05,cz);scene.add(pond);const pr3=new THREE.Mesh(new THREE.TorusGeometry(6,.2,8,40),greenM);pr3.rotation.x=Math.PI/2;pr3.position.set(cx,.1,cz);scene.add(pr3)}
@@ -377,14 +383,14 @@ function create(){
   })();
 
   /* ---------- cars ---------- */
-  function loopCurve(H,ccw){const r=7,pts=[];const corners=ccw?[[H-r,H-r,0],[-(H-r),H-r,Math.PI/2],[-(H-r),-(H-r),Math.PI],[H-r,-(H-r),Math.PI*1.5]]:[[H-r,-(H-r),Math.PI*1.5],[-(H-r),-(H-r),Math.PI],[-(H-r),H-r,Math.PI/2],[H-r,H-r,0]];
+  function loopCurve(H,ccw){const r=7,pts=[];const corners=ccw?[[H-r,H-r,0],[-(H-r),H-r,Math.PI/2],[-(H-r),-(H-r),Math.PI],[H-r,-(H-r),Math.PI*1.5]]:[[H-r,-(H-r),Math.PI*2],[-(H-r),-(H-r),Math.PI*1.5],[-(H-r),H-r,Math.PI],[H-r,H-r,Math.PI/2]];
     for(const [cx,cz,a0] of corners){for(let i=0;i<=4;i++){const a=ccw?a0+i/4*Math.PI/2:a0-i/4*Math.PI/2;pts.push(new V3(cx+Math.cos(a)*r,.55,cz+Math.sin(a)*r))}}return new THREE.CatmullRomCurve3(pts,true,'catmullrom',.4)}
   const carBodyG=new THREE.BoxGeometry(2,.7,4.2),carCabG=new THREE.BoxGeometry(1.7,.62,2.1),wheelG=new THREE.CylinderGeometry(.42,.42,.35,12),glassM=new THREE.MeshStandardMaterial({color:0x0a1a16,roughness:.1,metalness:.9}),wheelM=new THREE.MeshStandardMaterial({color:0x080c0a,roughness:.6}),headM=new THREE.MeshBasicMaterial({color:new THREE.Color(3,3,2.4)}),tailM=new THREE.MeshBasicMaterial({color:new THREE.Color(3,.2,.25)});
   const CARCOL=[0x7bff3a,0xff4d4f,0xe9f4ea,0x4dd2ff,0xffc83d,0xc8ff43,0xff2a9a];
   const makeCar=(col,type='sedan')=>{const g=makeCarModel(col,type);scene.add(g);return g};
   const cars=[];
   {const L=[[38.2,false],[33.8,true]];L.forEach(([H,ccw],li)=>{const cv=loopCurve(H,ccw),len=cv.getLength();const TY=['sedan','suv','sedan','sports','truck','sedan'];for(let i=0;i<6;i++)cars.push({g:makeCar(CARCOL[(li*6+i)%CARCOL.length],TY[i]),cv,len,u:i/6+li*.07,spd:rnd(9,13),loop:true,li})})}
-  [[-1,-72,-10,2.2],[1,72,10,-2.2],[-1,-72,-10,-2.2],[1,72,10,2.2]].forEach(([dir,a,b,off],i)=>{const horiz=i<2;cars.push({g:makeCar(CARCOL[(i+3)%CARCOL.length],i%2?'suv':'sedan'),shuttle:true,a,b,off,horiz,t:rnd(0,1),dir:1,spd:rnd(8,12),v:0,wait:0})});
+  [[-1,-30,-10,2.2],[1,30,10,-2.2],[-1,-30,-10,-2.2],[1,30,10,2.2]].forEach(([dir,a,b,off],i)=>{const horiz=i<2;cars.push({g:makeCar(CARCOL[(i+3)%CARCOL.length],i%2?'suv':'sedan'),shuttle:true,a,b,off,horiz,t:rnd(0,1),dir:1,spd:rnd(8,12),v:0,wait:0})});
 
   /* ---------- SUPER BENZ (benz.js): lives in the Super Home garage, drivable ---------- */
   const benz=createBenz(renderer);scene.add(benz.group);
@@ -528,8 +534,28 @@ function create(){
   }
 
   // cars: loop traffic keeps a gap to the car ahead; shuttles obey the signals; everyone yields to people on a crosswalk
+  // every car looks ahead: a leader in its lane sets a gap-keeping limit; crossing traffic near a junction makes
+  // the car with the higher id yield, so two cars never meet in the box
+  function carLimits(){
+    const L=new Map(),ids=new Map(cars.map((c,i)=>[c,i]));
+    const fwd=c=>{const r=c.g.rotation.y;return[-Math.sin(r),-Math.cos(r)]};
+    for(const c of cars){
+      const p=c.g.position,[fx,fz]=fwd(c);let lim=Infinity;
+      for(const o of cars){
+        if(o===c)continue;
+        const dx=o.g.position.x-p.x,dz=o.g.position.z-p.z;
+        if(Math.hypot(dx,dz)>18)continue;
+        const ahead=dx*fx+dz*fz,lat=Math.abs(dx*fz-dz*fx),[ox,oz]=fwd(o),parallel=fx*ox+fz*oz;
+        if(ahead>0&&lat<2.4&&parallel>.6)lim=Math.min(lim,Math.max(0,ahead-5.5)*1.1);
+        else if(parallel<.6&&ahead>-1&&ahead<7&&lat<6&&(o.v??0)>.5&&ids.get(c)>ids.get(o))lim=0;
+      }
+      L.set(c,lim);
+    }
+    return L;
+  }
   function updateTraffic(dt){
     const hG=hGreenNow();dt=Number.isFinite(dt)?Math.min(Math.max(dt,0),.05):0;
+    const LIM=carLimits();
     for(const li of[0,1]){
       const lane=cars.filter(c=>c.loop&&c.li===li).sort((a,b)=>a.u-b.u);
       lane.forEach((c,i)=>{
@@ -537,6 +563,7 @@ function create(){
         let target=c.spd;
         if(lane.length>1){const ahead=lane[(i+1)%lane.length],gap=((ahead.u-c.u+1)%1)*c.len-6;target=c.spd*clamp(gap/10,0,1)}
         const p=c.cv.getPointAt(c.u);
+        target=Math.min(target,LIM.get(c));
         if(walkerNear(p.x,p.z,8))target=0;
         c.v+=(target-c.v)*Math.min(1,dt*2.5);
         c.u=(c.u+c.v*dt/c.len)%1;
@@ -549,7 +576,7 @@ function create(){
       if(c.wait>0){c.wait-=dt;c.v=0}
       else{
         const s=lerp(c.a,c.b,c.t),dd=Math.sign(c.b-c.a)*c.dir;
-        let target=c.spd;
+        let target=Math.min(c.spd,LIM.get(c));
         if(walkerNear(c.horiz?s:c.off,c.horiz?c.off:s,9))target=0;
         const red=c.horiz?!hG:hG;
         if(red)for(const r of ROADS){const d=(r-s)*dd;if(d>0&&d<10)target=Math.min(target,clamp((d-5.5)*2.5,0,c.spd))}
@@ -662,7 +689,7 @@ function create(){
     const pr0=Math.hypot(P.x,P.z);if(pr0>ISL+25){P.x*=(ISL+25)/pr0;P.z*=(ISL+25)/pr0}
     pushOut(P,P.mode==='walk'?.8:1,P.y);
     updateCar(dt,cix,ciz,boost,keys.has(' ')&&!frozen);
-    const hs=HS.step(dt,P,time);OF.update(dt,P,time);GA.update(dt,P,time);
+    const hs=HS.step(dt,P,time);OF.update(dt,P,time);REST.update(dt,P,time);MALL.update(dt,P,time);GA.update(dt,P,time);
     if(P.riding)P.floor=Math.round(HS.E.y/HS.FH);
     const inH2=HS.inHouse(P.x,P.z),roofOver=Math.abs(P.x-HS.HX0)<HS.hx+.6&&Math.abs(P.z-HS.HZ0)<HS.hz+.6;
     if(!inH2&&!(roofOver&&P.y>HS.TOP-1))P.floor=0;
@@ -727,7 +754,7 @@ function create(){
       if(flyF[P.row]){heroMat.map=flyF[P.row][Math.floor(P.ph)%4];if(!heroInit){heroMat.needsUpdate=true;heroInit=true}}
       hero.scale.set(FW,FH,1);hero.position.set(P.x,P.y+Math.sin(time*2.4)*.12,P.z);
     }else{
-      const hr=P.mv&&!car.on&&heroF.length?P.dir+(P.run?8:0):-1,newFrame=hr>=0&&!!heroF[hr];
+      const dirN=P.dir??0,hr=!car.on&&heroF.length?dirN+(P.mv&&P.run?8:0):-1,newFrame=hr>=0&&!!heroF[hr];
       if(newFrame){heroMat.map=heroF[hr][Math.floor(P.ph)%HERO_N[hr]];if(!heroInit){heroMat.needsUpdate=true;heroInit=true}}
       else if(walkF[P.wr]){heroMat.map=walkF[P.wr][Math.floor(P.ph)%8];if(!heroInit){heroMat.needsUpdate=true;heroInit=true}}
       const sw=newFrame?HWW:WW,sh=newFrame?HWH:WH;
