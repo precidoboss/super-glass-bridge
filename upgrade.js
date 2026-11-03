@@ -128,9 +128,9 @@ export function createTownUpgrade(scene){
     const near=(x,z,pad)=>B.some(b=>Math.abs(x-b.x)<b.hw+pad&&Math.abs(z-b.z)<b.hd+pad);
 
     // street trees on both sides of every avenue, skipping intersections, the plaza and buildings
-    const tOff=RW/2+1.5;
-    for(const c of ROADS)for(const horiz of[true,false])for(const s of[-1,1])for(let t=-100;t<=100;t+=12){
-      const jt=t+rnd(-1.5,1.5);
+    const tOff=RW/2+2.7;
+    for(const c of ROADS)for(const horiz of[true,false])for(const s of[-1,1])for(let t=-94;t<=100;t+=12){
+      const jt=t;
       if(ROADS.some(r=>Math.abs(jt-r)<RW/2+3))continue;
       const x=horiz?jt:c+s*tOff,z=horiz?c+s*tOff:jt;
       if(Math.hypot(x,z)<14||Math.hypot(x,z)>ISL*.9||near(x,z,1.5))continue;
