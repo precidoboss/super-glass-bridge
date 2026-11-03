@@ -204,11 +204,13 @@ function create(){
   const GA=makeGarage({THREE,scene,labelSprite,B});   // Super Home garage (west annex, door on the north street)
   specials.officeDoor={x:OF.door.x,z:OF.door.z,label:"OFFICE OF THE PRESIDENT · WALK IN",act:()=>{P.mode='walk';P.x=OF.lobby.x;P.z=OF.lobby.z;P.y=0;P.vx=P.vy=P.vz=0;yaw=Math.PI;pitch=.34;camD=8;toast('WELCOME, MR. PRESIDENT')}};
   specials.officeDesk={x:OF.desk.x,z:OF.desk.z,label:"PRESIDENT'S DESK · TAKE YOUR SEAT",act:()=>{P.mode='walk';P.x=OF.seat.x;P.z=OF.seat.z;P.y=0;P.vx=P.vy=P.vz=0;yaw=0;pitch=.3;camD=6;toast('SEATED · OFFICE OF THE PRESIDENT')}};
-  // the eastern district: a walk-in diner and a shopping mall
-  const REST=makeVenue({THREE,scene,labelSprite,B,cx:74,cz:22,kind:'restaurant',title:'SUPER DINER'});
-  const MALL=makeVenue({THREE,scene,labelSprite,B,cx:84,cz:-16,kind:'mall',title:'SUPER MALL'});
+  // the eastern district: a walk-in diner and a shopping mall (staff use the resident sprite sheets)
+  const venueFront=v=>fronts[v];
+  const REST=makeVenue({THREE,scene,labelSprite,B,cx:74,cz:22,kind:'restaurant',title:'SUPER DINER',getFront:venueFront});
+  const MALL=makeVenue({THREE,scene,labelSprite,B,cx:84,cz:-16,kind:'mall',title:'SUPER MALL',getFront:venueFront});
   specials.restDoor={x:REST.door.x,z:REST.door.z,label:'SUPER DINER · WALK IN',act:()=>{P.mode='walk';P.x=REST.lobby.x;P.z=REST.lobby.z;P.y=0;P.vx=P.vy=P.vz=0;toast('WELCOME TO SUPER DINER')}};
   specials.mallDoor={x:MALL.door.x,z:MALL.door.z,label:'SUPER MALL · WALK IN',act:()=>{P.mode='walk';P.x=MALL.lobby.x;P.z=MALL.lobby.z;P.y=0;P.vx=P.vy=P.vz=0;toast('WELCOME TO SUPER MALL')}};
+  for(const [key,V] of[['rest',REST],['mall',MALL]])V.points.forEach((p,i)=>{specials[key+i]={x:p.x,z:p.z,label:p.label,act:()=>toast(p.msg||p.label)}});
   // parks (corner blocks): trees, pond, benches
   const trees=[];for(const [cx,cz] of[[-54,-54],[54,-54],[-54,54],[54,54]]){for(let i=0;i<30;i++){const a=rnd(0,6.283),r=Math.sqrt(Math.random())*22;const x=cx+Math.cos(a)*r,z=cz+Math.sin(a)*r;if(Math.hypot(x-cx,z-cz)>6)trees.push([x,z,rnd(.8,1.6)])}
     const pond=new THREE.Mesh(new THREE.CircleGeometry(6,32),new THREE.MeshBasicMaterial({color:new THREE.Color(.1,.9,.8)}));pond.rotation.x=-Math.PI/2;pond.position.set(cx,.05,cz);scene.add(pond);const pr3=new THREE.Mesh(new THREE.TorusGeometry(6,.2,8,40),greenM);pr3.rotation.x=Math.PI/2;pr3.position.set(cx,.1,cz);scene.add(pr3)}
