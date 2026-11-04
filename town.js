@@ -221,7 +221,7 @@ function create(){
   const POLICE=makePoliceStation({THREE,scene,labelSprite,B,cx:-84,cz:-18,getFront:venueFront});
   const SCHOOL=makeSchool({THREE,scene,labelSprite,B,cx:-84,cz:60,getFront:venueFront});
   // the parking lot behind the President's office, with the reserved bay nearest the building
-  makeParkingLot({THREE,scene,B,makeCarModel,cx:18,cz:80,W:36,D:20,reserved:{bay:5}});
+  makeParkingLot({THREE,scene,B,makeCarModel,cx:18,cz:76,W:36,D:20,reserved:{bay:5}});
   specials.restDoor={x:REST.door.x,z:REST.door.z,label:'SUPER DINER · WALK IN',act:()=>{P.mode='walk';P.x=REST.lobby.x;P.z=REST.lobby.z;P.y=0;P.vx=P.vy=P.vz=0;toast('WELCOME TO SUPER DINER')}};
   specials.mallDoor={x:MALL.door.x,z:MALL.door.z,label:'SUPER MALL · WALK IN',act:()=>{P.mode='walk';P.x=MALL.lobby.x;P.z=MALL.lobby.z;P.y=0;P.vx=P.vy=P.vz=0;toast('WELCOME TO SUPER MALL')}};
   specials.polDoor={x:POLICE.door.x,z:POLICE.door.z,label:'POLICE STATION · WALK IN',act:()=>{P.mode='walk';P.x=POLICE.lobby.x;P.z=POLICE.lobby.z;P.y=0;P.vx=P.vy=P.vz=0;toast('WELCOME TO THE POLICE STATION')}};
@@ -692,7 +692,7 @@ function create(){
   addEventListener('keydown',kd,true);addEventListener('keyup',e=>{if(visible)keys.delete(e.key.toLowerCase())},true);addEventListener('blur',()=>keys.clear());
   /* ---------- taxi and bodyguard services ---------- */
   const DESTS=[{name:'Super Diner',x:REST.door.x,z:REST.door.z},{name:'Super Mall',x:MALL.door.x,z:MALL.door.z},{name:'Police Station',x:POLICE.door.x,z:POLICE.door.z},{name:'Super Benz garage',x:PARK.x,z:PARK.z}];
-  const services=createServices({THREE,scene,ROADS,makeCarModel,getFront:v=>fronts[v],pushOut,P,getCar:()=>car,cars,destinations:DESTS,toast,policeSpot:{x:-60,z:30,h:Math.PI/2},traffic:{hGreen:()=>hGreenNow(),walkerNear:(x,z,r)=>walkerNear(x,z,r)}});
+  const services=createServices({THREE,scene,ROADS,makeCarModel,getFront:v=>fronts[v],pushOut,P,getCar:()=>car,cars,destinations:DESTS,toast,policeSpot:POLICE.spot,traffic:{hGreen:()=>hGreenNow(),walkerNear:(x,z,r)=>walkerNear(x,z,r)}});
   /* ---------- Super Benz engine, speedometer and phone ---------- */
   let engineOn=true,units='kmh';
   const engine=createEngine();
