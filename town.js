@@ -218,8 +218,8 @@ function create(){
   const KIT=loadKit(THREE);
   const REST=makeVenue({THREE,scene,labelSprite,B,cx:74,cz:22,kind:'restaurant',title:'SUPER DINER',getFront:venueFront,kit:KIT});
   const MALL=makeVenue({THREE,scene,labelSprite,B,cx:84,cz:-16,kind:'mall',title:'SUPER MALL',getFront:venueFront,kit:KIT});
-  const POLICE=makePoliceStation({THREE,scene,labelSprite,B,cx:-84,cz:-18,getFront:venueFront});
-  const SCHOOL=makeSchool({THREE,scene,labelSprite,B,cx:-84,cz:60,getFront:venueFront});
+  const POLICE=makePoliceStation({THREE,scene,labelSprite,B,cx:-88,cz:-18,getFront:venueFront});
+  const SCHOOL=makeSchool({THREE,scene,labelSprite,B,cx:-62,cz:60,getFront:venueFront});
   // the parking lot behind the President's office, with the reserved bay nearest the building
   makeParkingLot({THREE,scene,B,makeCarModel,cx:18,cz:76,W:36,D:20,reserved:{bay:5}});
   specials.restDoor={x:REST.door.x,z:REST.door.z,label:'SUPER DINER · WALK IN',act:()=>{P.mode='walk';P.x=REST.lobby.x;P.z=REST.lobby.z;P.y=0;P.vx=P.vy=P.vz=0;toast('WELCOME TO SUPER DINER')}};

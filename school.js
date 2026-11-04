@@ -72,8 +72,8 @@ export function makeSchool({THREE,scene,labelSprite,B,cx,cz,getFront=()=>null,ti
   k.plane(root,2.2,1.4,new THREE.MeshBasicMaterial({map:k.sign('',{w:256,h:160,bg:'#1e4fa3',fg:'#fff',border:'#fff',size:10})}),W/2-1.3,8.2,-D/2-3,0);
   const play=(x,z)=>{k.box(root,1.4,.2,.8,k.mat(0x3a7a3a),x,0,z);k.cyl(root,.05,.05,2.2,steelish(),x-.6,0,z);k.cyl(root,.05,.05,2.2,steelish(),x+.6,0,z)};
   function steelish(){return k.mat(0xb9c2c6,{metalness:.8,roughness:.3})}
-  play(-W/2-4,-D/2-6);play(-W/2-4,-D/2-9);
-  k.box(root,5,.1,4,k.mat(0x4a8a3a),-W/2-4,0,-D/2-12);
+  play(-6,D/2+4);play(2,D/2+4);
+  k.box(root,8,.1,4,k.mat(0x4a8a3a),-2,0,D/2+8);
   for(let i=0;i<4;i++)k.box(root,.2,.6,.2,steelish(),W/2+3+i*.8,0,-D/2-4);
 
   dressVenue({THREE,root,k,W,D,H,accent:0xf2c84b,sec:0x7bff3a});
@@ -97,6 +97,15 @@ export function makeSchool({THREE,scene,labelSprite,B,cx,cz,getFront=()=>null,ti
   pt(-6,-D/2+4,'NOTICE BOARD',"Parents' evening on Friday. Playground fund: 300 CR to go.");
   pt(0,D/2-4,'PRINCIPAL\'S OFFICE',"Principal Ada: 'Come in. Your bodyguard may wait outside.'");
 
+  // interior detail: chalkboard on the back wall, a class of desks and the school crest
+  {
+    k.plane(root,8,2.6,new THREE.MeshBasicMaterial({map:k.sign('SUPER SCHOOL · TODAY: TRY HARDER',{w:1024,h:320,bg:'#1f2a24',fg:'#f4f1e8',border:'#8a6a3c',size:76})}),-6,3.2,D/2-.25,Math.PI);
+    for(let r=0;r<2;r++)for(let c=0;c<3;c++){
+      const x=5+c*2.6,z=1+r*2.4;
+      k.box(root,1.6,.08,1.1,k.mat(0x8a6a3c),x,.8,z);k.box(root,.08,.8,1.1,k.mat(0x3d2c22),x-.7,0,z);k.box(root,.08,.8,1.1,k.mat(0x3d2c22),x+.7,0,z);
+    }
+    k.plane(root,2.6,2.6,new THREE.MeshBasicMaterial({map:k.sign('SC',{w:256,h:256,bg:'#f2c84b',fg:'#1e3a66',border:'#1e3a66',size:140})}),-W/2+.14,3.6,-2,Math.PI/2);
+  }
   /* ---------- workers ---------- */
   const workers=makeWorkers({THREE,root,labelSprite,getFront,defs:[
     {role:'RECEPTIONIST JO',variant:5,station:[3,-4.6],spd:0},

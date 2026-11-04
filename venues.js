@@ -229,6 +229,20 @@ export function makeVenue({THREE,scene,labelSprite,B,cx,cz,kind='restaurant',tit
     decor.push({job:'guard',role:'GUARD MAX',variant:7,zone:[-6,6,-D/2+2.5,-D/2+4.5],spd:.6});
     decor.push({job:'clean',role:'CLEANER IVY',variant:2,zone:[-9,9,-6,8],spd:.7});
   }
+  // interior detail: diner mural, a jukebox by the door and an OPEN sign (diner only)
+  if(!police&&!mall){
+    const k2=makeKit(THREE);
+    k2.plane(root,7,2.6,new THREE.MeshBasicMaterial({map:canvasTex(512,192,(g,w,h)=>{const gr=g.createLinearGradient(0,0,w,h);gr.addColorStop(0,'#c8102e');gr.addColorStop(1,'#ff9a3d');g.fillStyle=gr;g.fillRect(0,0,w,h);g.fillStyle='#f4efe6';g.font='bold 60px sans-serif';g.textAlign='center';g.fillText('BURGERS · NOODLES · SHAKES',w/2,118)})}),-W/2+.12,4.2,-3.5,Math.PI/2);
+    box(root,1.4,2.2,1,mat(0xc8102e,{roughness:.3,metalness:.4}),-6,0,-D/2+1.8);col(-6,-D/2+1.8,1.4,1,2.2);
+    box(root,1.4,.5,1,basic(0x4dd2ff,2),-6,2.2,-D/2+1.8);
+    k2.plane(root,2.8,1,new THREE.MeshBasicMaterial({map:k2.sign('OPEN',{w:512,h:192,bg:'#1a0a0a',fg:'#ff6b8a',border:'#ff6b8a',size:110})}),W/2-.12,2.6,-7,-Math.PI/2);
+  }
+  // interior detail: mall directory and food court sign (mall only)
+  if(mall){
+    const k2=makeKit(THREE);
+    k2.plane(root,4,1.4,new THREE.MeshBasicMaterial({map:k2.sign('SUPER MALL · DIRECTORY',{w:1024,h:360,bg:'#0d1620',fg:'#4dd2ff',border:'#4dd2ff',size:84})}),-W/2+7,3.4,-D/2+.25,0);
+    k2.plane(root,8,1.2,new THREE.MeshBasicMaterial({map:k2.sign('FOOD COURT',{w:1024,h:192,bg:'#0d1620',fg:'#ffc83d',border:'#ffc83d',size:90})}),0,4.4,D/2-.2,Math.PI);
+  }
   for(let x=-W/2+4;x<W/2-2;x+=6)for(const z of[-D/2+3,D/2-3])box(root,1.6,.08,1.6,basic(0xf4ffe0,2),x,H-.2,z);
 
   /* ---------- movement helper ---------- */

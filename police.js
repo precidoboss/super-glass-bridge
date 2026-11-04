@@ -5,7 +5,7 @@
 import {kit,makeWorkers,dressVenue} from './design.js';
 
 // the police patrol bay, out on the forecourt beside the station (local coordinates)
-const cx0Bay=(W,D)=>({x:-W/2-8,z:-D/2-8});
+const cx0Bay=(W,D)=>({x:-6,z:-D/2-8});
 
 export function makePoliceStation({THREE,scene,labelSprite,B,cx,cz,getFront=()=>null,title='POLICE STATION'}){
   const W=36,D=26,H=9,T=.6,DW=7;
@@ -104,14 +104,20 @@ export function makePoliceStation({THREE,scene,labelSprite,B,cx,cz,getFront=()=>
   const dish=new THREE.Mesh(new THREE.SphereGeometry(1.1,16,8,0,6.283,0,.9),greyM);dish.position.set(W/2-4,H+1.6,-D/2+4);dish.rotation.x=Math.PI;root.add(dish);
   const bar=[];for(let i=0;i<6;i++)bar.push(k.box(root,1.2,.4,.5,i%2?redN:blueN,-3.6+i*1.4,H+.5,0));
   const hedgeM=k.mat(0x2f6a35,{roughness:.9});
-  for(const x of[-W/2-2,W/2+2])k.box(root,2.4,1.1,4,hedgeM,x,0,-D/2-6);
-  for(const x of[-W/2-4.5,W/2+4.5]){k.cyl(root,.1,.12,6,steel,x,0,-D/2-8);k.glow(root,x,6.2,-D/2-8,2.4,0xffe9b0,.8)}
+  for(const x of[-W/2+3,W/2-3])k.box(root,2.4,1.1,4,hedgeM,x,0,-D/2-6);
+  for(const x of[-W/2+4,W/2-4]){k.cyl(root,.1,.12,6,steel,x,0,-D/2-8);k.glow(root,x,6.2,-D/2-8,2.4,0xffe9b0,.8)}
   const bayM=new THREE.MeshBasicMaterial({color:0x1e4fa3});
   const bay=k.plane(root,4.6,7.4,bayM,cx0Bay(W,D).x,.07,cx0Bay(W,D).z);bay.rotation.x=-Math.PI/2;
   const bayTxt=k.plane(root,3.2,.8,new THREE.MeshBasicMaterial({map:k.sign('POLICE',{w:512,h:128,bg:'#1e4fa3',fg:'#ffffff',border:'#ffffff',size:70})}),cx0Bay(W,D).x,.08,cx0Bay(W,D).z+2.8);bayTxt.rotation.x=-Math.PI/2;
   // crime map screen on the right wall of the lobby
   k.plane(root,3,2,new THREE.MeshBasicMaterial({map:k.sign('CRIME MAP · SUPER TOWN',{w:512,h:320,bg:'#06101f',fg:'#4dd2ff',border:'#4dd2ff',size:44})}),W/2-.13,3.2,-6,-Math.PI/2);
 
+  // interior detail: cell block sign and the interview room signs
+  {
+    const k2=k;
+    k2.plane(root,4,1,new THREE.MeshBasicMaterial({map:k2.sign('CELL BLOCK',{w:512,h:128,bg:'#0b1a33',fg:'#ff4d4f',border:'#ff4d4f',size:70})}),9,5.2,D/2-.2,Math.PI);
+    for(const x of[-10,-4])k2.plane(root,2.2,.7,new THREE.MeshBasicMaterial({map:k2.sign('INTERVIEW',{w:512,h:160,bg:'#0b1a33',fg:'#4dd2ff',border:'#4dd2ff',size:72})}),x,2.6,2.6,Math.PI);
+  }
   /* ---------- officers and staff ---------- */
   const workers=makeWorkers({THREE,root,labelSprite,getFront,defs:[
     {role:'DESK OFFICER ROSA',variant:6,station:[0,-4.6],spd:0},
