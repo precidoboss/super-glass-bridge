@@ -4,7 +4,7 @@
    a waiter serves it, the customer eats, pays at the register and leaves. Staff run the room.
    Mall: stocked shelves in every shop, shoppers browse the stalls and leave. Staff use the town's resident sprites. */
 
-export function makeVenue({THREE,scene,labelSprite,B,cx,cz,kind='restaurant',title='SUPER DINER',getFront=()=>null}){
+export function makeVenue({THREE,scene,labelSprite,B,cx,cz,kind='restaurant',title='SUPER DINER',getFront=()=>null,kit=null}){
   const mall=kind==='mall';
   const W=mall?40:24,D=mall?26:20,H=mall?12:7,T=.5,DW=mall?8:5;
   const rnd=(a,b)=>a+Math.random()*(b-a);
@@ -17,6 +17,10 @@ export function makeVenue({THREE,scene,labelSprite,B,cx,cz,kind='restaurant',tit
   const sph=(p,r,m,x,y,z)=>{const o=new THREE.Mesh(new THREE.SphereGeometry(r,14,10),m);o.position.set(x,y,z);p.add(o);return o};
   const col=(lx,lz,w,d,h)=>B.push({x:cx+lx,z:cz+lz,hw:w/2,hd:d/2,h,name:null});
   const pts=[];
+  // a prop is an empty slot that fills with its public-domain model once the model has loaded
+  const wants=[];
+  const prop=(name,x,y,z,{ry=0,s=1}={})=>{const g=new THREE.Group();g.position.set(x,y,z);g.rotation.y=ry;g.scale.setScalar(s);root.add(g);wants.push({name,g});return g};
+  const fill=()=>{if(!kit)return;for(let i=wants.length-1;i>=0;i--){const t=kit.get(wants[i].name);if(t){wants[i].g.add(t.clone(true));wants.splice(i,1)}}};
   const pt=(lx,lz,label,msg)=>pts.push({x:cx+lx,z:cz+lz,label,msg});
   const canvasTex=(w,h,draw)=>{const c=document.createElement('canvas');c.width=w;c.height=h;draw(c.getContext('2d'),w,h);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t};
 
@@ -64,7 +68,7 @@ export function makeVenue({THREE,scene,labelSprite,B,cx,cz,kind='restaurant',tit
     // customer bar with stools and a bottle shelf on the right wall
     box(root,12,1.1,1.5,woodM,5,0,D/2-4.2);box(root,12.4,.12,1.9,darkM,5,1.1,D/2-4.2);col(5,D/2-4.2,12,1.5,1.1);
     box(root,12,.05,.12,basic(0xffc83d,1.4),5,1.2,D/2-3.4);
-    for(let i=0;i<5;i++){cyl(root,.32,.32,.1,cushM,-.5+i*2.5,.75,D/2-2.5);cyl(root,.06,.06,.75,steelM,-.5+i*2.5,0,D/2-2.5)}
+    for(let i=0;i<5;i++)prop('stoolBar',-.5+i*2.5,0,D/2-2.5,{s:1.74});
     box(root,.4,2.2,6,darkM,W/2-.3,1,-4);
     const bottleCols=[0x7bff3a,0xff6b8a,0x4dd2ff,0xffc83d,0xb08cff];
     for(let i=0;i<3;i++)for(let j=0;j<5;j++)box(root,.25,.6,.25,basic(bottleCols[(i+j)%5],.9),W/2-.4,1+i*.7+.2,-6+j*1.1);
@@ -85,9 +89,9 @@ export function makeVenue({THREE,scene,labelSprite,B,cx,cz,kind='restaurant',tit
     }
     // round tables with four chairs each
     for(const [x,z] of[[-2,-4],[-2,2],[7,-4.5],[7,1.5],[2,-.5]]){
-      cyl(root,1.1,1.1,.08,woodM,x,.75,z);cyl(root,.12,.12,.75,darkM,x,0,z);col(x,z,1.5,1.5,1);
+      prop('tableRound',x,0,z,{s:2.5});col(x,z,1.5,1.5,1);
       for(const [dx,dz] of[[1.2,0],[-1.2,0],[0,1.2],[0,-1.2]]){
-        cyl(root,.36,.36,.08,cushM,x+dx,.45,z+dz);cyl(root,.05,.05,.45,darkM,x+dx,0,z+dz);
+        prop('chairRounded',x+dx,0,z+dz,{s:2.1,ry:Math.atan2(-dx,-dz)});
         seats.push({x:x+dx,z:z+dz,table:{x,z},c:null,food:false});
       }
       sph(root,.3,warm,x,H-1.6,z);box(root,.05,1.2,.05,darkM,x,H-2.8,z);
@@ -95,12 +99,12 @@ export function makeVenue({THREE,scene,labelSprite,B,cx,cz,kind='restaurant',tit
     // plates for every seat, shown while a customer is eating
     for(const s of seats){
       const px=s.table.x+(s.x-s.table.x)*.55,pz=s.table.z+(s.z-s.table.z)*.55;
-      s.plate=cyl(root,.3,.3,.04,plateM,px,.82,pz);
-      s.foodMesh=sph(root,.12,foodM,px,.9,pz);s.plate.visible=false;s.foodMesh.visible=false;
+      s.plate=prop('plate-dinner',px,.8,pz,{s:.34});
+      s.foodMesh=prop('burger',px,.84,pz,{s:.45});s.plate.visible=false;s.foodMesh.visible=false;
     }
     // chandelier, plants, neon, OPEN light
     sph(root,.8,warm,0,H-1.2,0);for(let i=0;i<6;i++){const a=i/6*6.283;sph(root,.2,warm,Math.cos(a)*1.1,H-1.3,Math.sin(a)*1.1)}
-    for(const [x,z] of[[-W/2+1,-D/2+1.5],[W/2-1,-D/2+1.5],[-W/2+1,D/2-1.5],[W/2-1,D/2-1.5]]){cyl(root,.5,.4,.9,potM,x,0,z);sph(root,.9,greenM,x,1.3,z)}
+    for(const [x,z] of[[-W/2+1,-D/2+1.5],[W/2-1,-D/2+1.5],[-W/2+1,D/2-1.5],[W/2-1,D/2-1.5]])prop('pottedPlant',x,0,z,{s:1.6});
     for(let i=0;i<3;i++)box(root,.15,.14,4,neon[i+1],-W/2+.1,H-1.1,-4+i*4);
     box(root,1.6,.6,.1,neon[0],-cxs-1.8,H-1.8,-D/2+.1);
     // points on the floor
@@ -148,6 +152,7 @@ export function makeVenue({THREE,scene,labelSprite,B,cx,cz,kind='restaurant',tit
         box(root,.9,.1,2.8,woodM,sd*(W/2-.5),lv,z);
         for(const dz of[-.9,-.3,.3,.9])prods.push({x:sd*(W/2-.5),y:lv+.2,z:z+dz,c:pick(prodCols)});
       }
+      prop(['bag','carton','soda-bottle','can','cocktail','mug'][sIdx],x,1.1,z,{s:1.3});
       pt(sd*(W/2-5),z,name,msg);
       stops.push({x:sd*(W/2-5),z});
       decor.push({job:'clerk',role:name.split(' ')[0]+' CLERK',variant:(sIdx%7)+1,zone:[x-sd*.6-.3,x-sd*.6+.3,z-.6,z+.6],spd:.45,station:[sd*(W/2-4.2),z]});
@@ -163,12 +168,14 @@ export function makeVenue({THREE,scene,labelSprite,B,cx,cz,kind='restaurant',tit
     kx.forEach((x,i)=>{
       box(root,4.2,1.1,1.8,woodM,x,0,D/2-3);col(x,D/2-3,4.2,1.8,1.1);
       box(root,4.6,.4,2.4,basic([0xffc83d,0xff6b8a,0x4dd2ff][i],1.2),x,2.7,D/2-3);
+      prop(['taco','fries','ice-cream-cup'][i],x,1.1,D/2-3,{s:1.4});
       pt(x,D/2-5.2,kiosks[i],kmsg[i]);
       stops.push({x,z:D/2-5.2});
       decor.push({job:'cook',role:kiosks[i].split(' ')[0]+' COOK',variant:(i+3)%7+1,zone:[x-.8,x+.8,D/2-3.6,D/2-2.6],spd:.3,station:[x,D/2-2.4]});
     });
     for(const [x,z] of[[-10,D/2-7],[-3,D/2-7],[4,D/2-7]]){
-      cyl(root,1.5,1.5,.08,woodM,x,.75,z);cyl(root,.14,.14,.75,darkM,x,0,z);col(x,z,2.4,2.4,1);
+      prop('tableRound',x,0,z,{s:3});col(x,z,2.4,2.4,1);
+      for(const [dx,dz] of[[1.6,0],[-1.6,0],[0,1.6],[0,-1.6]])prop('chairRounded',x+dx,0,z+dz,{s:2.1,ry:Math.atan2(-dx,-dz)});
     }
     // escalator (visual), info desk, gallery rail, pillars, banners
     box(root,4,.5,7,steelM,W/2-7,0,-D/2+8);
@@ -304,6 +311,7 @@ export function makeVenue({THREE,scene,labelSprite,B,cx,cz,kind='restaurant',tit
   /* ---------- per-frame update ---------- */
   let spawnT=2;
   function update(dt,P,t){
+    if(wants.length)fill();
     inside=Math.abs(P.x-cx)<W/2-.2&&Math.abs(P.z-cz)<D/2-.2&&P.y<H-.5;
     const tw=inside?.14:.97;wallO+=(tw-wallO)*Math.min(1,dt*5);wallM.opacity=wallO;wallM.depthWrite=wallO>.9;
     roofM.opacity+=((inside?0:1)-roofM.opacity)*Math.min(1,dt*5);roof.visible=!inside||P.y>H;

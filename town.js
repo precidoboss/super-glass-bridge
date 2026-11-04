@@ -10,6 +10,7 @@ import {createBenz} from './benz.js';
 import {ShaderPass} from 'three/addons/postprocessing/ShaderPass.js';
 import {createTownUpgrade,makeCarModel} from './upgrade.js';
 import {makeVenue} from './venues.js';
+import {loadKit} from './assets.js';
 
 /* ===================== SUPER TOWN =====================
    A small open-world community on a floating island: fly (or hover-walk) as the flyer, meet bot residents,
@@ -206,8 +207,9 @@ function create(){
   specials.officeDesk={x:OF.desk.x,z:OF.desk.z,label:"PRESIDENT'S DESK · TAKE YOUR SEAT",act:()=>{P.mode='walk';P.x=OF.seat.x;P.z=OF.seat.z;P.y=0;P.vx=P.vy=P.vz=0;yaw=0;pitch=.3;camD=6;toast('SEATED · OFFICE OF THE PRESIDENT')}};
   // the eastern district: a walk-in diner and a shopping mall (staff use the resident sprite sheets)
   const venueFront=v=>fronts[v];
-  const REST=makeVenue({THREE,scene,labelSprite,B,cx:74,cz:22,kind:'restaurant',title:'SUPER DINER',getFront:venueFront});
-  const MALL=makeVenue({THREE,scene,labelSprite,B,cx:84,cz:-16,kind:'mall',title:'SUPER MALL',getFront:venueFront});
+  const KIT=loadKit(THREE);
+  const REST=makeVenue({THREE,scene,labelSprite,B,cx:74,cz:22,kind:'restaurant',title:'SUPER DINER',getFront:venueFront,kit:KIT});
+  const MALL=makeVenue({THREE,scene,labelSprite,B,cx:84,cz:-16,kind:'mall',title:'SUPER MALL',getFront:venueFront,kit:KIT});
   specials.restDoor={x:REST.door.x,z:REST.door.z,label:'SUPER DINER · WALK IN',act:()=>{P.mode='walk';P.x=REST.lobby.x;P.z=REST.lobby.z;P.y=0;P.vx=P.vy=P.vz=0;toast('WELCOME TO SUPER DINER')}};
   specials.mallDoor={x:MALL.door.x,z:MALL.door.z,label:'SUPER MALL · WALK IN',act:()=>{P.mode='walk';P.x=MALL.lobby.x;P.z=MALL.lobby.z;P.y=0;P.vx=P.vy=P.vz=0;toast('WELCOME TO SUPER MALL')}};
   for(const [key,V] of[['rest',REST],['mall',MALL]])V.points.forEach((p,i)=>{specials[key+i]={x:p.x,z:p.z,label:p.label,act:()=>toast(p.msg||p.label)}});
