@@ -9,6 +9,11 @@ export const KIT_FOOD=['plate-dinner','burger','pizza','fries','taco','hot-dog',
 export function loadKit(THREE){
   const templates={};
   const loader=new GLTFLoader();
+  // The Kenney models point at Textures/colormap.png, which is not in the repo yet. Route that request to a
+  // neutral 1x1 image so there are no 404s. To get the real look, copy Kenney's colormap.png to
+  // assets/models/kenney/Textures/ and remove this modifier.
+  const PLACEHOLDER='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN8c+fPfwAIDQN2K5sFKgAAAABJRU5ErkJggg==';
+  loader.manager.setURLModifier(u=>/colormap\.png$/i.test(u)?PLACEHOLDER:u);
   const load=(folder,name)=>loader.load(`assets/models/kenney/${folder}/${name}.glb`,
     gltf=>{templates[name]=gltf.scene},
     undefined,
