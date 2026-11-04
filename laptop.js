@@ -202,7 +202,7 @@ export function createLaptop({toast=()=>{},onEffect=()=>{}}={}){
     if(a==='patrol'){onEffect('patrol',el.dataset.arg);S.patrol='patrol heading to '+el.dataset.arg;toast('Patrol sent to '+el.dataset.arg);render();return}
     if(a==='bodyguard'){onEffect('bodyguard');toast('Bodyguard call toggled');return}
     if(a==='lockdown'){onEffect('lockdown');toast('Office locked down · staff notified');return}
-    if(a==='jetFuel'){if(S.jet==='flying')return;S.jet='fuelling';render();setTimeout(()=>{S.jet='ready';if(root.classList.contains('on')&&S.app==='hangar')render()},3000);toast('Fuelling the Super One');return}
+    if(a==='jetFuel'){if(S.jet==='flying')return;S.jet='fuelling';onEffect('jet','fuelling');render();setTimeout(()=>{S.jet='ready';if(root.classList.contains('on')&&S.app==='hangar')render()},3000);toast('Fuelling the Super One');return}
     if(a==='jetFly'){if(S.jet!=='ready')return;S.jet='flying';onEffect('jet','flying');toast('Super One takes off');render();setTimeout(()=>{S.jet='landed';onEffect('jet','landed');if(root.classList.contains('on')&&S.app==='hangar')render()},6000);return}
     if(a==='cam'){S.cctvSel=+el.dataset.i;render();return}
     if(a==='lockCam'){const i=+el.dataset.i;S.cctvLock[i]=!S.cctvLock[i];onEffect('lock',{i,on:S.cctvLock[i]});toast(S.cctvLock[i]?'Building locked down':'Lockdown lifted');render();return}

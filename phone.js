@@ -77,6 +77,7 @@ export function createPhone({host,getState,act}){
     {id:'food',name:'Food',emoji:'🍔',grad:'linear-gradient(135deg,#ffa94d,#e8590c)'},
     {id:'games',name:'Coin game',emoji:'🪙',grad:'linear-gradient(135deg,#ffec99,#fab005)'},
     {id:'camera',name:'Camera',emoji:'📸',grad:'linear-gradient(135deg,#868e96,#343a40)'},
+    {id:'flights',name:'Flights',emoji:'✈️',grad:'linear-gradient(135deg,#74c0fc,#1864ab)'},
     {id:'settings',name:'Settings',emoji:'⚙',grad:'linear-gradient(135deg,#adb5bd,#495057)'}
   ];
   const DOCK=['messages','maps','taxi','police'];
@@ -173,6 +174,13 @@ export function createPhone({host,getState,act}){
       return `${hdr('Police')}<div class="card" style="text-align:center"><div style="font-size:40px">🚓</div><div class="v">Emergency</div><small style="opacity:.7">A patrol is alerted to your position.</small><div style="margin-top:12px"><button class="btn red" data-act="police">Call police</button></div></div>
         <div class="row"><div>Police Station<small>${st?Math.round(st.d)+' m away':''}</small></div><button class="btn ghost" data-act="taxi-go" data-arg="Police Station">Taxi</button></div>`;
     },
+    flights(s){
+      const j=s.jet||'ready',names={ready:'Ready for flight',fuelling:'Being fuelled',flying:'In the air',landed:'Landed in the hangar'};
+      const canFly=j==='ready'||j==='landed';
+      return `${hdr('Flights')}<div class="card" style="text-align:center"><div style="font-size:40px">✈️</div><div class="v">SUPER ONE</div><small style="opacity:.7">The President's private jet · ${names[j]||j}</small>
+        <div style="margin-top:12px"><button class="btn ghost" data-act="jet-fuel" ${j==='ready'||j==='landed'?'':'disabled'}>Fuel up</button> <button class="btn" data-act="jet-fly" ${canFly?'':'disabled'}>Fly the loop</button></div></div>
+        <small style="opacity:.6">Takes off from the airport hangar in the south-west, loops over the town, and lands back in the hangar.</small>`;
+    },
     news(s){
       const list=newsList(s).map((h,i)=>`<div class="row"><div>${esc(h)}<small>Super Town News · ${i===0?'just now':i*4+' min ago'}</small></div></div>`).join('');
       return `${hdr('Town news')}<div class="card"><div class="k">Live ticker</div><div class="v">${esc(newsList(s)[0])}</div><small style="opacity:.7">Headlines rotate on the billboard in the plaza. Statements from the President's MacBook appear here too.</small></div>${list}`;
@@ -256,7 +264,7 @@ export function createPhone({host,getState,act}){
   function local(a,b){
     const arg=b.dataset.arg;
     if(a==='send'){const i=el.querySelector('#twPhoneIn');if(i&&i.value.trim()){act('send',i.value);i.value=''}return render()}
-    if(a==='repaint'||a==='sound'||a==='units'||a==='call'||a==='taxi-call'||a==='taxi-cancel'||a==='taxi-go'||a==='guard'||a==='police'){act(a,arg);return render()}
+    if(a==='repaint'||a==='sound'||a==='units'||a==='call'||a==='taxi-call'||a==='taxi-cancel'||a==='taxi-go'||a==='guard'||a==='police'||a==='jet-fuel'||a==='jet-fly'){act(a,arg);return render()}
     if(a==='accent'){S.accent=arg;save('accent',arg);applyTheme();return render()}
     if(a==='big'){S.big=!S.big;save('big',S.big);applyTheme();return render()}
     if(a==='dnd'){S.dnd=!S.dnd;save('dnd',S.dnd);return render()}

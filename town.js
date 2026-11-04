@@ -15,6 +15,7 @@ import {loadKit} from './assets.js';
 import {createEngine,gearRpm} from './audio.js';
 import {createSpeedo} from './speedo.js';
 import {createPhone} from './phone.js';
+import {makeHangar} from './hangar.js';
 import {createServices} from './services.js';
 import {makePoliceStation} from './police.js';
 import {makeSchool} from './school.js';
@@ -236,6 +237,7 @@ function create(){
    const post=new THREE.Mesh(new THREE.CylinderGeometry(.18,.25,5.5,8),new THREE.MeshStandardMaterial({color:0x2a3035,metalness:.6}));post.position.set(7,2.75,7);scene.add(post);
    B.push({x:7,z:7,hw:.4,hd:.4,h:6,name:null});}
   const GA=makeGarage({THREE,scene,labelSprite,B});   // Super Home garage (west annex, door on the north street)
+  const HG=makeHangar({THREE,scene,labelSprite,B,getFront:v=>fronts[v]});   // airport hangar and the SUPER ONE jet (south-west corridor)
   specials.officeDoor={x:OF.door.x,z:OF.door.z,label:"OFFICE OF THE PRESIDENT · WALK IN",act:()=>{P.mode='walk';P.x=OF.lobby.x;P.z=OF.lobby.z;P.y=0;P.vx=P.vy=P.vz=0;yaw=Math.PI;pitch=.34;camD=8;toast('WELCOME, MR. PRESIDENT')}};
   specials.officeDesk={x:OF.desk.x,z:OF.desk.z,label:"PRESIDENT'S DESK · TAKE YOUR SEAT",act:()=>{P.mode='walk';P.x=OF.seat.x;P.z=OF.seat.z;P.y=0;P.vx=P.vy=P.vz=0;yaw=0;pitch=.3;camD=6;toast('SEATED · OFFICE OF THE PRESIDENT')}};
   specials.officeLaptop={x:OF.laptop.x,z:OF.laptop.z,label:'MACBOOK · OPEN THE PRESIDENT\'S LAPTOP',act:()=>LAPTOP.open()};
@@ -251,6 +253,7 @@ function create(){
     else if(type==='cabinet')toast('CABINET · '+(v.passed?'PASSED':'REJECTED')+': '+v.title);
     else if(type==='press'){NEWS.push?.(v);toast('PRESS · '+String(v).slice(0,60))}
     else if(type==='speech'){NEWS.push?.('PRESIDENT: '+v);toast('PRESIDENT SPEAKS · '+v.slice(0,60))}
+    else if(type==='jet'){HG.setJet(v);if(v==='flying')toast('SUPER ONE TAKES OFF · LOOP OVER THE TOWN');if(v==='landed')toast('SUPER ONE HAS LANDED')}
     else if(type==='lock'){copAlarm=v.on?6:0;toast(v.on?'CAMERA BUILDING LOCKED DOWN':'LOCKDOWN LIFTED')}
   }});
   // the eastern district: a walk-in diner and a shopping mall (staff use the resident sprite sheets)
@@ -268,12 +271,13 @@ function create(){
   specials.polDoor={x:POLICE.door.x,z:POLICE.door.z,label:'POLICE STATION · WALK IN',act:()=>{P.mode='walk';P.x=POLICE.lobby.x;P.z=POLICE.lobby.z;P.y=0;P.vx=P.vy=P.vz=0;toast('WELCOME TO THE POLICE STATION')}};
   specials.clubDoor={x:CLUB.door.x,z:CLUB.door.z,label:'SUPER CLUB · WALK IN',act:()=>{P.mode='walk';P.x=CLUB.lobby.x;P.z=CLUB.lobby.z;P.y=0;P.vx=P.vy=P.vz=0;toast('WELCOME TO SUPER CLUB')}};
   specials.schDoor={x:SCHOOL.door.x,z:SCHOOL.door.z,label:'SUPER SCHOOL · WALK IN',act:()=>{P.mode='walk';P.x=SCHOOL.lobby.x;P.z=SCHOOL.lobby.z;P.y=0;P.vx=P.vy=P.vz=0;toast('WELCOME TO SUPER SCHOOL')}};
-  for(const [key,V] of[['rest',REST],['mall',MALL],['pol',POLICE],['sch',SCHOOL],['club',CLUB]])V.points.forEach((p,i)=>{specials[key+i]={x:p.x,z:p.z,label:p.label,act:()=>toast(p.msg||p.label)}});
+  specials.hangarDoor={x:HG.door.x,z:HG.door.z,label:'AIRPORT HANGAR · WALK IN',act:()=>{P.mode='walk';P.x=HG.lobby.x;P.z=HG.lobby.z;P.y=0;P.vx=P.vy=P.vz=0;toast('WELCOME TO THE AIRPORT HANGAR')}};
+  for(const [key,V] of[['rest',REST],['mall',MALL],['pol',POLICE],['sch',SCHOOL],['club',CLUB],['hg',HG]])V.points.forEach((p,i)=>{specials[key+i]={x:p.x,z:p.z,label:p.label,act:()=>toast(p.msg||p.label)}});
   // footprints of every building, forecourt, queue and car park: no tree may stand inside them
   const FOOT=[
     {x:18,z:58,hw:15,hd:22},{x:74,z:22,hw:14,hd:14},{x:84,z:-16,hw:22,hd:16},{x:-88,z:-18,hw:22,hd:22},
     {x:-62,z:56,hw:18,hd:20},{x:62,z:58,hw:17,hd:19},{x:-54,z:18,hw:16,hd:12},{x:-73.2,z:19,hw:11,hd:20},
-    {x:18,z:76,hw:20,hd:12},{x:-18,z:-18,hw:11,hd:11},{x:18,z:-18,hw:15,hd:11},{x:-18,z:18,hw:9,hd:9},{x:18,z:18,hw:9,hd:9}
+    {x:18,z:76,hw:20,hd:12},{x:-18,z:-70,hw:14,hd:17},{x:-18,z:-18,hw:11,hd:11},{x:18,z:-18,hw:15,hd:11},{x:-18,z:18,hw:9,hd:9},{x:18,z:18,hw:9,hd:9}
   ];
   // parks (corner blocks): trees, pond, benches
   const trees=[];for(const [cx,cz] of[[-54,-54],[54,-54],[-54,54],[54,54]]){for(let i=0;i<30;i++){const a=rnd(0,6.283),r=Math.sqrt(Math.random())*22;const x=cx+Math.cos(a)*r,z=cz+Math.sin(a)*r;if(Math.hypot(x-cx,z-cz)>6)trees.push([x,z,rnd(.8,1.6)])}
@@ -723,7 +727,7 @@ function create(){
    for(const b of B){x.fillStyle=b.name?'#d4ff3a':'#3d6a4a';x.fillRect(75+(b.x-b.hw)*S,75+(b.z-b.hd)*S,b.hw*2*S,b.hd*2*S)}}
   // minimap icons: a badge on each building so you know where to go
   {const x=mapBase.getContext('2d'),S=75/ISL;
-   const ICONS=[[18,56,'PO','#d9b24a'],[-54,18,'HM','#c8ff43'],[-73.2,19,'GA','#c8ff43'],[-18,-18,'HQ','#c8ff43'],[18,-18,'AR','#c8ff43'],[-18,18,'DK','#4dd2ff'],[18,18,'EX','#ffc83d'],[74,22,'DI','#ff6b8a'],[84,-16,'ML','#4dd2ff'],[-88,-18,'PD','#4dd2ff'],[-62,60,'SC','#f2c84b'],[62,64,'CL','#ff2e88'],[7,7,'NW','#c8ff43']];
+   const ICONS=[[18,56,'PO','#d9b24a'],[-54,18,'HM','#c8ff43'],[-73.2,19,'GA','#c8ff43'],[-18,-18,'HQ','#c8ff43'],[18,-18,'AR','#c8ff43'],[-18,18,'DK','#4dd2ff'],[18,18,'EX','#ffc83d'],[74,22,'DI','#ff6b8a'],[84,-16,'ML','#4dd2ff'],[-88,-18,'PD','#4dd2ff'],[-62,60,'SC','#f2c84b'],[62,64,'CL','#ff2e88'],[7,7,'NW','#c8ff43'],[-18,-70,'HG','#4dd2ff']];
    for(const [bx,bz,lab,c] of ICONS){const px=75+bx*S,pz=75+bz*S;x.beginPath();x.arc(px,pz,6,0,6.283);x.fillStyle='#0b2416';x.fill();x.strokeStyle=c;x.lineWidth=1.5;x.stroke();x.fillStyle=c;x.font='bold 6px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(lab,px,pz+.3)}}
   let mapT=0;function drawMap(dt){mapT-=dt;if(mapT>0)return;mapT=.1;const S=75/ISL;mx.drawImage(mapBase,0,0);
     for(const n of npcs){mx.fillStyle=n.kind==='fly'?'#4dd2ff':'#e9f6ea';mx.fillRect(75+n.x*S-1,75+n.z*S-1,2,2)}for(const c of cars){mx.fillStyle='#ff4d4f';mx.fillRect(75+c.g.position.x*S-1.5,75+c.g.position.z*S-1.5,3,3)}
@@ -743,7 +747,7 @@ function create(){
     if(k==='escape'){e.stopImmediatePropagation();if(menu.classList.contains('on'))menu.classList.remove('on');else if(api.onExit)api.onExit()}};
   addEventListener('keydown',kd,true);addEventListener('keyup',e=>{if(visible)keys.delete(e.key.toLowerCase())},true);addEventListener('blur',()=>keys.clear());
   /* ---------- taxi and bodyguard services ---------- */
-  const DESTS=[{name:'Super Diner',x:REST.door.x,z:REST.door.z},{name:'Super Mall',x:MALL.door.x,z:MALL.door.z},{name:'Police Station',x:POLICE.door.x,z:POLICE.door.z},{name:'Super Benz garage',x:PARK.x,z:PARK.z},{name:'Super Club',x:CLUB.door.x,z:CLUB.door.z}];
+  const DESTS=[{name:'Super Diner',x:REST.door.x,z:REST.door.z},{name:'Super Mall',x:MALL.door.x,z:MALL.door.z},{name:'Police Station',x:POLICE.door.x,z:POLICE.door.z},{name:'Super Benz garage',x:PARK.x,z:PARK.z},{name:'Super Club',x:CLUB.door.x,z:CLUB.door.z},{name:'Airport Hangar',x:HG.door.x,z:HG.door.z}];
   const services=createServices({THREE,scene,ROADS,makeCarModel,getFront:v=>fronts[v],pushOut,P,getCar:()=>car,cars,destinations:DESTS,toast,policeSpot:POLICE.spot,traffic:{hGreen:()=>hGreenNow(),walkerNear:(x,z,r)=>walkerNear(x,z,r)}});
   /* ---------- Super Benz engine, speedometer and phone ---------- */
   let engineOn=true,units='kmh';
@@ -756,7 +760,7 @@ function create(){
       kmh:Math.round(Math.abs(car.v)*10),gear:g.gear,sound:engineOn,units,nearby:nn?nn.name:null,msgs:msgLog,pos:{x:P.x,z:P.z},
       places:DESTS.map(d=>({name:d.name,d:dist(d),x:d.x,z:d.z})),
       destinations:DESTS.map(d=>({name:d.name,d:dist(d),fare:Math.round(10+dist(d)*.15)})),
-      taxi:services.taxi,guard:{on:services.guardOn},news:NEWS.list||[]}},
+      taxi:services.taxi,guard:{on:services.guardOn},news:NEWS.list||[],jet:HG.status()}},
     act:(name,arg)=>{
       if(name==='send'){const t=String(arg||'').trim();if(t){log('YOU',t,'me');say(P,t,5)}}
       else if(name==='repaint'){const pt=benz.nextPaint();toast('BENZ PAINT · '+pt.name);emit(car.x,1,car.z,16,0xc8ff43,3,1,2,.7)}
@@ -768,6 +772,8 @@ function create(){
       else if(name==='taxi-go')services.taxiGo(arg);
       else if(name==='guard')services.guardToggle();
       else if(name==='police')toast('PATROL DISPATCHED · STAY WHERE YOU ARE')
+      else if(name==='jet-fuel'){HG.setJet('fuelling');toast('FUELLING SUPER ONE')}
+      else if(name==='jet-fly'){if(HG.status()==='ready'||HG.status()==='landed'){HG.setJet('flying')}else toast('SUPER ONE IS BUSY')}
       else if(name==='guest')toast(arg==='on'?'ON THE GUEST LIST · SHOW AT THE CLUB DOOR':'GUEST LIST CANCELLED')
       else if(name==='food')toast('ORDER · '+String(arg).toUpperCase()+' · COOKING AT SUPER DINER')
       else if(name==='food-delivered'){toast('FOOD DELIVERED · '+String(arg).toUpperCase());emit(P.x,1.5,P.z,12,0xffd60a,2,1,2,.6)}
@@ -809,7 +815,7 @@ function create(){
     pushOut(P,P.mode==='walk'?.8:1,P.y);
     updateCar(dt,cix,ciz,boost,keys.has(' ')&&!frozen);
     services.update(dt);
-    const hs=HS.step(dt,P,time);OF.update(dt,P,time);copUpdate(dt,time);REST.update(dt,P,time);CLUB.update(dt,P,time);MALL.update(dt,P,time);GA.update(dt,P,time);
+    const hs=HS.step(dt,P,time);OF.update(dt,P,time);copUpdate(dt,time);REST.update(dt,P,time);CLUB.update(dt,P,time);MALL.update(dt,P,time);GA.update(dt,P,time);HG.update(dt,P,time);
     if(P.riding)P.floor=Math.round(HS.E.y/HS.FH);
     const inH2=HS.inHouse(P.x,P.z),roofOver=Math.abs(P.x-HS.HX0)<HS.hx+.6&&Math.abs(P.z-HS.HZ0)<HS.hz+.6;
     if(!inH2&&!(roofOver&&P.y>HS.TOP-1))P.floor=0;
