@@ -2,7 +2,7 @@
    ground floor: an entrance hall, reception, a trophy cabinet, a library corner and a notice board.
    The upper floors are visible from outside through the window bands. Teachers, staff and students work and
    learn in the building. Real walls, a doorway, walls that fade when you are inside. */
-import {kit,makeWorkers,dressVenue} from './design.js';
+import {kit,makeWorkers,dressVenue,homeKit} from './design.js';
 
 export function makeSchool({THREE,scene,labelSprite,B,cx,cz,getFront=()=>null,title='SUPER SCHOOL'}){
   const W=32,D=24,FH=5.4,FLOORS=3,H=FH*FLOORS,T=.5,DW=6;
@@ -82,13 +82,13 @@ export function makeSchool({THREE,scene,labelSprite,B,cx,cz,getFront=()=>null,ti
   // trophy cabinet, library shelves, notice board and reception desk
   k.box(root,6,2.4,.8,glassM,-W/2+1.1,.4,-7);col(-W/2+1.1,-7,6,.8,2.4);
   for(let i=0;i<3;i++)k.box(root,5.4,.12,.7,k.mat(0x8a6a3c),-W/2+1.1,.9+i*.6,-7);
-  k.box(root,8,1.1,1.4,k.mat(0x6b4a2b),3,.4,-6);col(3,-6,8,1.4,1.1);
-  k.box(root,8.2,.1,1.6,k.mat(0xd6d0c0),3,1.5,-6);
+  {const HKs=homeKit(THREE);HKs.bx(root,8,1.1,1.4,HKs.darkM,3,.4,-6);col(3,-6,8,1.4,1.1);
+   HKs.bx(root,8.2,.1,1.6,k.mat(0xf4f4f0,{roughness:.3}),3,1.5,-6);HKs.bx(root,8.2,.05,.07,HKs.limeEm,3,1.45,-5.2);}
   k.plane(root,6,2.2,new THREE.MeshBasicMaterial({map:k.sign('READ · LEARN · SHINE',{w:512,h:192,bg:'#f4f1e8',fg:'#1e3a66',border:'#1e3a66',size:50})}),W/2-.12,2.6,-2,-Math.PI/2);
   // library corner: shelves against the back-left wall
   for(let i=0;i<4;i++){k.box(root,.6,2.4,4,k.mat(0x8a6a3c),-W/2+.4,.4,8-i*0+ -2+i*0);col(-W/2+.4,6,.6,4,2.4)}
   // benches in the hall and the rubbish bin
-  for(const x of[-6,-2]){k.box(root,2,.5,.7,k.mat(0x8a6a3c),x,.4,-D/2+4);col(x,-D/2+4,2,.7,.5)}
+  {const HKb=homeKit(THREE);for(const x of[-6,-2]){HKb.bx(root,2,.12,.8,HKb.oakM,x,.85,-D/2+4);for(const dx of[-.75,.75])for(const dz of[-.28,.28])HKb.bx(root,.07,.85,.07,HKb.steel,x+dx,0,-D/2+4+dz);col(x,-D/2+4,2,.7,.5)}}
   k.cyl(root,.35,.3,.9,k.mat(0x2e7d4f),W/2-2,.4,D/2-3);
   for(let x=-W/2+4;x<W/2-2;x+=6)for(const z of[-3,3])k.box(root,1.6,.08,1.6,bright,x,FH-.25,z);
   pt(3,-4.6,'RECEPTION · ENROL YOUR CHILD',"Receptionist Jo: 'Enrolment is open. The principal will see you shortly.'");

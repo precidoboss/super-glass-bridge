@@ -101,6 +101,54 @@ export function makeOffice({THREE,scene,labelSprite,B,cx=18,cz=56,title='PRESIDE
   // chair (faces the door)
   const CZ=DZ+2.0;box(room,1.3,.28,1.2,leatherBlk,0,.62,CZ);box(room,1.3,1.9,.3,leatherBlk,0,.62,CZ+.6);cyl(room,.07,.07,.65,gold,0,0,CZ);cyl(room,.5,.5,.06,dark,0,0,CZ,6);
   for(const s of[-1,1])box(room,.14,.34,.9,leatherBlk,s*.7,.9,CZ);
+  /* ---------- the MacBook on the desk: WORK TO DO on its screen; each sign-off ticks a task ---------- */
+  const TASKS=[['Sign the park fund memo',false],['Approve the Super School budget',false],['Review the $SUPER treasury report',false],['Sign the police patrol order',false]];
+  const lc=document.createElement('canvas');lc.width=1024;lc.height=640;const lg=lc.getContext('2d');
+  const lt=new THREE.CanvasTexture(lc);lt.colorSpace=THREE.SRGBColorSpace;
+  function drawLaptop(){
+    const w=1024,h=640,g=lg;
+    g.fillStyle='#f4f5f7';g.fillRect(0,0,w,h);
+    g.fillStyle='#e2e4e8';g.fillRect(0,0,w,64);
+    g.fillStyle='#ff5f57';g.beginPath();g.arc(30,32,9,0,6.283);g.fill();
+    g.fillStyle='#febc2e';g.beginPath();g.arc(60,32,9,0,6.283);g.fill();
+    g.fillStyle='#28c840';g.beginPath();g.arc(90,32,9,0,6.283);g.fill();
+    g.fillStyle='#2a2f36';g.font='bold 34px sans-serif';g.textAlign='center';g.fillText('WORK TO DO · PRESIDENT CRYPTO',w/2,44);
+    g.textAlign='left';
+    const done=TASKS.filter(t=>t[1]).length;
+    g.font='bold 30px sans-serif';g.fillStyle='#5a6270';g.fillText(done+' of '+TASKS.length+' done',40,118);
+    TASKS.forEach(([name,ok],i)=>{
+      const y=190+i*84;
+      g.strokeStyle='#8a94a3';g.lineWidth=4;g.strokeRect(50,y-30,40,40);
+      if(ok){g.fillStyle='#28c840';g.fillRect(56,y-24,28,28);g.fillStyle='#fff';g.font='bold 30px sans-serif';g.fillText('✓',60,y)}
+      g.fillStyle=ok?'#8a94a3':'#1b2430';g.font='bold 38px sans-serif';g.fillText(name,116,y);
+      if(ok){g.strokeStyle='#8a94a3';g.lineWidth=3;g.beginPath();g.moveTo(116,y-12);g.lineTo(116+g.measureText(name).width,y-12);g.stroke()}
+    });
+    g.textAlign='center';
+    if(TASKS.some(t=>!t[1])){g.fillStyle='#c8ff43';g.fillRect(300,520,424,84);g.fillStyle='#0b1a0e';g.font='bold 46px sans-serif';g.fillText('SIGN HERE',512,578)}
+    else{g.fillStyle='#28c840';g.fillRect(200,520,624,84);g.fillStyle='#0b1a0e';g.font='bold 42px sans-serif';g.fillText('ALL SIGNED · GOOD WORK',512,578)}
+    lt.needsUpdate=true;
+  }
+  drawLaptop();
+  function work(){
+    const next=TASKS.find(t=>!t[1]);
+    if(!next)return 'ALL SIGNED · GOOD WORK, MR. PRESIDENT';
+    next[1]=true;drawLaptop();
+    return 'SIGNED · '+next[0];
+  }
+  // the MacBook: a silver base on the desk and a lid leaning back toward the chair, its screen facing the President
+  const alu=mat(0xc3c9d1,{roughness:.3,metalness:.8}),keyM=mat(0x2a2f36,{roughness:.6});
+  box(room,1.2,.05,.9,alu,0,1.2,DZ-.35);
+  box(room,1.1,.01,.55,keyM,0,1.25,DZ-.4);
+  const lid=new THREE.Group();lid.position.set(0,1.25,DZ-.8);lid.rotation.x=-.35;room.add(lid);
+  const lidBody=new THREE.Mesh(new THREE.BoxGeometry(1.2,.85,.04),alu);lidBody.position.set(0,.425,0);lid.add(lidBody);
+  const scr=new THREE.Mesh(new THREE.PlaneGeometry(1.12,.76),new THREE.MeshBasicMaterial({map:lt}));scr.position.set(0,.425,.03);lid.add(scr);
+  // the SIGN HERE memo lying on the desk
+  const memoC=document.createElement('canvas');memoC.width=512;memoC.height=640;const mg=memoC.getContext('2d');
+  mg.fillStyle='#fbfbf7';mg.fillRect(0,0,512,640);mg.fillStyle='#1b2430';mg.font='bold 40px sans-serif';mg.textAlign='left';mg.fillText('MEMO · FOR SIGNATURE',36,70);
+  mg.font='28px sans-serif';for(let i=0;i<8;i++)mg.fillRect(36,120+i*40,440,5);
+  mg.fillStyle='#c8ff43';mg.fillRect(120,520,280,70);mg.fillStyle='#0b1a0e';mg.font='bold 40px sans-serif';mg.textAlign='center';mg.fillText('SIGN HERE',260,568);
+  const memoM=new THREE.Mesh(new THREE.PlaneGeometry(.5,.62),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(memoC)}));memoM.rotation.x=-Math.PI/2;memoM.position.set(.9,1.23,DZ-.45);room.add(memoM);
+
   // back wall: seal, flags, shelves
   plane(room,4.4,4.4,sealM,0,4.4,D/2-T-.02,Math.PI);
   for(const x of[-4.4,4.4]){cyl(room,.07,.07,6,gold,x,0,D/2-T-.8);const fl=new THREE.Mesh(new THREE.PlaneGeometry(2.6,1.7),flagM);fl.position.set(x+(x<0?1.3:-1.3),5.2,D/2-T-.8);fl.rotation.y=0;room.add(fl);poleL.push(fl)}
@@ -166,5 +214,6 @@ export function makeOffice({THREE,scene,labelSprite,B,cx=18,cz=56,title='PRESIDE
       for(let i=0;i<poleL.length;i++)poleL[i].rotation.y=Math.sin(t*1.6+i*1.7)*.18;
       updateStaff(dt,t);
     }};
+  api.work=work;api.laptop={x:cx+2.8,z:cz+DZ+1.4};
   return api;
 }

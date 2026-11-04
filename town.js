@@ -214,6 +214,7 @@ function create(){
   const GA=makeGarage({THREE,scene,labelSprite,B});   // Super Home garage (west annex, door on the north street)
   specials.officeDoor={x:OF.door.x,z:OF.door.z,label:"OFFICE OF THE PRESIDENT · WALK IN",act:()=>{P.mode='walk';P.x=OF.lobby.x;P.z=OF.lobby.z;P.y=0;P.vx=P.vy=P.vz=0;yaw=Math.PI;pitch=.34;camD=8;toast('WELCOME, MR. PRESIDENT')}};
   specials.officeDesk={x:OF.desk.x,z:OF.desk.z,label:"PRESIDENT'S DESK · TAKE YOUR SEAT",act:()=>{P.mode='walk';P.x=OF.seat.x;P.z=OF.seat.z;P.y=0;P.vx=P.vy=P.vz=0;yaw=0;pitch=.3;camD=6;toast('SEATED · OFFICE OF THE PRESIDENT')}};
+  specials.officeLaptop={x:OF.laptop.x,z:OF.laptop.z,label:'MACBOOK · WORK TO DO',act:()=>toast(OF.work())};
   // the eastern district: a walk-in diner and a shopping mall (staff use the resident sprite sheets)
   const venueFront=v=>fronts[v];
   const KIT=loadKit(THREE);
@@ -230,12 +231,18 @@ function create(){
   specials.clubDoor={x:CLUB.door.x,z:CLUB.door.z,label:'SUPER CLUB · WALK IN',act:()=>{P.mode='walk';P.x=CLUB.lobby.x;P.z=CLUB.lobby.z;P.y=0;P.vx=P.vy=P.vz=0;toast('WELCOME TO SUPER CLUB')}};
   specials.schDoor={x:SCHOOL.door.x,z:SCHOOL.door.z,label:'SUPER SCHOOL · WALK IN',act:()=>{P.mode='walk';P.x=SCHOOL.lobby.x;P.z=SCHOOL.lobby.z;P.y=0;P.vx=P.vy=P.vz=0;toast('WELCOME TO SUPER SCHOOL')}};
   for(const [key,V] of[['rest',REST],['mall',MALL],['pol',POLICE],['sch',SCHOOL],['club',CLUB]])V.points.forEach((p,i)=>{specials[key+i]={x:p.x,z:p.z,label:p.label,act:()=>toast(p.msg||p.label)}});
+  // footprints of every building, forecourt, queue and car park: no tree may stand inside them
+  const FOOT=[
+    {x:18,z:58,hw:15,hd:22},{x:74,z:22,hw:14,hd:14},{x:84,z:-16,hw:22,hd:16},{x:-88,z:-18,hw:22,hd:22},
+    {x:-62,z:56,hw:18,hd:20},{x:62,z:58,hw:17,hd:19},{x:-54,z:18,hw:16,hd:12},{x:-73.2,z:19,hw:11,hd:20},
+    {x:18,z:76,hw:20,hd:12},{x:-18,z:-18,hw:11,hd:11},{x:18,z:-18,hw:15,hd:11},{x:-18,z:18,hw:9,hd:9},{x:18,z:18,hw:9,hd:9}
+  ];
   // parks (corner blocks): trees, pond, benches
   const trees=[];for(const [cx,cz] of[[-54,-54],[54,-54],[-54,54],[54,54]]){for(let i=0;i<30;i++){const a=rnd(0,6.283),r=Math.sqrt(Math.random())*22;const x=cx+Math.cos(a)*r,z=cz+Math.sin(a)*r;if(Math.hypot(x-cx,z-cz)>6)trees.push([x,z,rnd(.8,1.6)])}
     const pond=new THREE.Mesh(new THREE.CircleGeometry(6,32),new THREE.MeshBasicMaterial({color:new THREE.Color(.1,.9,.8)}));pond.rotation.x=-Math.PI/2;pond.position.set(cx,.05,cz);scene.add(pond);const pr3=new THREE.Mesh(new THREE.TorusGeometry(6,.2,8,40),greenM);pr3.rotation.x=Math.PI/2;pr3.position.set(cx,.1,cz);scene.add(pr3)}
   for(let i=0;i<80;i++){const a=rnd(0,6.283),r=rnd(80,108);trees.push([Math.cos(a)*r,Math.sin(a)*r,rnd(.8,1.5)])}
   for(let i=trees.length-1;i>=0;i--)if(Math.abs(trees[i][0]-GA.box.x)<GA.box.hw+4&&Math.abs(trees[i][1]-GA.box.z)<GA.box.hd+6)trees.splice(i,1);
-  for(let i=trees.length-1;i>=0;i--){const[x,z]=trees[i];if(ROADS.some(r=>Math.abs(x-r)<RW/2+2.2||Math.abs(z-r)<RW/2+2.2)||B.some(b=>Math.abs(x-b.x)<b.hw+1.5&&Math.abs(z-b.z)<b.hd+1.5)||Math.hypot(x,z)>ISL*.92)trees.splice(i,1)}
+  for(let i=trees.length-1;i>=0;i--){const[x,z]=trees[i];if(ROADS.some(r=>Math.abs(x-r)<RW/2+2.2||Math.abs(z-r)<RW/2+2.2)||B.some(b=>Math.abs(x-b.x)<b.hw+1.5&&Math.abs(z-b.z)<b.hd+1.5)||FOOT.some(f=>Math.abs(x-f.x)<f.hw+1.5&&Math.abs(z-f.z)<f.hd+1.5)||Math.hypot(x,z)>ISL*.92)trees.splice(i,1)}
   {const n=trees.length,tr=new THREE.InstancedMesh(new THREE.CylinderGeometry(.18,.28,2.2,6),metalM,n),cn=new THREE.InstancedMesh(new THREE.ConeGeometry(1.6,4.6,8),new THREE.MeshStandardMaterial({color:0x2f8a2a,emissive:0x1a5a14,emissiveIntensity:.7,roughness:.7}),n),d=new THREE.Object3D();
    trees.forEach(([x,z,s],i)=>{d.position.set(x,1.1*s,z);d.scale.setScalar(s);d.updateMatrix();tr.setMatrixAt(i,d.matrix);d.position.set(x,3.6*s,z);d.updateMatrix();cn.setMatrixAt(i,d.matrix)});scene.add(tr,cn)}
   UP.streetscape(ROADS,RW,B,ISL);
