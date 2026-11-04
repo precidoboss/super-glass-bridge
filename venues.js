@@ -4,7 +4,7 @@
    a waiter serves it, the customer eats, pays at the register and leaves. Staff run the room.
    Mall: stocked shelves in every shop, shoppers browse the stalls and leave. Staff use the town's resident sprites. */
 
-import {kit as makeKit,dressVenue} from './design.js';
+import {kit as makeKit,dressVenue,homeKit} from './design.js';
 
 export function makeVenue({THREE,scene,labelSprite,B,cx,cz,kind='restaurant',title='SUPER DINER',getFront=()=>null,kit=null}){
   const mall=kind==='mall';
@@ -129,11 +129,13 @@ export function makeVenue({THREE,scene,labelSprite,B,cx,cz,kind='restaurant',tit
       box(root,1.1,.8,2.2,woodM,-W/2+3.2,0,z);col(-W/2+3.2,z,1.1,2.2,.8);col(-W/2+1.3,z,1.6,3,.6);
       seats.push({x:-W/2+2.1,z,table:{x:-W/2+3.2,z},c:null,food:false});
     }
+    // the Super Home furniture style (same seats and table positions as before)
+    const HK=homeKit(THREE);
     // round tables with four chairs each
     for(const [x,z] of[[-2,-4],[-2,2],[7,-4.5],[7,1.5],[2,-.5]]){
-      cyl(root,1.1,1.1,.08,woodM,x,.75,z);cyl(root,.12,.12,.75,darkM,x,0,z);col(x,z,1.5,1.5,1);
+      HK.roundTable(root,x,0,z,1.1,.75);col(x,z,1.5,1.5,1);
       for(const [dx,dz] of[[1.2,0],[-1.2,0],[0,1.2],[0,-1.2]]){
-        cyl(root,.36,.36,.08,cushM,x+dx,.45,z+dz);cyl(root,.05,.05,.45,darkM,x+dx,0,z+dz);
+        HK.chair(root,x+dx,0,z+dz,Math.atan2(-dx,-dz),HK.darkM);
         seats.push({x:x+dx,z:z+dz,table:{x,z},c:null,food:false});
       }
       sph(root,.3,warm,x,H-1.6,z);box(root,.05,1.2,.05,darkM,x,H-2.8,z);

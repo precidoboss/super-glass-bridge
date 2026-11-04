@@ -115,3 +115,29 @@ export function dressVenue({THREE,root,k,W,D,H,accent=0xc8ff43,sec=0xff4d4f,awni
     const p=k.plane(root,W-2,D-2,new THREE.MeshStandardMaterial({map:t,roughness:.35}),0,.11,0,0);p.rotation.x=-Math.PI/2;
   }
 }
+
+/* Super Home furniture, shared so other rooms can use the same chairs and tables.
+   Same construction as the Super Home: a dark padded seat on steel legs, oak tops on steel pedestals. */
+export function homeKit(THREE){
+  const m=(c,o={})=>new THREE.MeshStandardMaterial({color:c,roughness:.6,metalness:.1,...o});
+  const steel=m(0xb8c4bc,{roughness:.25,metalness:.9});
+  const darkM=m(0x1a1f1c,{roughness:.5,metalness:.4});
+  const oakM=m(0x9a6a3c,{roughness:.55});
+  const limeEm=new THREE.MeshBasicMaterial({color:0xc8ff43});
+  const bx=(p,w,h,d,mt,x,y,z,ry=0)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mt);o.position.set(x,y+h/2,z);o.rotation.y=ry;p.add(o);return o};
+  const cyl=(p,rt,rb,h,mt,x,y,z,seg=18)=>{const o=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg),mt);o.position.set(x,y+h/2,z);p.add(o);return o};
+  // a chair facing direction ry (the sitter faces +z when ry is 0)
+  function chair(p,x,y,z,ry,mt=darkM){
+    const g=new THREE.Group();g.position.set(x,y,z);g.rotation.y=ry;p.add(g);
+    bx(g,.9,.12,.9,mt,0,.55,0);bx(g,.9,1,.12,mt,0,.6,-.4);
+    for(const [a,b] of[[-.38,-.38],[.38,-.38],[-.38,.38],[.38,.38]])bx(g,.08,.55,.08,steel,a,0,b);
+    return g;
+  }
+  // a round table: oak top on a steel pedestal, with a lime edge light
+  function roundTable(p,x,y,z,r,h,topM=oakM){
+    cyl(p,r,r,.1,topM,x,h-.1,z);cyl(p,.12,.12,h-.1,steel,x,y,z);
+    const ring=new THREE.Mesh(new THREE.TorusGeometry(r,.025,8,40),limeEm);ring.rotation.x=Math.PI/2;ring.position.set(x,h+.01,z);p.add(ring);
+    return p;
+  }
+  return{bx,cyl,chair,roundTable,steel,darkM,oakM,limeEm};
+}
