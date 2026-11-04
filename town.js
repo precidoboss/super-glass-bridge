@@ -231,7 +231,7 @@ function create(){
    const HEAD=['$SUPER UP 2.1% TODAY · SIMULATED','PRESIDENT SIGNS THE PARK FUND MEMO','SUPER SCHOOL OPENS NEW LIBRARY SHELVES','SUPER CLUB OPENS LATE THIS WEEKEND','SUPER DINER SPECIAL: SUPER BURGER + SHAKE'];
    let hi=0;NEWS.push=(line)=>{HEAD.unshift(String(line).toUpperCase().slice(0,44));hi=0;drawB()};
    const drawB=()=>{bg.fillStyle='#06120c';bg.fillRect(0,0,768,256);bg.fillStyle='#c8ff43';bg.font='bold 34px sans-serif';bg.textAlign='center';bg.fillText('SUPER TOWN NEWS',384,70);bg.fillStyle='#e9f6ea';bg.font='bold 38px sans-serif';bg.fillText(HEAD[hi%HEAD.length],384,150);bg.fillStyle='#ff2e88';bg.fillRect(0,214,768,8);bt.needsUpdate=true};
-   drawB();setInterval(()=>{hi++;drawB()},4000);
+   NEWS.list=HEAD;drawB();setInterval(()=>{hi++;drawB()},4000);
    const panel=new THREE.Mesh(new THREE.PlaneGeometry(6,2),new THREE.MeshBasicMaterial({map:bt,side:THREE.DoubleSide}));panel.position.set(7,6.5,7);scene.add(panel);
    const post=new THREE.Mesh(new THREE.CylinderGeometry(.18,.25,5.5,8),new THREE.MeshStandardMaterial({color:0x2a3035,metalness:.6}));post.position.set(7,2.75,7);scene.add(post);
    B.push({x:7,z:7,hw:.4,hd:.4,h:6,name:null});}
@@ -756,7 +756,7 @@ function create(){
       kmh:Math.round(Math.abs(car.v)*10),gear:g.gear,sound:engineOn,units,nearby:nn?nn.name:null,msgs:msgLog,pos:{x:P.x,z:P.z},
       places:DESTS.map(d=>({name:d.name,d:dist(d),x:d.x,z:d.z})),
       destinations:DESTS.map(d=>({name:d.name,d:dist(d),fare:Math.round(10+dist(d)*.15)})),
-      taxi:services.taxi,guard:{on:services.guardOn}}},
+      taxi:services.taxi,guard:{on:services.guardOn},news:NEWS.list||[]}},
     act:(name,arg)=>{
       if(name==='send'){const t=String(arg||'').trim();if(t){log('YOU',t,'me');say(P,t,5)}}
       else if(name==='repaint'){const pt=benz.nextPaint();toast('BENZ PAINT · '+pt.name);emit(car.x,1,car.z,16,0xc8ff43,3,1,2,.7)}
@@ -768,6 +768,10 @@ function create(){
       else if(name==='taxi-go')services.taxiGo(arg);
       else if(name==='guard')services.guardToggle();
       else if(name==='police')toast('PATROL DISPATCHED · STAY WHERE YOU ARE')
+      else if(name==='guest')toast(arg==='on'?'ON THE GUEST LIST · SHOW AT THE CLUB DOOR':'GUEST LIST CANCELLED')
+      else if(name==='food')toast('ORDER · '+String(arg).toUpperCase()+' · COOKING AT SUPER DINER')
+      else if(name==='food-delivered'){toast('FOOD DELIVERED · '+String(arg).toUpperCase());emit(P.x,1.5,P.z,12,0xffd60a,2,1,2,.6)}
+      else if(name==='snap'){toast('PHOTO TAKEN · '+String(arg).toUpperCase());emit(P.x,1.5,P.z,14,0xffffff,2,1,2,.5)}
     }});
   const joyEl=$('#twJoy'),knob=joyEl.firstElementChild;let jid=null;
   const jset=e=>{const r=joyEl.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;let dx=(e.clientX-cx)/(r.width/2),dy=(e.clientY-cy)/(r.height/2);const m=Math.hypot(dx,dy);if(m>1){dx/=m;dy/=m}joy.x=dx;joy.z=dy;knob.style.transform=`translate(${dx*36}px,${dy*36}px)`};
