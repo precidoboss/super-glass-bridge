@@ -2,7 +2,7 @@
    Lobby with visitor benches and wanted posters, a reception counter with the desk officer, a corridor to the
    holding cells, two interview rooms, a dispatch desk and lockers. Real walls, a doorway, walls that fade inside,
    and officers who work the building. */
-import {kit,makeWorkers} from './design.js';
+import {kit,makeWorkers,dressVenue} from './design.js';
 
 // the police patrol bay, out on the forecourt beside the station (local coordinates)
 const cx0Bay=(W,D)=>({x:-W/2-8,z:-D/2-8});
@@ -96,6 +96,7 @@ export function makePoliceStation({THREE,scene,labelSprite,B,cx,cz,getFront=()=>
   // a neon sign inside, and the dispatch glow
   k.box(root,8,1,.2,blueN,0,H-1.8,-D/2+.15);
 
+  dressVenue({THREE,root,k,W,D,H,accent:0x4dd2ff,sec:0xff4d4f});
   /* ---------- upgrade: rooftop comms, roof light bar, forecourt with a patrol bay ---------- */
   k.cyl(root,.08,.1,6,steel,-W/2+4,H+.5,-D/2+4);
   k.cyl(root,.04,.04,2.4,steel,-W/2+4,H+6.5,-D/2+4);

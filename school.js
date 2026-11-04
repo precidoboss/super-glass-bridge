@@ -2,7 +2,7 @@
    ground floor: an entrance hall, reception, a trophy cabinet, a library corner and a notice board.
    The upper floors are visible from outside through the window bands. Teachers, staff and students work and
    learn in the building. Real walls, a doorway, walls that fade when you are inside. */
-import {kit,makeWorkers} from './design.js';
+import {kit,makeWorkers,dressVenue} from './design.js';
 
 export function makeSchool({THREE,scene,labelSprite,B,cx,cz,getFront=()=>null,title='SUPER SCHOOL'}){
   const W=32,D=24,FH=5.4,FLOORS=3,H=FH*FLOORS,T=.5,DW=6;
@@ -76,6 +76,7 @@ export function makeSchool({THREE,scene,labelSprite,B,cx,cz,getFront=()=>null,ti
   k.box(root,5,.1,4,k.mat(0x4a8a3a),-W/2-4,0,-D/2-12);
   for(let i=0;i<4;i++)k.box(root,.2,.6,.2,steelish(),W/2+3+i*.8,0,-D/2-4);
 
+  dressVenue({THREE,root,k,W,D,H,accent:0xf2c84b,sec:0x7bff3a});
   /* ---------- ground floor interior ---------- */
   k.box(root,W-1.2,.04,D-1.2,floorM,0,.42,0);
   // trophy cabinet, library shelves, notice board and reception desk

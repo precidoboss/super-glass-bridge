@@ -94,3 +94,24 @@ export function makeParkingLot({THREE,scene,B,makeCarModel,cx,cz,W,D,reserved=nu
   for(const x of[-W/2+3,0,W/2-3]){k.cyl(root,.08,.1,6,new THREE.MeshStandardMaterial({color:0x2a3035,metalness:.6}),x,0,D/2-.5);k.glow(root,x,6.2,D/2-.5,3,0xffe9b0,.8)}
   return{root,bays,W,D};
 }
+
+/* Exterior dressing shared by the venues and public buildings (same look as the Super Home):
+   lit roofline trims, corner glow, a glowing ground strip, a striped awning over the entrance and an optional
+   canvas-drawn floor pattern laid over the existing floor. */
+export function dressVenue({THREE,root,k,W,D,H,accent=0xc8ff43,sec=0xff4d4f,awningColor=null,floor=null}){
+  const acc=k.basic(accent,2),second=k.basic(sec,1.6);
+  k.box(root,W+.5,.14,.14,acc,0,H+.15,-D/2-.2);
+  k.box(root,W+.5,.14,.14,second,0,H+.15,D/2+.2);
+  k.box(root,.14,.14,D+.5,acc,-W/2-.2,H+.15,0);
+  k.box(root,.14,.14,D+.5,acc,W/2+.2,H+.15,0);
+  for(const x of[-W/2,W/2])for(const z of[-D/2,D/2])k.glow(root,x,H+.3,z,3.2,accent,.45);
+  k.box(root,W,.08,.12,acc,0,.12,-D/2-.1);
+  if(awningColor){
+    const t=k.tex(256,64,(g,w,h)=>{for(let i=0;i<8;i++){g.fillStyle=i%2?'#ffffff':awningColor;g.fillRect(i*w/8,0,w/8,h)}});
+    k.box(root,8,.3,2.4,new THREE.MeshStandardMaterial({map:t,roughness:.6}),0,H*.5,-D/2-1.2);
+  }
+  if(floor){
+    const t=k.tex(256,256,floor);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(W/8,D/8);
+    const p=k.plane(root,W-2,D-2,new THREE.MeshStandardMaterial({map:t,roughness:.35}),0,.11,0,0);p.rotation.x=-Math.PI/2;
+  }
+}

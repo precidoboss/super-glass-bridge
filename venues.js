@@ -4,6 +4,8 @@
    a waiter serves it, the customer eats, pays at the register and leaves. Staff run the room.
    Mall: stocked shelves in every shop, shoppers browse the stalls and leave. Staff use the town's resident sprites. */
 
+import {kit,dressVenue} from './design.js';
+
 export function makeVenue({THREE,scene,labelSprite,B,cx,cz,kind='restaurant',title='SUPER DINER',getFront=()=>null,kit=null}){
   const mall=kind==='mall';
   const police=kind==='police';
@@ -51,6 +53,14 @@ export function makeVenue({THREE,scene,labelSprite,B,cx,cz,kind='restaurant',tit
   const sign=labelSprite(title,{w:7,size:64,color:'#e9f6ea',glow:'#c8ff43',plate:true});
   sign.position.set(0,H+2.5,-D/2-.5);root.add(sign);
 
+  // the Super Home style dressing: lit trims, awning and a floor pattern (diner: checker tiles, mall: marble)
+  {
+    const k=kit(THREE);
+    const checker=g=>{for(let j=0;j<8;j++)for(let i=0;i<8;i++){g.fillStyle=(i+j)%2?'#f4efe6':'#1d1a18';g.fillRect(i*32,j*32,32,32)}};
+    const marble=g=>{for(let j=0;j<4;j++)for(let i=0;i<4;i++){g.fillStyle=(i+j)%2?'#eef3f6':'#d6e0e6';g.fillRect(i*64,j*64,64,64);g.strokeStyle='#9fb0bc';g.strokeRect(i*64,j*64,64,64)}};
+    if(police){} else if(!mall) dressVenue({THREE,root,k,W,D,H,accent:0xc8ff43,sec:0xff6b8a,awningColor:'#c8102e',floor:checker});
+    else dressVenue({THREE,root,k,W,D,H,accent:0x4dd2ff,sec:0xb08cff,awningColor:'#1e4fa3',floor:marble});
+  }
   const LOBBY={x:0,z:-D/2+2.5},OUTSIDE={x:0,z:-D/2-3.6};
   const seats=[],stops=[];
   const kitchen={tickets:[],ready:[]};
