@@ -6,7 +6,7 @@
 
 const lerp=(a,b,t)=>a+(b-a)*t;
 
-export function makeOffice({THREE,scene,labelSprite,B,cx=18,cz=56,title='PRESIDENT CRYPTO'}){
+export function makeOffice({THREE,scene,labelSprite,B,cx=18,cz=56,title='PRESIDENT CRYPTO',getFront=()=>null}){
   const W=22,D=20,H=8,T=.5,DW=5;           // footprint (x, z), wall height, wall thickness, doorway width
   const root=new THREE.Group();root.position.set(cx,0,cz);scene.add(root);
   const mat=(c,o={})=>new THREE.MeshStandardMaterial({color:c,roughness:.6,metalness:.1,...o});
@@ -123,6 +123,34 @@ export function makeOffice({THREE,scene,labelSprite,B,cx=18,cz=56,title='PRESIDE
   const L1=new THREE.PointLight(0xf4ffe0,0,26,1.6),L2=L1.clone();L1.position.set(0,H-1.4,-3);L2.position.set(0,H-1.4,6);root.add(L1,L2);
 
   /* ---------- hooks for town.js ---------- */
+  // workers: a receptionist, the President's assistant, two guards at the door and a cleaner
+  const rndO=(a,b)=>a+Math.random()*(b-a);
+  const staff=[
+    {role:'RECEPTIONIST JO',variant:5,zone:[-4,4,-6,-3.6],station:[0,-4.6],spd:.5},
+    {role:'ASSISTANT LENA',variant:6,zone:[-3.5,3.5,2.6,4.6],station:[3.4,3.4],spd:.6},
+    {role:'GUARD BRUNO',variant:7,zone:[-7.5,-5.5,-7,-5.2],spd:.3},
+    {role:'GUARD ERIN',variant:4,zone:[5.5,7.5,-7,-5.2],spd:.3},
+    {role:'CLEANER PAT',variant:2,zone:[-7,7,-2,4],spd:.8}
+  ].map(d=>{
+    const sp=new THREE.Sprite(new THREE.SpriteMaterial({alphaTest:.3,fog:true}));sp.scale.set(2.1,2.4,1);sp.visible=false;root.add(sp);
+    const tag=labelSprite(d.role,{w:2.6,size:54,color:'#eaf7ed',glow:'#7ddc1f',plate:true});root.add(tag);
+    const st=d.station||null;const x=st?st[0]:rndO(d.zone[0],d.zone[1]),z=st?st[1]:rndO(d.zone[2],d.zone[3]);
+    return{...d,sp,tag,x,z,tx:x,tz:z,wait:rndO(0,3),ph:Math.random(),moving:false};
+  });
+  function updateStaff(dt,t){
+    for(const s of staff){
+      if(s.station){s.x=s.station[0];s.z=s.station[1];s.moving=false}
+      else{
+        s.wait-=dt;const dx=s.tx-s.x,dz=s.tz-s.z,d=Math.hypot(dx,dz);
+        if(d<.2&&s.wait<=0){s.tx=rndO(s.zone[0],s.zone[1]);s.tz=rndO(s.zone[2],s.zone[3]);s.wait=rndO(2,6)}
+        s.moving=s.wait<=0&&d>.2;
+        if(s.moving){const st=Math.min(d,s.spd*dt);s.x+=dx/d*st;s.z+=dz/d*st}
+      }
+      const f=getFront(s.variant);
+      if(f){s.sp.visible=true;s.sp.material=f[s.moving?Math.floor(s.ph*4+t*6)%4:3]}else s.sp.visible=false;
+      s.sp.position.set(s.x,1.2,s.z);s.tag.position.set(s.x,2.9,s.z);
+    }
+  }
   let wallO=.97,inside=false;
   const api={
     W,D,H,cx,cz,
@@ -136,6 +164,7 @@ export function makeOffice({THREE,scene,labelSprite,B,cx=18,cz=56,title='PRESIDE
       const tw=inside?.14:.97;wallO+=(tw-wallO)*Math.min(1,dt*5);wallM.opacity=wallO;wallM.depthWrite=wallO>.9;roofM.opacity=inside?0:1;roof.visible=!inside||P.y>H;
       const li=inside?40:0;L1.intensity+=(li-L1.intensity)*Math.min(1,dt*4);L2.intensity+=(li-L2.intensity)*Math.min(1,dt*4);
       for(let i=0;i<poleL.length;i++)poleL[i].rotation.y=Math.sin(t*1.6+i*1.7)*.18;
+      updateStaff(dt,t);
     }};
   return api;
 }

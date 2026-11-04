@@ -2,7 +2,7 @@
    The bodyguard walks beside you on foot. His police car waits parked by the garage until you get in a car;
    then it pulls out and follows you on the roads, stopping for cars ahead. When you get out it drives back to its spot. */
 
-export function createServices({THREE,scene,ROADS,makeCarModel,getFront,pushOut,P,getCar,cars,destinations,toast,policeSpot}){
+export function createServices({THREE,scene,ROADS,makeCarModel,getFront,pushOut,P,getCar,cars,destinations,toast,policeSpot,traffic}){
   const snap=v=>{let b=ROADS[0],bd=Infinity;for(const r of ROADS){const d=Math.abs(v-r);if(d<bd){bd=d;b=r}}return b};
   // route on the road grid: straight to the nearest crossing, along the grid, then to the target
   function routeTo(a,b){
@@ -11,15 +11,37 @@ export function createServices({THREE,scene,ROADS,makeCarModel,getFront,pushOut,
     const out=[];for(const p of pts){const l=out[out.length-1];if(!l||Math.hypot(p.x-l.x,p.z-l.z)>.3)out.push({x:p.x,z:p.z})}
     return out;
   }
-  // move an object along its route; returns true when the route is finished. Stops if a car is just ahead.
+  // how fast an object may go right now: slow for cars ahead, stop at red lights and for people on a crosswalk
+  function controlSpeed(o,fx,fz,spd){
+    let v=spd;
+    for(const c of cars){
+      const cx=c.g.position.x-o.x,cz=c.g.position.z-o.z,a=cx*fx+cz*fz,lat=Math.abs(cx*fz-cz*fx);
+      if(a>0&&a<12&&lat<2.6)v=Math.min(v,Math.max(0,(a-6)*1.5));
+    }
+    if(traffic&&traffic.walkerNear(o.x+fx*6,o.z+fz*6,7))v=0;
+    if(traffic){
+      const horiz=Math.abs(fx)>Math.abs(fz);
+      const onRoad=horiz?ROADS.some(z=>Math.abs(o.z-z)<4.5):ROADS.some(x=>Math.abs(o.x-x)<4.5);
+      const green=horiz?traffic.hGreen():!traffic.hGreen();
+      if(onRoad&&!green){
+        for(const r of ROADS){const d=horiz?(r-o.x)*Math.sign(fx):(r-o.z)*Math.sign(fz);
+          if(d>0&&d<12)v=Math.min(v,Math.max(0,(d-5.5)*1.6))}
+      }
+    }
+    return v;
+  }
+  // move an object along its route; returns true when the route is finished
   function follow(o,dt,spd){
     const n=o.route[0];if(!n)return true;
     const dx=n.x-o.x,dz=n.z-o.z,d=Math.hypot(dx,dz);
     if(d<.4){o.route.shift();return o.route.length===0}
     const fx=dx/d,fz=dz/d;
-    let block=false;
-    for(const c of cars){const cx=c.g.position.x-o.x,cz=c.g.position.z-o.z,ahead=cx*fx+cz*fz,lat=Math.abs(cx*fz-cz*fx);if(ahead>0&&ahead<7&&lat<2.4){block=true;break}}
-    if(!block){const st=Math.min(d,spd*dt);o.x+=fx*st;o.z+=fz*st;o.h=Math.atan2(-fx,-fz)}
+    const cur=o.v||0,want=controlSpeed(o,fx,fz,spd);
+    // brake firmly, pull away gently; never sit forever in a jam
+    o.v=cur+(want-cur)*Math.min(1,dt*(want<cur?3:1.4));
+    o.stuck=(o.v<.2&&want<.5)?(o.stuck||0)+dt:0;
+    if(o.stuck>25)o.v=Math.max(o.v,2);
+    const st=Math.min(d,o.v*dt);o.x+=fx*st;o.z+=fz*st;o.h=Math.atan2(-fx,-fz);
     return false;
   }
 
@@ -30,10 +52,10 @@ export function createServices({THREE,scene,ROADS,makeCarModel,getFront,pushOut,
   const taxi={state:'off',x:0,z:0,h:0,route:[],spd:14,fare:0,dest:null,wait:0};
   const fareTo=d=>Math.round(10+d*.15);
   function placeTaxi(){taxiModel.visible=taxi.state!=='off';taxiModel.position.set(taxi.x,0,taxi.z);taxiModel.rotation.y=taxi.h}
-  function taxiCall(){
+  function taxiCall(from){
     if(taxi.state==='coming'||taxi.state==='waiting'||taxi.state==='riding')return toast('YOUR TAXI IS ALREADY ON ITS WAY');
     const cands=[];for(const x of ROADS)for(const z of ROADS){const d=Math.hypot(x-P.x,z-P.z);if(d>30&&d<70)cands.push({x,z})}
-    const s=cands.length?cands[Math.floor(Math.random()*cands.length)]:{x:P.x+30,z:P.z+30};
+    const s=from||(cands.length?cands[Math.floor(Math.random()*cands.length)]:{x:P.x+30,z:P.z+30});
     taxi.x=s.x;taxi.z=s.z;taxi.route=routeTo(taxi,P);taxi.state='coming';placeTaxi();
     toast('TAXI ON THE WAY · TWO MINUTES OR SO');
   }
@@ -124,6 +146,7 @@ export function createServices({THREE,scene,ROADS,makeCarModel,getFront,pushOut,
     taxiCall,taxiCancel,taxiGo,guardToggle,
     get taxi(){return{state:taxi.state,fare:taxi.fare,dest:taxi.dest?taxi.dest.name:null}},
     get guardOn(){return guard.on},
-    get policeMode(){return pol.mode}
+    get policeMode(){return pol.mode},
+    get taxiPos(){return{x:taxi.x,z:taxi.z,v:taxi.v||0}}
   };
 }

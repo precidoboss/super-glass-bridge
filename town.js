@@ -206,7 +206,7 @@ function create(){
   {const s=labelSprite('$SUPER EXCHANGE',{w:12,size:70});s.position.set(EX.x,EX.h+14,EX.z);scene.add(s)}
   specials.exchange={x:EX.x,z:EX.z+EX.d/2+3.5,label:'$SUPER EXCHANGE · OPEN THE LIVE CHART',act:()=>window.open(DEX_URL,'_blank','noopener')};
   /* ---------- OFFICE OF THE PRESIDENT (north-east block, front door on the main street) ---------- */
-  const OF=makeOffice({THREE,scene,labelSprite,B,cx:18,cz:56,title:'PRESIDENT CRYPTO'});
+  const OF=makeOffice({THREE,scene,labelSprite,B,cx:18,cz:56,title:'PRESIDENT CRYPTO',getFront:v=>fronts[v]});
   const GA=makeGarage({THREE,scene,labelSprite,B});   // Super Home garage (west annex, door on the north street)
   specials.officeDoor={x:OF.door.x,z:OF.door.z,label:"OFFICE OF THE PRESIDENT · WALK IN",act:()=>{P.mode='walk';P.x=OF.lobby.x;P.z=OF.lobby.z;P.y=0;P.vx=P.vy=P.vz=0;yaw=Math.PI;pitch=.34;camD=8;toast('WELCOME, MR. PRESIDENT')}};
   specials.officeDesk={x:OF.desk.x,z:OF.desk.z,label:"PRESIDENT'S DESK · TAKE YOUR SEAT",act:()=>{P.mode='walk';P.x=OF.seat.x;P.z=OF.seat.z;P.y=0;P.vx=P.vy=P.vz=0;yaw=0;pitch=.3;camD=6;toast('SEATED · OFFICE OF THE PRESIDENT')}};
@@ -412,7 +412,8 @@ function create(){
   benzA.group.position.set(car.x,.02,car.z);benzA.group.rotation.y=car.h;
   let benzSign=labelSprite('SUPER BENZ',{w:3.2,size:64,color:'#eaf7ed',glow:'#c8ff43',plate:true});benzSign.position.set(PARK.x,2.7,PARK.z);scene.add(benzSign);
   // the Lamborghini Urus, parked beside the Benz. Stand next to a car and press F to drive it.
-  const PARKU={x:PARK.x+8,z:PARK.z,h:PARK.h};
+  // a clear spot for the Urus: the first open ground beside the garage that is not inside a wall or building
+  const PARKU=(()=>{for(const[dx,dz]of[[8,0],[-8,0],[0,8],[0,-8],[10,4],[10,-4],[-10,4],[-10,-4],[12,0],[0,12],[0,-12],[-12,0]]){const x=PARK.x+dx,z=PARK.z+dz;if(!B.some(b=>Math.abs(x-b.x)<b.hw+2.5&&Math.abs(z-b.z)<b.hd+2.5)&&Math.hypot(x,z)<ISL*.85)return{x,z,h:PARK.h}}return{x:PARK.x+8,z:PARK.z,h:PARK.h}})();
   const urusA=createUrus(renderer);scene.add(urusA.group);
   const urusCar={on:false,x:PARKU.x,z:PARKU.z,h:PARKU.h,v:0,st:0,roll:0,pit:0,_pv:0};
   urusA.group.position.set(urusCar.x,.02,urusCar.z);urusA.group.rotation.y=urusCar.h;
@@ -684,7 +685,7 @@ function create(){
   addEventListener('keydown',kd,true);addEventListener('keyup',e=>{if(visible)keys.delete(e.key.toLowerCase())},true);addEventListener('blur',()=>keys.clear());
   /* ---------- taxi and bodyguard services ---------- */
   const DESTS=[{name:'Super Diner',x:REST.door.x,z:REST.door.z},{name:'Super Mall',x:MALL.door.x,z:MALL.door.z},{name:'Police Station',x:POLICE.door.x,z:POLICE.door.z},{name:'Super Benz garage',x:PARK.x,z:PARK.z}];
-  const services=createServices({THREE,scene,ROADS,makeCarModel,getFront:v=>fronts[v],pushOut,P,getCar:()=>car,cars,destinations:DESTS,toast,policeSpot:{x:GA.park.x-7,z:GA.park.z+4}});
+  const services=createServices({THREE,scene,ROADS,makeCarModel,getFront:v=>fronts[v],pushOut,P,getCar:()=>car,cars,destinations:DESTS,toast,policeSpot:{x:GA.park.x-7,z:GA.park.z+4},traffic:{hGreen:()=>hGreenNow(),walkerNear:(x,z,r)=>walkerNear(x,z,r)}});
   /* ---------- Super Benz engine, speedometer and phone ---------- */
   let engineOn=true,units='kmh';
   const engine=createEngine();
