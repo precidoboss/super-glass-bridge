@@ -6,7 +6,8 @@
 
 export function makeVenue({THREE,scene,labelSprite,B,cx,cz,kind='restaurant',title='SUPER DINER',getFront=()=>null,kit=null}){
   const mall=kind==='mall';
-  const W=mall?40:24,D=mall?26:20,H=mall?12:7,T=.5,DW=mall?8:5;
+  const police=kind==='police';
+  const W=mall?40:24,D=mall?26:20,H=police?8:(mall?12:7),T=.5,DW=mall?8:(police?6:5);
   const rnd=(a,b)=>a+Math.random()*(b-a);
   const pick=a=>a[Math.floor(Math.random()*a.length)];
   const root=new THREE.Group();root.position.set(cx,0,cz);scene.add(root);
@@ -25,8 +26,8 @@ export function makeVenue({THREE,scene,labelSprite,B,cx,cz,kind='restaurant',tit
   const canvasTex=(w,h,draw)=>{const c=document.createElement('canvas');c.width=w;c.height=h;draw(c.getContext('2d'),w,h);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t};
 
   /* ---------- materials ---------- */
-  const wallM=mat(mall?0x1d2b36:0x2e1f16,{roughness:.4,metalness:.5,transparent:true});
-  const floorM=mat(mall?0xdfe6ea:0x4a2c1c,{roughness:.35,metalness:.2});
+  const wallM=mat(police?0x1e2f4a:mall?0x1d2b36:0x2e1f16,{roughness:.4,metalness:.5,transparent:true});
+  const floorM=mat(police?0x9aa6b2:mall?0xdfe6ea:0x4a2c1c,{roughness:.35,metalness:.2});
   const roofM=mat(0x0e1a14,{roughness:.5,metalness:.7,transparent:true});
   const woodM=mat(0x6b4a2b,{roughness:.6}),darkM=mat(0x1a1f1c,{roughness:.5,metalness:.4}),cushM=mat(0x7a1f2b,{roughness:.8});
   const steelM=mat(0xb9c2c6,{roughness:.25,metalness:.9}),greenM=mat(0x2f8a2a,{roughness:.8}),potM=mat(0x5a3a26);
@@ -56,7 +57,38 @@ export function makeVenue({THREE,scene,labelSprite,B,cx,cz,kind='restaurant',tit
   let sales=0;
   const decor=[];
 
-  if(!mall){
+  if(police){
+    /* ===== POLICE STATION ===== */
+    box(root,W-2,.02,D-2,mat(0xc3ccd6,{roughness:.35}),0,.08,0);
+    // visitors' counter with a glass screen; the desk officer works behind it
+    box(root,12,1.1,1.6,mat(0x2a3a55,{roughness:.4}),0,0,-3);col(0,-3,12,1.6,1.1);
+    box(root,12.2,.9,.08,glassM,0,1.1,-3.85);
+    // badge on the back wall
+    const badge=canvasTex(512,256,(g,w,h)=>{
+      g.fillStyle='#0c1a33';g.fillRect(0,0,w,h);g.strokeStyle='#f2c84b';g.lineWidth=10;g.strokeRect(10,10,w-20,h-20);
+      g.fillStyle='#f2c84b';g.font='bold 72px sans-serif';g.textAlign='center';g.fillText('POLICE',w/2,130);
+      g.font='bold 32px sans-serif';g.fillText('SUPER TOWN · 24 / 7',w/2,200);});
+    box(root,8,4,.15,new THREE.MeshBasicMaterial({map:badge}),0,2.4,D/2-.1);
+    // holding cell at the back-right: bars and a bench
+    for(let i=0;i<6;i++)cyl(root,.07,.07,H-2.2,steelM,4+i*1.1,0,D/2-6);
+    col(6.5,D/2-6,6.8,.25,H-2);box(root,4,.5,.8,woodM,6.5,0,D/2-2.8);
+    // lockers down the left wall
+    for(let i=0;i<4;i++){box(root,.8,2.2,2.2,mat(0x3d5a80,{roughness:.5}),-W/2+.5,0,-4+i*2.2);col(-W/2+.5,-4+i*2.2,.8,2.2,2.2)}
+    // flags at the front corners
+    for(const x of[-W/2+1.5,W/2-1.5]){cyl(root,.05,.05,H-1,steelM,x,0,-D/2+1.5);box(root,1.3,.7,.05,mat(0x1e4fa3),x+.7,H-2.2,-D/2+1.5)}
+    box(root,9,1.1,.3,basic(0x4dd2ff,2),0,H-1.9,-D/2-.05);
+    // visitor points and the staff who work here
+    pt(0,-5.2,'FILE A REPORT · DESK',"Desk officer: 'Take a number. Describe the vehicle, please.'");
+    pt(6.5,D/2-4.2,'HOLDING CELL',"No visitors past the bars. Sorry, friend.");
+    pt(-W/2+2.4,-1,'EVIDENCE LOCKERS',"Locked. Some things are better left unseen.");
+    pt(-6,-6,'CALL YOUR BODYGUARD',"Use your phone to hire your bodyguard. Patrols are on the way.");
+    decor.push(
+      {job:'desk',role:'DESK OFFICER ROSA',variant:6,zone:[0,0,-1.2,-1.2],station:[0,-1.2]},
+      {job:'officer',role:'OFFICER DAN',variant:4,zone:[-8,-2,-6,2],spd:.8},
+      {job:'officer',role:'OFFICER KAI',variant:3,zone:[-6,6,D/2-5,D/2-3],spd:.7},
+      {job:'officer',role:'JAILER TOM',variant:7,zone:[5,9,D/2-2.5,D/2-1.2],spd:.4}
+    );
+  }else if(!mall){
     /* ===== SUPER DINER ===== */
     box(root,W-2,.02,D-2,mat(0x5a3322,{roughness:.7}),0,.08,0);
     box(root,10,.03,6,basic(0x7a1f2b,.9),0,.1,-1);
@@ -241,7 +273,8 @@ export function makeVenue({THREE,scene,labelSprite,B,cx,cz,kind='restaurant',tit
       s.moving=!go(s,s.station[0],s.station[1],dt);
     }else if(mall&&(s.job==='clerk'||s.job==='cook')){
       s.x=s.station[0];s.z=s.station[1];s.moving=false;
-    }else staffWander(s,dt);
+    }else if(s.job==='desk'){s.x=s.station[0];s.z=s.station[1];s.moving=false}
+    else staffWander(s,dt);
     const front=getFront(s.variant);
     if(front){s.sp.visible=true;s.sp.material=front[s.moving?Math.floor(s.ph*4+ (Date.now()/160))%4:3]}else s.sp.visible=false;
     s.sp.position.set(s.x,1.2,s.z);s.tag.position.set(s.x,2.9,s.z);
@@ -316,7 +349,7 @@ export function makeVenue({THREE,scene,labelSprite,B,cx,cz,kind='restaurant',tit
     const tw=inside?.14:.97;wallO+=(tw-wallO)*Math.min(1,dt*5);wallM.opacity=wallO;wallM.depthWrite=wallO>.9;
     roofM.opacity+=((inside?0:1)-roofM.opacity)*Math.min(1,dt*5);roof.visible=!inside||P.y>H;
     spawnT-=dt;
-    if(spawnT<=0){spawn();spawnT=mall?rnd(5,9):rnd(4,8)}
+    if(spawnT<=0&&!police){spawn();spawnT=mall?rnd(5,9):rnd(4,8)}
     for(const c of customers)custUpdate(c,dt);
     for(const s of staff)staffUpdate(s,dt);
   }

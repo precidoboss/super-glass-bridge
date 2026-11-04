@@ -14,6 +14,7 @@ import {loadKit} from './assets.js';
 import {createEngine,gearRpm} from './audio.js';
 import {createSpeedo} from './speedo.js';
 import {createPhone} from './phone.js';
+import {createServices} from './services.js';
 
 /* ===================== SUPER TOWN =====================
    A small open-world community on a floating island: fly (or hover-walk) as the flyer, meet bot residents,
@@ -213,9 +214,11 @@ function create(){
   const KIT=loadKit(THREE);
   const REST=makeVenue({THREE,scene,labelSprite,B,cx:74,cz:22,kind:'restaurant',title:'SUPER DINER',getFront:venueFront,kit:KIT});
   const MALL=makeVenue({THREE,scene,labelSprite,B,cx:84,cz:-16,kind:'mall',title:'SUPER MALL',getFront:venueFront,kit:KIT});
+  const POLICE=makeVenue({THREE,scene,labelSprite,B,cx:-84,cz:-16,kind:'police',title:'POLICE STATION',getFront:venueFront,kit:KIT});
   specials.restDoor={x:REST.door.x,z:REST.door.z,label:'SUPER DINER · WALK IN',act:()=>{P.mode='walk';P.x=REST.lobby.x;P.z=REST.lobby.z;P.y=0;P.vx=P.vy=P.vz=0;toast('WELCOME TO SUPER DINER')}};
   specials.mallDoor={x:MALL.door.x,z:MALL.door.z,label:'SUPER MALL · WALK IN',act:()=>{P.mode='walk';P.x=MALL.lobby.x;P.z=MALL.lobby.z;P.y=0;P.vx=P.vy=P.vz=0;toast('WELCOME TO SUPER MALL')}};
-  for(const [key,V] of[['rest',REST],['mall',MALL]])V.points.forEach((p,i)=>{specials[key+i]={x:p.x,z:p.z,label:p.label,act:()=>toast(p.msg||p.label)}});
+  specials.polDoor={x:POLICE.door.x,z:POLICE.door.z,label:'POLICE STATION · WALK IN',act:()=>{P.mode='walk';P.x=POLICE.lobby.x;P.z=POLICE.lobby.z;P.y=0;P.vx=P.vy=P.vz=0;toast('WELCOME TO THE POLICE STATION')}};
+  for(const [key,V] of[['rest',REST],['mall',MALL],['pol',POLICE]])V.points.forEach((p,i)=>{specials[key+i]={x:p.x,z:p.z,label:p.label,act:()=>toast(p.msg||p.label)}});
   // parks (corner blocks): trees, pond, benches
   const trees=[];for(const [cx,cz] of[[-54,-54],[54,-54],[-54,54],[54,54]]){for(let i=0;i<30;i++){const a=rnd(0,6.283),r=Math.sqrt(Math.random())*22;const x=cx+Math.cos(a)*r,z=cz+Math.sin(a)*r;if(Math.hypot(x-cx,z-cz)>6)trees.push([x,z,rnd(.8,1.6)])}
     const pond=new THREE.Mesh(new THREE.CircleGeometry(6,32),new THREE.MeshBasicMaterial({color:new THREE.Color(.1,.9,.8)}));pond.rotation.x=-Math.PI/2;pond.position.set(cx,.05,cz);scene.add(pond);const pr3=new THREE.Mesh(new THREE.TorusGeometry(6,.2,8,40),greenM);pr3.rotation.x=Math.PI/2;pr3.position.set(cx,.1,cz);scene.add(pr3)}
@@ -668,20 +671,32 @@ function create(){
     if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright',' ','c','q','e','f','shift','control'].includes(k)){e.preventDefault();e.stopImmediatePropagation();keys.add(k);if(k==='f')interact()}
     if(k==='escape'){e.stopImmediatePropagation();if(menu.classList.contains('on'))menu.classList.remove('on');else if(api.onExit)api.onExit()}};
   addEventListener('keydown',kd,true);addEventListener('keyup',e=>{if(visible)keys.delete(e.key.toLowerCase())},true);addEventListener('blur',()=>keys.clear());
+  /* ---------- taxi and bodyguard services ---------- */
+  const DESTS=[{name:'Super Diner',x:REST.door.x,z:REST.door.z},{name:'Super Mall',x:MALL.door.x,z:MALL.door.z},{name:'Police Station',x:POLICE.door.x,z:POLICE.door.z},{name:'Super Benz garage',x:PARK.x,z:PARK.z}];
+  const services=createServices({THREE,scene,ROADS,makeCarModel,getFront:v=>fronts[v],pushOut,P,car,cars,destinations:DESTS,toast});
   /* ---------- Super Benz engine, speedometer and phone ---------- */
   let engineOn=true,units='kmh';
   const engine=createEngine();
   const speedo=createSpeedo(toastEl.parentElement);
+  const dist=d=>Math.hypot(d.x-P.x,d.z-P.z);
   const phone=createPhone({host:toastEl.parentElement,
-    getState:()=>{const g=gearRpm(Math.abs(car.v),0);const nn=nearestNpc(60);return{
+    getState:()=>{const g=gearRpm(Math.abs(car.v),0);const nn=nearestNpc(60);const hr=new Date().getHours();return{
+      greet:hr<12?'Good morning':hr<18?'Good afternoon':'Good evening',
       kmh:Math.round(Math.abs(car.v)*10),gear:g.gear,sound:engineOn,units,nearby:nn?nn.name:null,msgs:msgLog,pos:{x:P.x,z:P.z},
-      places:[{name:'Super Diner',d:Math.hypot(REST.door.x-P.x,REST.door.z-P.z)},{name:'Super Mall',d:Math.hypot(MALL.door.x-P.x,MALL.door.z-P.z)},{name:'Super Benz garage',d:Math.hypot(PARK.x-P.x,PARK.z-P.z)}]}},
+      places:DESTS.map(d=>({name:d.name,d:dist(d),x:d.x,z:d.z})),
+      destinations:DESTS.map(d=>({name:d.name,d:dist(d),fare:Math.round(10+dist(d)*.15)})),
+      taxi:services.taxi,guard:{on:services.guardOn}}},
     act:(name,arg)=>{
       if(name==='send'){const t=String(arg||'').trim();if(t){log('YOU',t,'me');say(P,t,5)}}
       else if(name==='repaint'){const pt=benz.nextPaint();toast('BENZ PAINT · '+pt.name);emit(car.x,1,car.z,16,0xc8ff43,3,1,2,.7)}
       else if(name==='sound'){engineOn=!engineOn;toast('ENGINE SOUND '+(engineOn?'ON':'OFF'))}
       else if(name==='units'){units=units==='kmh'?'mph':'kmh';toast('SPEED UNITS · '+units.toUpperCase())}
       else if(name==='call'){const nn=nearestNpc(60);toast(nn?'CALLING '+nn.name+'…':'NO ONE NEARBY')}
+      else if(name==='taxi-call')services.taxiCall();
+      else if(name==='taxi-cancel')services.taxiCancel();
+      else if(name==='taxi-go')services.taxiGo(arg);
+      else if(name==='guard')services.guardToggle();
+      else if(name==='police')toast('PATROL DISPATCHED · STAY WHERE YOU ARE')
     }});
   const joyEl=$('#twJoy'),knob=joyEl.firstElementChild;let jid=null;
   const jset=e=>{const r=joyEl.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;let dx=(e.clientX-cx)/(r.width/2),dy=(e.clientY-cy)/(r.height/2);const m=Math.hypot(dx,dy);if(m>1){dx/=m;dy/=m}joy.x=dx;joy.z=dy;knob.style.transform=`translate(${dx*36}px,${dy*36}px)`};
@@ -718,6 +733,7 @@ function create(){
     const pr0=Math.hypot(P.x,P.z);if(pr0>ISL+25){P.x*=(ISL+25)/pr0;P.z*=(ISL+25)/pr0}
     pushOut(P,P.mode==='walk'?.8:1,P.y);
     updateCar(dt,cix,ciz,boost,keys.has(' ')&&!frozen);
+    services.update(dt);
     const hs=HS.step(dt,P,time);OF.update(dt,P,time);REST.update(dt,P,time);MALL.update(dt,P,time);GA.update(dt,P,time);
     if(P.riding)P.floor=Math.round(HS.E.y/HS.FH);
     const inH2=HS.inHouse(P.x,P.z),roofOver=Math.abs(P.x-HS.HX0)<HS.hx+.6&&Math.abs(P.z-HS.HZ0)<HS.hz+.6;
