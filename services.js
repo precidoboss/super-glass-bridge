@@ -96,7 +96,7 @@ export function createServices({THREE,scene,ROADS,makeCarModel,getFront,pushOut,
   function guardToggle(){
     guard.on=!guard.on;
     if(guard.on){
-      guard.x=P.x+2;guard.z=P.z+2;pol.x=policeSpot.x;pol.z=policeSpot.z;pol.h=0;pol.route=[];pol.mode='parked';
+      guard.x=P.x+2;guard.z=P.z+2;pol.x=policeSpot.x;pol.z=policeSpot.z;pol.h=policeSpot.h||0;pol.route=[];pol.mode='parked';
       police.position.set(pol.x,0,pol.z);police.visible=true;
       toast('BODYGUARD HIRED · HIS POLICE CAR IS PARKED BY THE GARAGE UNTIL YOU DRIVE');
     }else{
