@@ -89,8 +89,8 @@ export function makeVenue({THREE,scene,labelSprite,B,cx,cz,kind='restaurant',tit
     }
     // round tables with four chairs each
     for(const [x,z] of[[-2,-4],[-2,2],[7,-4.5],[7,1.5],[2,-.5]]){
-      prop('tableRound',x,0,z,{s:2.5});col(x,z,1.5,1.5,1);
-      for(const [dx,dz] of[[1.2,0],[-1.2,0],[0,1.2],[0,-1.2]]){
+      prop('tableRound',x,0,z,{s:2.5});col(x,z,2.0,2.0,1);
+      for(const [dx,dz] of[[1.45,0],[-1.45,0],[0,1.45],[0,-1.45]]){
         prop('chairRounded',x+dx,0,z+dz,{s:2.1,ry:Math.atan2(-dx,-dz)});
         seats.push({x:x+dx,z:z+dz,table:{x,z},c:null,food:false});
       }

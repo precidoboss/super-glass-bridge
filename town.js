@@ -11,6 +11,9 @@ import {ShaderPass} from 'three/addons/postprocessing/ShaderPass.js';
 import {createTownUpgrade,makeCarModel} from './upgrade.js';
 import {makeVenue} from './venues.js';
 import {loadKit} from './assets.js';
+import {createEngine,gearRpm} from './audio.js';
+import {createSpeedo} from './speedo.js';
+import {createPhone} from './phone.js';
 
 /* ===================== SUPER TOWN =====================
    A small open-world community on a floating island: fly (or hover-walk) as the flyer, meet bot residents,
@@ -413,9 +416,9 @@ function create(){
     toast('BENZ PARKED · F NEAR THE CAR TO DRIVE AGAIN');emit(P.x,.6,P.z,10,0xc8ff43,2,1,2,.6)}
   function updateCar(dt,ix,iz,boost,hand){
     let thr=0,str=0;if(car.on){thr=clamp(-iz,-1,1);str=clamp(-ix,-1,1)}else{boost=false;hand=false}
-    const vmax=boost?18:11;let target=thr>0?thr*vmax:thr<0?thr*6:0;
+    const vmax=boost?24:15;let target=thr>0?thr*vmax:thr<0?thr*6:0;
     const braking=hand||(thr<0&&car.v>.6)||(thr>0&&car.v<-.6);
-    const rate=braking?30:thr!==0?(boost?14:10):3.6;if(hand)target=0;
+    const rate=braking?30:thr!==0?(boost?22:14):3.6;if(hand)target=0;
     car.v+=clamp(target-car.v,-rate*dt,rate*dt);if(!car.on&&Math.abs(car.v)<.05)car.v=0;
     car.st+=(str-car.st)*(1-Math.exp(-dt*7));
     const sp=Math.abs(car.v),steerA=car.st*lerp(.52,.2,clamp(sp/24,0,1));
@@ -432,6 +435,7 @@ function create(){
     benz.group.position.set(car.x,.02,car.z);benz.group.rotation.y=car.h;
     benz.pose(car.v,steerA,dt,car.roll,car.pit);
     benz.setBrake(braking&&sp>.4||(car.on&&hand));benz.setLights(car.on);
+    engine.update(dt,sp,Math.abs(thr),car.on&&engineOn);speedo.show(car.on);if(car.on){const g=gearRpm(sp,Math.abs(thr));speedo.set(sp*10,units,g.gear,g.rpm)}
     if(car.on){
       P.x=car.x;P.z=car.z;P.y=0;P.gy=0;P.ground=true;P.vx=-Math.sin(car.h)*car.v;P.vz=-Math.cos(car.h)*car.v;P.vy=0;P.wr=2;P.ph=0;P.floor=0;P.mode='walk';
       if(!drag&&car.v>1.5){let d=car.h-yaw;d=Math.atan2(Math.sin(d),Math.cos(d));yaw+=d*(1-Math.exp(-dt*1.7))}
@@ -618,7 +622,8 @@ function create(){
   /* ---------- UI ---------- */
   const logEl=$('#twLog'),inEl=$('#twIn'),promptEl=$('#twPrompt'),toastEl=$('#twToast'),flashEl=$('#twFlash'),menu=$('#twMenu');
   let toastT=0;const toast=t=>{toastEl.textContent=t;toastEl.classList.add('on');toastT=1.8};
-  function log(who,t,cls=''){const d=document.createElement('div');if(cls)d.className=cls;if(who){const b=document.createElement('b');b.textContent=who+': ';d.appendChild(b)}d.appendChild(document.createTextNode(t));logEl.appendChild(d);setTimeout(()=>d.remove(),9000);while(logEl.children.length>6)logEl.firstChild.remove()}
+  const msgLog=[];
+  function log(who,t,cls=''){msgLog.push({who,t});if(msgLog.length>60)msgLog.shift();const d=document.createElement('div');if(cls)d.className=cls;if(who){const b=document.createElement('b');b.textContent=who+': ';d.appendChild(b)}d.appendChild(document.createTextNode(t));logEl.appendChild(d);setTimeout(()=>d.remove(),9000);while(logEl.children.length>6)logEl.firstChild.remove()}
   function say(o,text,secs=4){if(o.bub){o.bub.parent&&o.bub.parent.remove(o.bub);o.bub.material.map.dispose();o.bub.material.dispose()}o.bub=bubble(text);scene.add(o.bub);o.bt=secs}
   function clearBub(o){if(o.bub){scene.remove(o.bub);o.bub.material.map.dispose();o.bub.material.dispose();o.bub=null}}
   const GAMEDEF=[['bridge','GLASS BRIDGE','assets/previews/glass-bridge.jpg'],['rl','RED LIGHT · GREEN LIGHT','assets/previews/red-light.jpg'],['mingle','MINGLE','assets/previews/mingle.jpg'],['story','EYE WORLD','assets/previews/story.jpg']];
@@ -651,7 +656,11 @@ function create(){
     mx.save();mx.translate(75+P.x*S,75+P.z*S);mx.rotate(-yaw);mx.fillStyle='#d4ff3a';mx.beginPath();mx.moveTo(0,-6);mx.lineTo(4.5,5);mx.lineTo(-4.5,5);mx.closePath();mx.fill();mx.restore()}
 
   /* ---------- input ---------- */
-  const kd=e=>{if(!visible)return;if(typing)return;const k=e.key.toLowerCase();
+  const kd=e=>{if(!visible)return;
+    engine.resume();
+    if(phone.isOpen()){if(e.target&&e.target.closest&&e.target.closest('#twPhone'))return;const k0=e.key.toLowerCase();if(k0==='p'||k0==='escape'){e.preventDefault();e.stopImmediatePropagation();phone.close()}else{e.stopImmediatePropagation()}return}
+    if(typing)return;const k=e.key.toLowerCase();
+    if(k==='p'){e.preventDefault();e.stopImmediatePropagation();phone.open();return}
     if(k==='enter'){e.preventDefault();e.stopImmediatePropagation();inEl.focus();return}
     if(k==='v'&&!P.riding&&!car.on){e.preventDefault();e.stopImmediatePropagation();toggleFly();return}
     if(k==='r'&&(car.on||Math.hypot(P.x-car.x,P.z-car.z)<7)){e.preventDefault();e.stopImmediatePropagation();const pt=benz.nextPaint();toast('BENZ PAINT · '+pt.name);emit(car.x,1,car.z,16,0xc8ff43,3,1,2,.7);return}
@@ -659,6 +668,21 @@ function create(){
     if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright',' ','c','q','e','f','shift','control'].includes(k)){e.preventDefault();e.stopImmediatePropagation();keys.add(k);if(k==='f')interact()}
     if(k==='escape'){e.stopImmediatePropagation();if(menu.classList.contains('on'))menu.classList.remove('on');else if(api.onExit)api.onExit()}};
   addEventListener('keydown',kd,true);addEventListener('keyup',e=>{if(visible)keys.delete(e.key.toLowerCase())},true);addEventListener('blur',()=>keys.clear());
+  /* ---------- Super Benz engine, speedometer and phone ---------- */
+  let engineOn=true,units='kmh';
+  const engine=createEngine();
+  const speedo=createSpeedo(toastEl.parentElement);
+  const phone=createPhone({host:toastEl.parentElement,
+    getState:()=>{const g=gearRpm(Math.abs(car.v),0);const nn=nearestNpc(60);return{
+      kmh:Math.round(Math.abs(car.v)*10),gear:g.gear,sound:engineOn,units,nearby:nn?nn.name:null,msgs:msgLog,pos:{x:P.x,z:P.z},
+      places:[{name:'Super Diner',d:Math.hypot(REST.door.x-P.x,REST.door.z-P.z)},{name:'Super Mall',d:Math.hypot(MALL.door.x-P.x,MALL.door.z-P.z)},{name:'Super Benz garage',d:Math.hypot(PARK.x-P.x,PARK.z-P.z)}]}},
+    act:(name,arg)=>{
+      if(name==='send'){const t=String(arg||'').trim();if(t){log('YOU',t,'me');say(P,t,5)}}
+      else if(name==='repaint'){const pt=benz.nextPaint();toast('BENZ PAINT · '+pt.name);emit(car.x,1,car.z,16,0xc8ff43,3,1,2,.7)}
+      else if(name==='sound'){engineOn=!engineOn;toast('ENGINE SOUND '+(engineOn?'ON':'OFF'))}
+      else if(name==='units'){units=units==='kmh'?'mph':'kmh';toast('SPEED UNITS · '+units.toUpperCase())}
+      else if(name==='call'){const nn=nearestNpc(60);toast(nn?'CALLING '+nn.name+'…':'NO ONE NEARBY')}
+    }});
   const joyEl=$('#twJoy'),knob=joyEl.firstElementChild;let jid=null;
   const jset=e=>{const r=joyEl.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;let dx=(e.clientX-cx)/(r.width/2),dy=(e.clientY-cy)/(r.height/2);const m=Math.hypot(dx,dy);if(m>1){dx/=m;dy/=m}joy.x=dx;joy.z=dy;knob.style.transform=`translate(${dx*36}px,${dy*36}px)`};
   joyEl.addEventListener('pointerdown',e=>{jid=e.pointerId;joyEl.setPointerCapture(jid);jset(e);e.preventDefault()});joyEl.addEventListener('pointermove',e=>{if(e.pointerId===jid)jset(e)});
@@ -672,6 +696,7 @@ function create(){
   /* ---------- simulation ---------- */
   function update(dt){
     time+=dt;U.time.value=time;grade.uniforms.time.value=time%100;
+    phone.tick(dt);
     if(toastT>0){toastT-=dt;if(toastT<=0)toastEl.classList.remove('on')}
     plazaSpin(dt);
     // camera yaw keys
