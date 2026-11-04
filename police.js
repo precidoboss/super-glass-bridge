@@ -2,7 +2,7 @@
    Lobby with visitor benches and wanted posters, a reception counter with the desk officer, a corridor to the
    holding cells, two interview rooms, a dispatch desk and lockers. Real walls, a doorway, walls that fade inside,
    and officers who work the building. */
-import {kit,makeWorkers,dressVenue} from './design.js';
+import {kit,makeWorkers,dressVenue,homeKit} from './design.js';
 
 // the police patrol bay, out on the forecourt beside the station (local coordinates)
 const cx0Bay=(W,D)=>({x:-6,z:-D/2-8});
@@ -55,8 +55,13 @@ export function makePoliceStation({THREE,scene,labelSprite,B,cx,cz,getFront=()=>
 
   /* ---------- interior: lobby, reception, corridor, cells, interview rooms, dispatch, lockers ---------- */
   // lobby benches and posters
-  for(const x of[-10,-6]){k.box(root,1.8,.5,.7,wood,x,0,-10.5);col(x,-10.5,1.8,.7,.5)}
-  for(const x of[6,10]){k.box(root,1.8,.5,.7,wood,x,0,-10.5);col(x,-10.5,1.8,.7,.5)}
+  // the lobby benches, in the Super Home style: an oak seat on steel legs (same positions and colliders)
+  {const HKb=homeKit(THREE);
+   for(const x of[-10,-6,6,10]){
+     HKb.bx(root,1.8,.12,.8,HKb.oakM,x,.45,-10.5);
+     for(const dx of[-.75,.75])for(const dz of[-.28,.28])HKb.bx(root,.07,.45,.07,HKb.steel,x+dx,0,-10.5+dz);
+     col(x,-10.5,1.8,.7,.5);
+   }}
   const posters=[['WANTED','Bike thief · reward 50 SUPER'],['COMMUNITY WATCH','Lock your car. Stay safe.'],['LOST DOG','Answers to Bolt. Call the desk.']];
   posters.forEach((p,i)=>{k.plane(root,2.2,2.8,new THREE.MeshBasicMaterial({map:k.sign(p[0],{w:256,h:320,bg:'#f4f1e8',fg:'#1e3a66',border:'#1e3a66',size:34,sub:''})}),-W/2+.12,2.4,-8+i*4,Math.PI/2)});
   // reception counter with a glass screen, and the desk officer behind it
@@ -117,6 +122,15 @@ export function makePoliceStation({THREE,scene,labelSprite,B,cx,cz,getFront=()=>
     const k2=k;
     k2.plane(root,4,1,new THREE.MeshBasicMaterial({map:k2.sign('CELL BLOCK',{w:512,h:128,bg:'#0b1a33',fg:'#ff4d4f',border:'#ff4d4f',size:70})}),9,5.2,D/2-.2,Math.PI);
     for(const x of[-10,-4])k2.plane(root,2.2,.7,new THREE.MeshBasicMaterial({map:k2.sign('INTERVIEW',{w:512,h:160,bg:'#0b1a33',fg:'#4dd2ff',border:'#4dd2ff',size:72})}),x,2.6,2.6,Math.PI);
+  }
+  // the lobby in the Super Home style: a wall TV with the news, a water cooler, lime edge lights on the counter and plants
+  {const HKl=homeKit(THREE);
+   const tv=new THREE.Mesh(new THREE.PlaneGeometry(3.2,1.8),new THREE.MeshBasicMaterial({map:k.sign('SUPER TOWN NEWS · 24/7',{w:768,h:432,bg:'#06101f',fg:'#4dd2ff',border:'#4dd2ff',size:58})}));
+   tv.position.set(W/2-.13,3.2,-8);tv.rotation.y=-Math.PI/2;root.add(tv);
+   HKl.bx(root,.12,2.1,3.6,HKl.darkM,W/2-.06,1.6,-8);
+   HKl.bx(root,15.8,.05,.07,HKl.limeEm,0,1.22,-7.1);
+   HKl.cyl(root,.28,.3,1.2,HKl.darkM,W/2-2.4,0,-2.4);HKl.cyl(root,.12,.12,.6,HKl.steel,W/2-2.4,1.2,-2.4);HKl.cyl(root,.14,.14,.25,k.basic(0x4dd2ff,1.3),W/2-2.4,1.8,-2.4);
+   for(const [x,z] of[[-W/2+1.5,-D/2+1.5],[W/2-1.5,-D/2+1.5]]){k.cyl(root,.42,.32,.7,k.mat(0x5a3a26),x,0,z);(()=>{const s=new THREE.Mesh(new THREE.SphereGeometry(.9,14,10),k.mat(0x2f8a2a,{roughness:.8}));s.position.set(x,1.6,z);root.add(s)})()}
   }
   /* ---------- officers and staff ---------- */
   const workers=makeWorkers({THREE,root,labelSprite,getFront,defs:[
