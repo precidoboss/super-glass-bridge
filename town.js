@@ -18,6 +18,7 @@ import {createPhone} from './phone.js';
 import {createServices} from './services.js';
 import {makePoliceStation} from './police.js';
 import {makeSchool} from './school.js';
+import {makeNightclub} from './nightclub.js';
 import {makeParkingLot} from './design.js';
 
 /* ===================== SUPER TOWN =====================
@@ -220,13 +221,15 @@ function create(){
   const MALL=makeVenue({THREE,scene,labelSprite,B,cx:84,cz:-16,kind:'mall',title:'SUPER MALL',getFront:venueFront,kit:KIT});
   const POLICE=makePoliceStation({THREE,scene,labelSprite,B,cx:-88,cz:-18,getFront:venueFront});
   const SCHOOL=makeSchool({THREE,scene,labelSprite,B,cx:-62,cz:60,getFront:venueFront});
+  const CLUB=makeNightclub({THREE,scene,labelSprite,B,cx:62,cz:64,getFront:venueFront});
   // the parking lot behind the President's office, with the reserved bay nearest the building
   makeParkingLot({THREE,scene,B,makeCarModel,cx:18,cz:76,W:36,D:20,reserved:{bay:5}});
   specials.restDoor={x:REST.door.x,z:REST.door.z,label:'SUPER DINER · WALK IN',act:()=>{P.mode='walk';P.x=REST.lobby.x;P.z=REST.lobby.z;P.y=0;P.vx=P.vy=P.vz=0;toast('WELCOME TO SUPER DINER')}};
   specials.mallDoor={x:MALL.door.x,z:MALL.door.z,label:'SUPER MALL · WALK IN',act:()=>{P.mode='walk';P.x=MALL.lobby.x;P.z=MALL.lobby.z;P.y=0;P.vx=P.vy=P.vz=0;toast('WELCOME TO SUPER MALL')}};
   specials.polDoor={x:POLICE.door.x,z:POLICE.door.z,label:'POLICE STATION · WALK IN',act:()=>{P.mode='walk';P.x=POLICE.lobby.x;P.z=POLICE.lobby.z;P.y=0;P.vx=P.vy=P.vz=0;toast('WELCOME TO THE POLICE STATION')}};
+  specials.clubDoor={x:CLUB.door.x,z:CLUB.door.z,label:'SUPER CLUB · WALK IN',act:()=>{P.mode='walk';P.x=CLUB.lobby.x;P.z=CLUB.lobby.z;P.y=0;P.vx=P.vy=P.vz=0;toast('WELCOME TO SUPER CLUB')}};
   specials.schDoor={x:SCHOOL.door.x,z:SCHOOL.door.z,label:'SUPER SCHOOL · WALK IN',act:()=>{P.mode='walk';P.x=SCHOOL.lobby.x;P.z=SCHOOL.lobby.z;P.y=0;P.vx=P.vy=P.vz=0;toast('WELCOME TO SUPER SCHOOL')}};
-  for(const [key,V] of[['rest',REST],['mall',MALL],['pol',POLICE],['sch',SCHOOL]])V.points.forEach((p,i)=>{specials[key+i]={x:p.x,z:p.z,label:p.label,act:()=>toast(p.msg||p.label)}});
+  for(const [key,V] of[['rest',REST],['mall',MALL],['pol',POLICE],['sch',SCHOOL],['club',CLUB]])V.points.forEach((p,i)=>{specials[key+i]={x:p.x,z:p.z,label:p.label,act:()=>toast(p.msg||p.label)}});
   // parks (corner blocks): trees, pond, benches
   const trees=[];for(const [cx,cz] of[[-54,-54],[54,-54],[-54,54],[54,54]]){for(let i=0;i<30;i++){const a=rnd(0,6.283),r=Math.sqrt(Math.random())*22;const x=cx+Math.cos(a)*r,z=cz+Math.sin(a)*r;if(Math.hypot(x-cx,z-cz)>6)trees.push([x,z,rnd(.8,1.6)])}
     const pond=new THREE.Mesh(new THREE.CircleGeometry(6,32),new THREE.MeshBasicMaterial({color:new THREE.Color(.1,.9,.8)}));pond.rotation.x=-Math.PI/2;pond.position.set(cx,.05,cz);scene.add(pond);const pr3=new THREE.Mesh(new THREE.TorusGeometry(6,.2,8,40),greenM);pr3.rotation.x=Math.PI/2;pr3.position.set(cx,.1,cz);scene.add(pr3)}
@@ -691,7 +694,7 @@ function create(){
     if(k==='escape'){e.stopImmediatePropagation();if(menu.classList.contains('on'))menu.classList.remove('on');else if(api.onExit)api.onExit()}};
   addEventListener('keydown',kd,true);addEventListener('keyup',e=>{if(visible)keys.delete(e.key.toLowerCase())},true);addEventListener('blur',()=>keys.clear());
   /* ---------- taxi and bodyguard services ---------- */
-  const DESTS=[{name:'Super Diner',x:REST.door.x,z:REST.door.z},{name:'Super Mall',x:MALL.door.x,z:MALL.door.z},{name:'Police Station',x:POLICE.door.x,z:POLICE.door.z},{name:'Super Benz garage',x:PARK.x,z:PARK.z}];
+  const DESTS=[{name:'Super Diner',x:REST.door.x,z:REST.door.z},{name:'Super Mall',x:MALL.door.x,z:MALL.door.z},{name:'Police Station',x:POLICE.door.x,z:POLICE.door.z},{name:'Super Benz garage',x:PARK.x,z:PARK.z},{name:'Super Club',x:CLUB.door.x,z:CLUB.door.z}];
   const services=createServices({THREE,scene,ROADS,makeCarModel,getFront:v=>fronts[v],pushOut,P,getCar:()=>car,cars,destinations:DESTS,toast,policeSpot:POLICE.spot,traffic:{hGreen:()=>hGreenNow(),walkerNear:(x,z,r)=>walkerNear(x,z,r)}});
   /* ---------- Super Benz engine, speedometer and phone ---------- */
   let engineOn=true,units='kmh';
@@ -753,7 +756,7 @@ function create(){
     pushOut(P,P.mode==='walk'?.8:1,P.y);
     updateCar(dt,cix,ciz,boost,keys.has(' ')&&!frozen);
     services.update(dt);
-    const hs=HS.step(dt,P,time);OF.update(dt,P,time);REST.update(dt,P,time);MALL.update(dt,P,time);GA.update(dt,P,time);
+    const hs=HS.step(dt,P,time);OF.update(dt,P,time);REST.update(dt,P,time);CLUB.update(dt,P,time);MALL.update(dt,P,time);GA.update(dt,P,time);
     if(P.riding)P.floor=Math.round(HS.E.y/HS.FH);
     const inH2=HS.inHouse(P.x,P.z),roofOver=Math.abs(P.x-HS.HX0)<HS.hx+.6&&Math.abs(P.z-HS.HZ0)<HS.hz+.6;
     if(!inH2&&!(roofOver&&P.y>HS.TOP-1))P.floor=0;

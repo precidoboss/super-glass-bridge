@@ -102,11 +102,21 @@ export function makeVenue({THREE,scene,labelSprite,B,cx,cz,kind='restaurant',tit
     /* ===== SUPER DINER ===== */
     box(root,W-2,.02,D-2,mat(0x5a3322,{roughness:.7}),0,.08,0);
     box(root,10,.03,6,basic(0x7a1f2b,.9),0,.1,-1);
-    // open kitchen (back-left) with steel pass, hood, stove tops
-    box(root,9,1.1,1.5,steelM,-6.5,0,D/2-2.2);col(-6.5,D/2-2.2,9,1.5,1.1);
-    box(root,9.6,.5,2.6,steelM,-6.5,H-2.9,D/2-2.2);
-    box(root,9,2.9,.2,mat(0xe9efe9,{roughness:.4}),-6.5,0,D/2-.25);
-    for(let i=0;i<4;i++)box(root,1.2,.6,.9,mat(0x343b38,{metalness:.6}),-9.4+i*2,1.1,D/2-2.2);
+    // open kitchen (back-left), Super Home style: dark cabinets, a white worktop, a lime tiled backsplash,
+    // a steel hood, four burners, hanging pans and a fridge. Same footprint and collider as before.
+    {
+      const KH=homeKit(THREE);const kt=makeKit(THREE);
+      KH.bx(root,9,1.1,1.5,KH.darkM,-6.5,0,D/2-2.2);col(-6.5,D/2-2.2,9,1.5,1.1);
+      KH.bx(root,9.2,.1,1.7,mat(0xf4f4f0,{roughness:.3}),-6.5,1.1,D/2-2.2);
+      KH.bx(root,9.2,.05,.08,KH.limeEm,-6.5,1.15,D/2-1.35);
+      const tile=kt.tex(256,256,(g,w,h)=>{for(let j=0;j<8;j++)for(let i=0;i<8;i++){g.fillStyle=(i+j)%2?'#c8ff43':'#f4f4f0';g.fillRect(i*32,j*32,32,32)}});
+      kt.plane(root,9,2.9,new THREE.MeshStandardMaterial({map:tile,roughness:.35}),-6.5,2.55,D/2-.25,Math.PI);
+      KH.bx(root,9.6,.5,2.6,steelM,-6.5,H-2.9,D/2-2.2);
+      for(let i=0;i<4;i++)KH.cyl(root,.34,.34,.06,KH.darkM,-9.4+i*2,1.14,D/2-2.2);
+      for(let i=0;i<5;i++)KH.cyl(root,.42,.42,.06,steelM,-9+i*1.2,3.6,D/2-.6,20).rotation.x=0;
+      KH.bx(root,1.6,3.2,1.6,mat(0xf4f4f0,{roughness:.3,metalness:.2}),-11,0,D/2-4);col(-11,D/2-4,1.6,1.6,3.2);
+      kt.plane(root,1.2,1,new THREE.MeshBasicMaterial({map:kt.sign('KITCHEN',{w:512,h:192,bg:'#0e1a14',fg:'#c8ff43',border:'#c8ff43',size:78})}),-6.5,H-.9,D/2-2.4,Math.PI);
+    }
     // customer bar with stools and a bottle shelf on the right wall
     box(root,12,1.1,1.5,woodM,5,0,D/2-4.2);box(root,12.4,.12,1.9,darkM,5,1.1,D/2-4.2);col(5,D/2-4.2,12,1.5,1.1);
     box(root,12,.05,.12,basic(0xffc83d,1.4),5,1.2,D/2-3.4);
