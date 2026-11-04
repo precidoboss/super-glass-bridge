@@ -7,6 +7,7 @@ import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js'
 import {makeOffice} from './office.js';
 import {makeGarage} from './garage.js';
 import {createBenz} from './benz.js';
+import {createUrus} from './urus.js';
 import {ShaderPass} from 'three/addons/postprocessing/ShaderPass.js';
 import {createTownUpgrade,makeCarModel} from './upgrade.js';
 import {makeVenue} from './venues.js';
@@ -403,14 +404,24 @@ function create(){
   [[-1,-30,-10,2.2],[1,30,10,-2.2],[-1,-30,-10,-2.2],[1,30,10,2.2]].forEach(([dir,a,b,off],i)=>{const horiz=i<2;cars.push({g:makeCar(CARCOL[(i+3)%CARCOL.length],i%2?'suv':'sedan'),shuttle:true,a,b,off,horiz,t:rnd(0,1),dir:1,spd:rnd(8,12),v:0,wait:0})});
 
   /* ---------- SUPER BENZ (benz.js): lives in the Super Home garage, drivable ---------- */
-  const benz=createBenz(renderer);scene.add(benz.group);
-  const PARK=GA.park;
-  const car={on:false,x:PARK.x,z:PARK.z,h:PARK.h,v:0,st:0,roll:0,pit:0,_pv:0};
-  benz.group.position.set(car.x,.02,car.z);benz.group.rotation.y=car.h;
-  const benzSign=labelSprite('SUPER BENZ',{w:3.2,size:64,color:'#eaf7ed',glow:'#c8ff43',plate:true});benzSign.position.set(PARK.x,2.7,PARK.z);scene.add(benzSign);
+  const benzA=createBenz(renderer);scene.add(benzA.group);
+  let benz=benzA;
+  let PARK=GA.park;
+  const benzCar={on:false,x:PARK.x,z:PARK.z,h:PARK.h,v:0,st:0,roll:0,pit:0,_pv:0};
+  let car=benzCar;
+  benzA.group.position.set(car.x,.02,car.z);benzA.group.rotation.y=car.h;
+  let benzSign=labelSprite('SUPER BENZ',{w:3.2,size:64,color:'#eaf7ed',glow:'#c8ff43',plate:true});benzSign.position.set(PARK.x,2.7,PARK.z);scene.add(benzSign);
+  // the Lamborghini Urus, parked beside the Benz. Stand next to a car and press F to drive it.
+  const PARKU={x:PARK.x+8,z:PARK.z,h:PARK.h};
+  const urusA=createUrus(renderer);scene.add(urusA.group);
+  const urusCar={on:false,x:PARKU.x,z:PARKU.z,h:PARKU.h,v:0,st:0,roll:0,pit:0,_pv:0};
+  urusA.group.position.set(urusCar.x,.02,urusCar.z);urusA.group.rotation.y=urusCar.h;
+  const urusSign=labelSprite('LAMBORGHINI URUS',{w:4.2,size:60,color:'#eaf7ed',glow:'#ffd60a',plate:true});urusSign.position.set(PARKU.x,2.7,PARKU.z);scene.add(urusSign);
+  const VEHICLES=[{name:'SUPER BENZ',label:'DRIVE BENZ',car:benzCar,m:benzA,park:GA.park,sign:benzSign},{name:'LAMBORGHINI URUS',label:'DRIVE URUS',car:urusCar,m:urusA,park:PARKU,sign:urusSign}];
+  const selectVehicle=v=>{benz=v.m;car=v.car;PARK=v.park;benzSign=v.sign};
   const seatToWorld=(sx,sz)=>{const c=Math.cos(car.h),s=Math.sin(car.h);return{x:car.x+sx*c+sz*s,z:car.z-sx*s+sz*c}};
   const CAR_SOLIDS=[{x:HS.HX0+HS.hx,z:HS.HZ0,hw:.9,hd:2.3}];   // keeps the Benz out of Super Home's front doorway
-  function carReset(){car.on=false;car.x=PARK.x;car.z=PARK.z;car.h=PARK.h;car.v=0;car.st=0;car.roll=car.pit=0;benz.group.position.set(car.x,.02,car.z);benz.group.rotation.y=car.h;benz.setBrake(false);benz.setLights(false);benzSign.visible=true}
+  function carReset(){selectVehicle(VEHICLES[0]);car.on=false;car.x=PARK.x;car.z=PARK.z;car.h=PARK.h;car.v=0;car.st=0;car.roll=car.pit=0;benz.group.position.set(car.x,.02,car.z);benz.group.rotation.y=car.h;benz.setBrake(false);benz.setLights(false);benzSign.visible=true}
   function enterCar(){
     if(car.on)return;car.on=true;car.v=0;P.mode='walk';P.floor=0;P.vx=P.vy=P.vz=0;yaw=car.h;pitch=.24;camD=11;benzSign.visible=false;updateFlyBtn();
     toast('SUPER BENZ · WASD DRIVE · SHIFT BOOST · SPACE BRAKE · R PAINT · F EXIT');emit(car.x,.8,car.z,22,0xc8ff43,3,1,2,.8)}
@@ -419,9 +430,9 @@ function create(){
     toast('BENZ PARKED · F NEAR THE CAR TO DRIVE AGAIN');emit(P.x,.6,P.z,10,0xc8ff43,2,1,2,.6)}
   function updateCar(dt,ix,iz,boost,hand){
     let thr=0,str=0;if(car.on){thr=clamp(-iz,-1,1);str=clamp(-ix,-1,1)}else{boost=false;hand=false}
-    const vmax=boost?24:15;let target=thr>0?thr*vmax:thr<0?thr*6:0;
+    const vmax=boost?32:21;let target=thr>0?thr*vmax:thr<0?thr*6:0;
     const braking=hand||(thr<0&&car.v>.6)||(thr>0&&car.v<-.6);
-    const rate=braking?30:thr!==0?(boost?22:14):3.6;if(hand)target=0;
+    const rate=braking?16:thr!==0?(boost?26:20):3.6;if(hand)target=0;
     car.v+=clamp(target-car.v,-rate*dt,rate*dt);if(!car.on&&Math.abs(car.v)<.05)car.v=0;
     car.st+=(str-car.st)*(1-Math.exp(-dt*7));
     const sp=Math.abs(car.v),steerA=car.st*lerp(.52,.2,clamp(sp/24,0,1));
@@ -431,7 +442,7 @@ function create(){
     let cx=0,cz=0;
     for(const off of[-1.5,0,1.5]){const o={x:car.x-Math.sin(car.h)*off,z:car.z-Math.cos(car.h)*off};const ax=o.x,az=o.z;pushOut(o,1.15,0);cx+=o.x-ax;cz+=o.z-az}
     for(const b of CAR_SOLIDS){const dx=car.x-b.x,dz=car.z-b.z,ox=b.hw+1.2-Math.abs(dx),oz=b.hd+2.4-Math.abs(dz);if(ox>0&&oz>0){if(ox<oz)cx+=Math.sign(dx||1)*ox;else cz+=Math.sign(dz||1)*oz}}
-    const hit=Math.hypot(cx,cz);if(hit>.001){car.x+=cx;car.z+=cz;car.v*=Math.max(.2,1-hit*6);if(hit>.12&&car.on)emit(car.x,.6,car.z,8,0xffc83d,3,1,3,.5)}
+    const hit=Math.hypot(cx,cz);if(hit>.001){car.x+=cx;car.z+=cz;car.v*=Math.max(.85,1-hit*1.2);if(hit>.12&&car.on)emit(car.x,.6,car.z,8,0xffc83d,3,1,3,.5)}
     const pr=Math.hypot(car.x,car.z);if(pr>ISL-4){car.x*=(ISL-4)/pr;car.z*=(ISL-4)/pr;car.v*=.6}
     const accel=(car.v-car._pv)/Math.max(dt,.001);car._pv=car.v;
     car.roll+=((-car.st*sp*.0045)-car.roll)*(1-Math.exp(-dt*6));car.pit+=((clamp(accel*.0035,-.05,.05))-car.pit)*(1-Math.exp(-dt*6));
@@ -673,7 +684,7 @@ function create(){
   addEventListener('keydown',kd,true);addEventListener('keyup',e=>{if(visible)keys.delete(e.key.toLowerCase())},true);addEventListener('blur',()=>keys.clear());
   /* ---------- taxi and bodyguard services ---------- */
   const DESTS=[{name:'Super Diner',x:REST.door.x,z:REST.door.z},{name:'Super Mall',x:MALL.door.x,z:MALL.door.z},{name:'Police Station',x:POLICE.door.x,z:POLICE.door.z},{name:'Super Benz garage',x:PARK.x,z:PARK.z}];
-  const services=createServices({THREE,scene,ROADS,makeCarModel,getFront:v=>fronts[v],pushOut,P,car,cars,destinations:DESTS,toast});
+  const services=createServices({THREE,scene,ROADS,makeCarModel,getFront:v=>fronts[v],pushOut,P,getCar:()=>car,cars,destinations:DESTS,toast,policeSpot:{x:GA.park.x-7,z:GA.park.z+4}});
   /* ---------- Super Benz engine, speedometer and phone ---------- */
   let engineOn=true,units='kmh';
   const engine=createEngine();
@@ -681,7 +692,7 @@ function create(){
   const dist=d=>Math.hypot(d.x-P.x,d.z-P.z);
   const phone=createPhone({host:toastEl.parentElement,
     getState:()=>{const g=gearRpm(Math.abs(car.v),0);const nn=nearestNpc(60);const hr=new Date().getHours();return{
-      greet:hr<12?'Good morning':hr<18?'Good afternoon':'Good evening',
+      greet:hr<12?'Good morning':hr<18?'Good afternoon':'Good evening',vehicle:VEHICLES.find(v=>v.car===car).name,
       kmh:Math.round(Math.abs(car.v)*10),gear:g.gear,sound:engineOn,units,nearby:nn?nn.name:null,msgs:msgLog,pos:{x:P.x,z:P.z},
       places:DESTS.map(d=>({name:d.name,d:dist(d),x:d.x,z:d.z})),
       destinations:DESTS.map(d=>({name:d.name,d:dist(d),fare:Math.round(10+dist(d)*.15)})),
@@ -759,7 +770,7 @@ function create(){
     if(P.bub){P.bt-=dt;if(P.bt<=0)clearBub(P)}
     // prompts: nearest special door
     curSpot=null;let bd=9;for(const key in specials){const s=specials[key],d=Math.hypot(P.x-s.x,P.z-s.z);if(d<bd&&P.y<26){bd=d;curSpot=s}}
-    if(!car.on&&!P.riding){const d=Math.hypot(P.x-car.x,P.z-car.z);if(d<6&&P.y<2){curSpot={x:car.x,z:car.z,label:'DRIVE BENZ',act:enterCar}}}
+    if(!car.on&&!P.riding){for(const v of VEHICLES){if(v.car.on)continue;const d=Math.hypot(P.x-v.car.x,P.z-v.car.z);if(d<6&&P.y<2){curSpot={x:v.car.x,z:v.car.z,label:v.label,act:()=>{selectVehicle(v);enterCar()}};break}}}
     if(car.on)curSpot={x:car.x,z:car.z,label:'EXIT BENZ',act:exitCar};
     if(!curSpot&&hs.inside&&!P.riding){const ed=Math.hypot(P.x-HS.E.x,P.z-HS.E.z);if(ed<7&&Math.abs(P.y-HS.FY[hs.pf<3?hs.pf:0])<1.3&&!(HS.E.floor===hs.pf&&HS.E.state==='open')){const f=hs.pf;curSpot={x:HS.E.x,z:HS.E.z,label:'CALL ELEVATOR',act:()=>HS.go(f)}}}
     if(curSpot&&!going&&!menu.classList.contains('on')){promptEl.textContent=(matchMedia('(pointer:coarse)').matches?'TAP · ':'F · ')+curSpot.label;promptEl.classList.add('on')}else promptEl.classList.remove('on');

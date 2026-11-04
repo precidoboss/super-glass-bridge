@@ -3,7 +3,7 @@
 export function createPhone({host,getState,act}){
   const style=document.createElement('style');
   style.textContent=`
-#twPhone{position:absolute;right:18px;bottom:18px;width:290px;height:580px;padding:10px;border-radius:44px;background:linear-gradient(160deg,#2a3440,#0b1016);box-shadow:0 24px 60px rgba(0,0,0,.65),inset 0 0 0 2px #3c4a57;display:none;flex-direction:column;z-index:40;font-family:-apple-system,system-ui,sans-serif;color:#f1f6f3;user-select:none}
+#twPhone{position:absolute;right:18px;bottom:60px;width:290px;height:580px;padding:10px;border-radius:44px;background:linear-gradient(160deg,#2a3440,#0b1016);box-shadow:0 24px 60px rgba(0,0,0,.65),inset 0 0 0 2px #3c4a57;display:none;flex-direction:column;z-index:40;font-family:-apple-system,system-ui,sans-serif;color:#f1f6f3;user-select:none}
 #twPhone .glass{flex:1;position:relative;border-radius:34px;overflow:hidden;background:radial-gradient(120% 80% at 80% 0%,#1d4a3d 0%,#0c1f19 45%,#05100c 100%);display:flex;flex-direction:column}
 #twPhone .status{display:flex;justify-content:space-between;align-items:center;padding:14px 22px 4px;font-size:12px;font-weight:700}
 #twPhone .notch{position:absolute;left:50%;top:8px;transform:translateX(-50%);width:92px;height:24px;background:#000;border-radius:14px}
@@ -33,7 +33,7 @@ export function createPhone({host,getState,act}){
 #twPhone .hdr h2{margin:0;font-size:20px;font-weight:800}
 #twPhone .home-bar{height:22px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px}
 #twPhone .home-bar i{width:110px;height:4px;border-radius:2px;background:rgba(255,255,255,.7)}
-#twPhoneBtn{position:absolute;right:18px;bottom:18px;z-index:39;background:linear-gradient(135deg,#c8ff43,#7ddc1f);color:#0b1410;border:0;border-radius:18px;padding:10px 14px;font-size:12px;font-weight:800;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+#twPhoneBtn{position:absolute;left:22px;bottom:16px;z-index:39;background:linear-gradient(135deg,#c8ff43,#7ddc1f);color:#0b1410;border:0;border-radius:18px;padding:10px 14px;font-size:12px;font-weight:800;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.4)}
 #twPhoneToast{position:absolute;top:44px;left:12px;right:12px;padding:10px 12px;border-radius:16px;background:rgba(20,30,26,.92);font-size:12px;font-weight:600;transform:translateY(-140%);transition:transform .3s;z-index:2}
 #twPhoneToast.on{transform:translateY(0)}`;
   document.head.appendChild(style);

@@ -100,7 +100,7 @@ export function makeVenue({THREE,scene,labelSprite,B,cx,cz,kind='restaurant',tit
     // customer bar with stools and a bottle shelf on the right wall
     box(root,12,1.1,1.5,woodM,5,0,D/2-4.2);box(root,12.4,.12,1.9,darkM,5,1.1,D/2-4.2);col(5,D/2-4.2,12,1.5,1.1);
     box(root,12,.05,.12,basic(0xffc83d,1.4),5,1.2,D/2-3.4);
-    for(let i=0;i<5;i++)prop('stoolBar',-.5+i*2.5,0,D/2-2.5,{s:1.74});
+    for(let i=0;i<5;i++){cyl(root,.32,.32,.1,cushM,-.5+i*2.5,.75,D/2-2.5);cyl(root,.06,.06,.75,steelM,-.5+i*2.5,0,D/2-2.5)}
     box(root,.4,2.2,6,darkM,W/2-.3,1,-4);
     const bottleCols=[0x7bff3a,0xff6b8a,0x4dd2ff,0xffc83d,0xb08cff];
     for(let i=0;i<3;i++)for(let j=0;j<5;j++)box(root,.25,.6,.25,basic(bottleCols[(i+j)%5],.9),W/2-.4,1+i*.7+.2,-6+j*1.1);
@@ -121,9 +121,9 @@ export function makeVenue({THREE,scene,labelSprite,B,cx,cz,kind='restaurant',tit
     }
     // round tables with four chairs each
     for(const [x,z] of[[-2,-4],[-2,2],[7,-4.5],[7,1.5],[2,-.5]]){
-      prop('tableRound',x,0,z,{s:2.5});col(x,z,2.0,2.0,1);
-      for(const [dx,dz] of[[1.45,0],[-1.45,0],[0,1.45],[0,-1.45]]){
-        prop('chairRounded',x+dx,0,z+dz,{s:2.1,ry:Math.atan2(-dx,-dz)});
+      cyl(root,1.1,1.1,.08,woodM,x,.75,z);cyl(root,.12,.12,.75,darkM,x,0,z);col(x,z,1.5,1.5,1);
+      for(const [dx,dz] of[[1.2,0],[-1.2,0],[0,1.2],[0,-1.2]]){
+        cyl(root,.36,.36,.08,cushM,x+dx,.45,z+dz);cyl(root,.05,.05,.45,darkM,x+dx,0,z+dz);
         seats.push({x:x+dx,z:z+dz,table:{x,z},c:null,food:false});
       }
       sph(root,.3,warm,x,H-1.6,z);box(root,.05,1.2,.05,darkM,x,H-2.8,z);
@@ -131,8 +131,8 @@ export function makeVenue({THREE,scene,labelSprite,B,cx,cz,kind='restaurant',tit
     // plates for every seat, shown while a customer is eating
     for(const s of seats){
       const px=s.table.x+(s.x-s.table.x)*.55,pz=s.table.z+(s.z-s.table.z)*.55;
-      s.plate=prop('plate-dinner',px,.8,pz,{s:.34});
-      s.foodMesh=prop('burger',px,.84,pz,{s:.45});s.plate.visible=false;s.foodMesh.visible=false;
+      s.plate=cyl(root,.3,.3,.04,plateM,px,.82,pz);
+      s.foodMesh=sph(root,.12,foodM,px,.9,pz);s.plate.visible=false;s.foodMesh.visible=false;
     }
     // chandelier, plants, neon, OPEN light
     sph(root,.8,warm,0,H-1.2,0);for(let i=0;i<6;i++){const a=i/6*6.283;sph(root,.2,warm,Math.cos(a)*1.1,H-1.3,Math.sin(a)*1.1)}
@@ -206,8 +206,7 @@ export function makeVenue({THREE,scene,labelSprite,B,cx,cz,kind='restaurant',tit
       decor.push({job:'cook',role:kiosks[i].split(' ')[0]+' COOK',variant:(i+3)%7+1,zone:[x-.8,x+.8,D/2-3.6,D/2-2.6],spd:.3,station:[x,D/2-2.4]});
     });
     for(const [x,z] of[[-10,D/2-7],[-3,D/2-7],[4,D/2-7]]){
-      prop('tableRound',x,0,z,{s:3});col(x,z,2.4,2.4,1);
-      for(const [dx,dz] of[[1.6,0],[-1.6,0],[0,1.6],[0,-1.6]])prop('chairRounded',x+dx,0,z+dz,{s:2.1,ry:Math.atan2(-dx,-dz)});
+      cyl(root,1.5,1.5,.08,woodM,x,.75,z);cyl(root,.14,.14,.75,darkM,x,0,z);col(x,z,2.4,2.4,1);
     }
     // escalator (visual), info desk, gallery rail, pillars, banners
     box(root,4,.5,7,steelM,W/2-7,0,-D/2+8);
