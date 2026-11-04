@@ -102,7 +102,7 @@ export function makeOffice({THREE,scene,labelSprite,B,cx=18,cz=56,title='PRESIDE
   const CZ=DZ+2.0;box(room,1.3,.28,1.2,leatherBlk,0,.62,CZ);box(room,1.3,1.9,.3,leatherBlk,0,.62,CZ+.6);cyl(room,.07,.07,.65,gold,0,0,CZ);cyl(room,.5,.5,.06,dark,0,0,CZ,6);
   for(const s of[-1,1])box(room,.14,.34,.9,leatherBlk,s*.7,.9,CZ);
   /* ---------- the MacBook on the desk: WORK TO DO on its screen; each sign-off ticks a task ---------- */
-  const TASKS=[['Sign the park fund memo',false],['Approve the Super School budget',false],['Review the $SUPER treasury report',false],['Sign the police patrol order',false]];
+  const TASKS=[['Park fund memo',false],['School budget',false],['Treasury report',false],['Police patrol order',false]];
   const lc=document.createElement('canvas');lc.width=1024;lc.height=640;const lg=lc.getContext('2d');
   const lt=new THREE.CanvasTexture(lc);lt.colorSpace=THREE.SRGBColorSpace;
   function drawLaptop(){
@@ -129,9 +129,9 @@ export function makeOffice({THREE,scene,labelSprite,B,cx=18,cz=56,title='PRESIDE
     lt.needsUpdate=true;
   }
   drawLaptop();
-  function work(){
-    const next=TASKS.find(t=>!t[1]);
-    if(!next)return 'ALL SIGNED · GOOD WORK, MR. PRESIDENT';
+  function work(name){
+    const next=name?TASKS.find(t=>t[0]===name&&!t[1]):TASKS.find(t=>!t[1]);
+    if(!next)return name?'ALREADY SIGNED · '+name:'ALL SIGNED · GOOD WORK, MR. PRESIDENT';
     next[1]=true;drawLaptop();
     return 'SIGNED · '+next[0];
   }

@@ -19,6 +19,7 @@ import {createServices} from './services.js';
 import {makePoliceStation} from './police.js';
 import {makeSchool} from './school.js';
 import {makeNightclub} from './nightclub.js';
+import {createLaptop} from './laptop.js';
 import {makeParkingLot} from './design.js';
 
 /* ===================== SUPER TOWN =====================
@@ -211,10 +212,38 @@ function create(){
   specials.exchange={x:EX.x,z:EX.z+EX.d/2+3.5,label:'$SUPER EXCHANGE · OPEN THE LIVE CHART',act:()=>window.open(DEX_URL,'_blank','noopener')};
   /* ---------- OFFICE OF THE PRESIDENT (north-east block, front door on the main street) ---------- */
   const OF=makeOffice({THREE,scene,labelSprite,B,cx:18,cz:56,title:'PRESIDENT CRYPTO',getFront:v=>fronts[v]});
+  // two cop cars on standby on the President's forecourt, with light bars that flash when dispatched
+  const COPS=[];let copAlarm=0;
+  for(const sx of[-7.8,7.8]){
+    const cc=makeCarModel(0x1e4fa3,'sedan');cc.position.set(18+sx,0,43);scene.add(cc);
+    const red=new THREE.Mesh(new THREE.BoxGeometry(.5,.22,.3),new THREE.MeshBasicMaterial({color:0xff2e2e}));red.position.set(-.3,1.7,0);cc.add(red);
+    const blue=new THREE.Mesh(new THREE.BoxGeometry(.5,.22,.3),new THREE.MeshBasicMaterial({color:0x2e6bff}));blue.position.set(.3,1.7,0);cc.add(blue);
+    B.push({x:18+sx,z:43,hw:1,hd:2.3,h:1.6,name:null});COPS.push({red,blue});
+  }
+  function copUpdate(dt,time){
+    copAlarm=Math.max(0,copAlarm-dt);
+    const flash=copAlarm>0?Math.floor(time*6)%2:Math.floor(time*1.2)%2;
+    for(const c of COPS){c.red.material.color.setHex(flash?0xff2e2e:0x330000);c.blue.material.color.setHex(flash?0x330000:0x2e6bff)}
+  }
+  // a town news billboard on the plaza corner: a ticker that cycles headlines
+  {const bc=document.createElement('canvas');bc.width=768;bc.height=256;const bg=bc.getContext('2d');const bt=new THREE.CanvasTexture(bc);bt.colorSpace=THREE.SRGBColorSpace;
+   const HEAD=['$SUPER UP 2.1% TODAY · SIMULATED','PRESIDENT SIGNS THE PARK FUND MEMO','SUPER SCHOOL OPENS NEW LIBRARY SHELVES','SUPER CLUB OPENS LATE THIS WEEKEND','SUPER DINER SPECIAL: SUPER BURGER + SHAKE'];
+   let hi=0;const drawB=()=>{bg.fillStyle='#06120c';bg.fillRect(0,0,768,256);bg.fillStyle='#c8ff43';bg.font='bold 34px sans-serif';bg.textAlign='center';bg.fillText('SUPER TOWN NEWS',384,70);bg.fillStyle='#e9f6ea';bg.font='bold 38px sans-serif';bg.fillText(HEAD[hi%HEAD.length],384,150);bg.fillStyle='#ff2e88';bg.fillRect(0,214,768,8);bt.needsUpdate=true};
+   drawB();setInterval(()=>{hi++;drawB()},4000);
+   const panel=new THREE.Mesh(new THREE.PlaneGeometry(6,2),new THREE.MeshBasicMaterial({map:bt,side:THREE.DoubleSide}));panel.position.set(7,6.5,7);scene.add(panel);
+   const post=new THREE.Mesh(new THREE.CylinderGeometry(.18,.25,5.5,8),new THREE.MeshStandardMaterial({color:0x2a3035,metalness:.6}));post.position.set(7,2.75,7);scene.add(post);
+   B.push({x:7,z:7,hw:.4,hd:.4,h:6,name:null});}
   const GA=makeGarage({THREE,scene,labelSprite,B});   // Super Home garage (west annex, door on the north street)
   specials.officeDoor={x:OF.door.x,z:OF.door.z,label:"OFFICE OF THE PRESIDENT · WALK IN",act:()=>{P.mode='walk';P.x=OF.lobby.x;P.z=OF.lobby.z;P.y=0;P.vx=P.vy=P.vz=0;yaw=Math.PI;pitch=.34;camD=8;toast('WELCOME, MR. PRESIDENT')}};
   specials.officeDesk={x:OF.desk.x,z:OF.desk.z,label:"PRESIDENT'S DESK · TAKE YOUR SEAT",act:()=>{P.mode='walk';P.x=OF.seat.x;P.z=OF.seat.z;P.y=0;P.vx=P.vy=P.vz=0;yaw=0;pitch=.3;camD=6;toast('SEATED · OFFICE OF THE PRESIDENT')}};
-  specials.officeLaptop={x:OF.laptop.x,z:OF.laptop.z,label:'MACBOOK · WORK TO DO',act:()=>toast(OF.work())};
+  specials.officeLaptop={x:OF.laptop.x,z:OF.laptop.z,label:'MACBOOK · OPEN THE PRESIDENT\'S LAPTOP',act:()=>LAPTOP.open()};
+  // the MacBook: zooms in and takes the President's work (documents, mail, calendar, treasury, dispatch, security, press, notes)
+  const LAPTOP=createLaptop({toast:m=>toast(m),onEffect:(type,v)=>{
+    if(type==='sign')toast(OF.work(v));
+    else if(type==='cop'){copAlarm=8;toast('COP CAR '+v+' DISPATCHED · lights on')}
+    else if(type==='bodyguard')services.guardToggle();
+    else if(type==='lockdown')copAlarm=4;
+  }});
   // the eastern district: a walk-in diner and a shopping mall (staff use the resident sprite sheets)
   const venueFront=v=>fronts[v];
   const KIT=loadKit(THREE);
@@ -683,12 +712,16 @@ function create(){
   const mapC=$('#twMap'),mx=mapC.getContext('2d'),mapBase=document.createElement('canvas');mapBase.width=mapBase.height=150;
   {const x=mapBase.getContext('2d'),S=75/ISL;x.fillStyle='#04100a';x.fillRect(0,0,150,150);x.beginPath();x.arc(75,75,73,0,6.283);x.fillStyle='#0b2416';x.fill();x.strokeStyle='#7ddc1f';x.lineWidth=2;x.stroke();x.fillStyle='#14281d';for(const c of ROADS){x.fillRect(75-ISL*S,75+c*S-RW*S/2,ISL*S*2,RW*S);x.fillRect(75+c*S-RW*S/2,75-ISL*S,RW*S,ISL*S*2)}
    for(const b of B){x.fillStyle=b.name?'#d4ff3a':'#3d6a4a';x.fillRect(75+(b.x-b.hw)*S,75+(b.z-b.hd)*S,b.hw*2*S,b.hd*2*S)}}
+  // minimap icons: a badge on each building so you know where to go
+  {const x=mapBase.getContext('2d'),S=75/ISL;
+   const ICONS=[[18,56,'PO','#d9b24a'],[-54,18,'HM','#c8ff43'],[-73.2,19,'GA','#c8ff43'],[-18,-18,'HQ','#c8ff43'],[18,-18,'AR','#c8ff43'],[-18,18,'DK','#4dd2ff'],[18,18,'EX','#ffc83d'],[74,22,'DI','#ff6b8a'],[84,-16,'ML','#4dd2ff'],[-88,-18,'PD','#4dd2ff'],[-62,60,'SC','#f2c84b'],[62,64,'CL','#ff2e88'],[7,7,'NW','#c8ff43']];
+   for(const [bx,bz,lab,c] of ICONS){const px=75+bx*S,pz=75+bz*S;x.beginPath();x.arc(px,pz,6,0,6.283);x.fillStyle='#0b2416';x.fill();x.strokeStyle=c;x.lineWidth=1.5;x.stroke();x.fillStyle=c;x.font='bold 6px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(lab,px,pz+.3)}}
   let mapT=0;function drawMap(dt){mapT-=dt;if(mapT>0)return;mapT=.1;const S=75/ISL;mx.drawImage(mapBase,0,0);
     for(const n of npcs){mx.fillStyle=n.kind==='fly'?'#4dd2ff':'#e9f6ea';mx.fillRect(75+n.x*S-1,75+n.z*S-1,2,2)}for(const c of cars){mx.fillStyle='#ff4d4f';mx.fillRect(75+c.g.position.x*S-1.5,75+c.g.position.z*S-1.5,3,3)}
     mx.save();mx.translate(75+P.x*S,75+P.z*S);mx.rotate(-yaw);mx.fillStyle='#d4ff3a';mx.beginPath();mx.moveTo(0,-6);mx.lineTo(4.5,5);mx.lineTo(-4.5,5);mx.closePath();mx.fill();mx.restore()}
 
   /* ---------- input ---------- */
-  const kd=e=>{if(!visible)return;
+  const kd=e=>{if(!visible||window.__laptopOpen)return;
     engine.resume();
     if(phone.isOpen()){if(e.target&&e.target.closest&&e.target.closest('#twPhone'))return;const k0=e.key.toLowerCase();if(k0==='p'||k0==='escape'){e.preventDefault();e.stopImmediatePropagation();phone.close()}else{e.stopImmediatePropagation()}return}
     if(typing)return;const k=e.key.toLowerCase();
@@ -763,7 +796,7 @@ function create(){
     pushOut(P,P.mode==='walk'?.8:1,P.y);
     updateCar(dt,cix,ciz,boost,keys.has(' ')&&!frozen);
     services.update(dt);
-    const hs=HS.step(dt,P,time);OF.update(dt,P,time);REST.update(dt,P,time);CLUB.update(dt,P,time);MALL.update(dt,P,time);GA.update(dt,P,time);
+    const hs=HS.step(dt,P,time);OF.update(dt,P,time);copUpdate(dt,time);REST.update(dt,P,time);CLUB.update(dt,P,time);MALL.update(dt,P,time);GA.update(dt,P,time);
     if(P.riding)P.floor=Math.round(HS.E.y/HS.FH);
     const inH2=HS.inHouse(P.x,P.z),roofOver=Math.abs(P.x-HS.HX0)<HS.hx+.6&&Math.abs(P.z-HS.HZ0)<HS.hz+.6;
     if(!inH2&&!(roofOver&&P.y>HS.TOP-1))P.floor=0;
