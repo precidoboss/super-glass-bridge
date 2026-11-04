@@ -225,10 +225,12 @@ function create(){
     const flash=copAlarm>0?Math.floor(time*6)%2:Math.floor(time*1.2)%2;
     for(const c of COPS){c.red.material.color.setHex(flash?0xff2e2e:0x330000);c.blue.material.color.setHex(flash?0x330000:0x2e6bff)}
   }
-  // a town news billboard on the plaza corner: a ticker that cycles headlines
+  // a town news billboard on the plaza corner: a ticker that cycles headlines (the MacBook's press office can push a headline)
+  const NEWS={};
   {const bc=document.createElement('canvas');bc.width=768;bc.height=256;const bg=bc.getContext('2d');const bt=new THREE.CanvasTexture(bc);bt.colorSpace=THREE.SRGBColorSpace;
    const HEAD=['$SUPER UP 2.1% TODAY · SIMULATED','PRESIDENT SIGNS THE PARK FUND MEMO','SUPER SCHOOL OPENS NEW LIBRARY SHELVES','SUPER CLUB OPENS LATE THIS WEEKEND','SUPER DINER SPECIAL: SUPER BURGER + SHAKE'];
-   let hi=0;const drawB=()=>{bg.fillStyle='#06120c';bg.fillRect(0,0,768,256);bg.fillStyle='#c8ff43';bg.font='bold 34px sans-serif';bg.textAlign='center';bg.fillText('SUPER TOWN NEWS',384,70);bg.fillStyle='#e9f6ea';bg.font='bold 38px sans-serif';bg.fillText(HEAD[hi%HEAD.length],384,150);bg.fillStyle='#ff2e88';bg.fillRect(0,214,768,8);bt.needsUpdate=true};
+   let hi=0;NEWS.push=(line)=>{HEAD.unshift(String(line).toUpperCase().slice(0,44));hi=0;drawB()};
+   const drawB=()=>{bg.fillStyle='#06120c';bg.fillRect(0,0,768,256);bg.fillStyle='#c8ff43';bg.font='bold 34px sans-serif';bg.textAlign='center';bg.fillText('SUPER TOWN NEWS',384,70);bg.fillStyle='#e9f6ea';bg.font='bold 38px sans-serif';bg.fillText(HEAD[hi%HEAD.length],384,150);bg.fillStyle='#ff2e88';bg.fillRect(0,214,768,8);bt.needsUpdate=true};
    drawB();setInterval(()=>{hi++;drawB()},4000);
    const panel=new THREE.Mesh(new THREE.PlaneGeometry(6,2),new THREE.MeshBasicMaterial({map:bt,side:THREE.DoubleSide}));panel.position.set(7,6.5,7);scene.add(panel);
    const post=new THREE.Mesh(new THREE.CylinderGeometry(.18,.25,5.5,8),new THREE.MeshStandardMaterial({color:0x2a3035,metalness:.6}));post.position.set(7,2.75,7);scene.add(post);
@@ -242,7 +244,14 @@ function create(){
     if(type==='sign')toast(OF.work(v));
     else if(type==='cop'){copAlarm=8;toast('COP CAR '+v+' DISPATCHED · lights on')}
     else if(type==='bodyguard')services.guardToggle();
-    else if(type==='lockdown')copAlarm=4;
+    else if(type==='lockdown'){copAlarm=4;toast('OFFICE LOCKDOWN · STAFF NOTIFIED')}
+    else if(type==='patrol'){copAlarm=5;toast('PATROL HEADING TO '+String(v).toUpperCase())}
+    else if(type==='mail'){toast((v.good?'APPROVED':'DECLINED')+' · MAIL ANSWERED')}
+    else if(type==='budget')toast('TOWN BUDGET · PARK '+v.park+'% · SCHOOL '+v.school+'% · POLICE '+v.police+'% · NIGHTLIFE '+v.club+'%');
+    else if(type==='cabinet')toast('CABINET · '+(v.passed?'PASSED':'REJECTED')+': '+v.title);
+    else if(type==='press'){NEWS.push?.(v);toast('PRESS · '+String(v).slice(0,60))}
+    else if(type==='speech'){NEWS.push?.('PRESIDENT: '+v);toast('PRESIDENT SPEAKS · '+v.slice(0,60))}
+    else if(type==='lock'){copAlarm=v.on?6:0;toast(v.on?'CAMERA BUILDING LOCKED DOWN':'LOCKDOWN LIFTED')}
   }});
   // the eastern district: a walk-in diner and a shopping mall (staff use the resident sprite sheets)
   const venueFront=v=>fronts[v];
