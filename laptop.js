@@ -8,7 +8,9 @@
    aloud), and Notes. Approval moves with your choices. Escape closes the laptop. The game's own keys are
    ignored while it is open. Everything is for play: no real money or accounts are involved. */
 
-export function createLaptop({toast=()=>{},onEffect=()=>{}}={}){
+export function createLaptop({toast=()=>{},onEffect=()=>{},getJet=null}={}){
+  // the jet's state comes from the hangar itself (getJet), so the MacBook always shows what is really happening
+  const jetNow=()=>getJet?getJet():S.jet;
   const css=`
   #pl{position:fixed;inset:0;z-index:9000;display:none;align-items:center;justify-content:center;background:rgba(3,6,8,.9);font-family:-apple-system,system-ui,Segoe UI,sans-serif;color:#e9eef5}
   #pl.on{display:flex}
@@ -90,7 +92,7 @@ export function createLaptop({toast=()=>{},onEffect=()=>{}}={}){
 
   /* ---------- the live treasury: the price moves while the laptop is open ---------- */
   let marketT=null;
-  function tickMarket(){const last=S.price[S.price.length-1];S.price.push(clamp(last+(Math.random()-.5)*4,70,140));S.price.shift();if(S.app==='treasury')render()}
+  function tickMarket(){const last=S.price[S.price.length-1];S.price.push(clamp(last+(Math.random()-.5)*4,70,140));S.price.shift();if(S.app==='treasury'||S.app==='hangar')render()}
 
   const side=root.querySelector('#plSide'),view=root.querySelector('#plView'),dock=root.querySelector('#plDock');
   function renderChrome(){
@@ -150,10 +152,12 @@ export function createLaptop({toast=()=>{},onEffect=()=>{}}={}){
         <div class="card"><b>Office lockdown</b><div class="row"><button class="r" data-act="lockdown">Lock the office</button></div></div>`;
     },
     hangar(){
-      const st={ready:'Ready for flight',fuelling:'Being fuelled',flying:'In the air',landed:'Landed'}[S.jet];
+      const j=jetNow();
+      const st={ready:'Ready for flight',fuelling:'Being fuelled',flying:'In the air',landed:'Landed in the hangar'}[j]||j;
+      const ready=j==='ready'||j==='landed';
       view.innerHTML=`<h2>Airport hangar</h2><div class="card"><b>Super One</b> · the President's private jet<div class="muted">Status: ${st}</div>
-        <div class="row"><button class="b" data-act="jetFuel" ${S.jet==='ready'||S.jet==='landed'?'':'disabled'}>Fuel up</button><button class="b" data-act="jetFly" ${S.jet==='ready'?'':'disabled'}>Take off to the club</button></div></div>
-        <div class="card muted">Fuel takes a few seconds. The jet flies a short loop and lands back in the hangar.</div>`;
+        <div class="row"><button class="b" data-act="jetFuel" ${ready?'':'disabled'}>Fuel up</button><button class="b" data-act="jetFly" ${ready?'':'disabled'}>Fly the loop</button></div></div>
+        <div class="card muted">Fuel takes a few seconds. The jet taxis to the runway, takes off west to east over the West Bridge, loops over the town, and lands back at the hangar.</div>`;
     },
     cctv(){
       view.innerHTML=`<h2>Security</h2><div class="muted">Camera tiles · simulated feeds</div><div class="grid">`+CCTV.map((c,i)=>`<div class="tile ${S.cctvLock[i]?'lk':''}" data-act="cam" data-i="${i}"><b>${esc(c[0])}</b>${S.cctvLock[i]?' · LOCKED':''}<div>${esc(c[1])}</div></div>`).join('')+`</div>
@@ -202,8 +206,8 @@ export function createLaptop({toast=()=>{},onEffect=()=>{}}={}){
     if(a==='patrol'){onEffect('patrol',el.dataset.arg);S.patrol='patrol heading to '+el.dataset.arg;toast('Patrol sent to '+el.dataset.arg);render();return}
     if(a==='bodyguard'){onEffect('bodyguard');toast('Bodyguard call toggled');return}
     if(a==='lockdown'){onEffect('lockdown');toast('Office locked down · staff notified');return}
-    if(a==='jetFuel'){if(S.jet==='flying')return;S.jet='fuelling';onEffect('jet','fuelling');render();setTimeout(()=>{S.jet='ready';if(root.classList.contains('on')&&S.app==='hangar')render()},3000);toast('Fuelling the Super One');return}
-    if(a==='jetFly'){if(S.jet!=='ready')return;S.jet='flying';onEffect('jet','flying');toast('Super One takes off');render();setTimeout(()=>{S.jet='landed';onEffect('jet','landed');if(root.classList.contains('on')&&S.app==='hangar')render()},6000);return}
+    if(a==='jetFuel'){const j=jetNow();if(j!=='ready'&&j!=='landed')return;onEffect('jet','fuelling');toast('Fuelling the Super One');render();return}
+    if(a==='jetFly'){const j=jetNow();if(j!=='ready'&&j!=='landed')return;onEffect('jet','flying');toast('Super One is taxiing to the runway');render();return}
     if(a==='cam'){S.cctvSel=+el.dataset.i;render();return}
     if(a==='lockCam'){const i=+el.dataset.i;S.cctvLock[i]=!S.cctvLock[i];onEffect('lock',{i,on:S.cctvLock[i]});toast(S.cctvLock[i]?'Building locked down':'Lockdown lifted');render();return}
     if(a==='tpl'){const ta=root.querySelector('#plPress');if(ta)ta.value=TPL[+el.dataset.t];return}

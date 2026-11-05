@@ -10,7 +10,7 @@ import {kit,makeWorkers} from './design.js';
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 
-export function makeHangar({THREE,scene,labelSprite,B,cx=-18,cz=-70,getFront=()=>null}){
+export function makeHangar({THREE,scene,labelSprite,B,cx=-240,cz=-40,getFront=()=>null}){
   const W=25,D=30,WALLH=8,DW=12,DH=9;           // footprint, wall height, door width and height
   const R=W/2,HW=W/2,HD=D/2;                      // the arch radius is half the width
   const k=kit(THREE);
@@ -119,6 +119,13 @@ export function makeHangar({THREE,scene,labelSprite,B,cx=-18,cz=-70,getFront=()=
 
   /* ---------- the jet's state ---------- */
   let jstate='ready',tFly=0,fuelT=0;
+  // the flight route in world space: [x, z, altitude]. It starts and ends at the parking place.
+  const FLY_T=26;
+  const ROUTE=[
+    [cx,cz+parkZ,0],[cx,cz+HD+4.5,0],[cx,44,0],[-292,44,0],[-200,44,0],[-150,44,20],
+    [-60,44,46],[-18,14,60],[40,-30,52],[-30,-72,40],[-110,-20,30],[-170,44,14],[-200,44,0],
+    [cx,44,0],[cx,cz+HD+4.5,0],[cx,cz+parkZ,0]
+  ];
   function setJet(v){
     if(v==='fuelling'){jstate='fuelling';fuelT=0}
     else if(v==='flying'){if(jstate==='flying')return;jstate='flying';tFly=0}
@@ -162,16 +169,15 @@ export function makeHangar({THREE,scene,labelSprite,B,cx=-18,cz=-70,getFront=()=
       const target=fuelling?truckFuel:truckPark;
       truck.position.x+=(target.x-truck.position.x)*Math.min(1,dt*2.2);
       truck.position.z+=(target.z-truck.position.z)*Math.min(1,dt*2.2);
-      // the flight: out through the door, a loop over the town, and back to the parking place
+      // the flight: taxi out, take off down the runway, loop over the bridge and the town, land, and taxi back
       if(jstate==='flying'){
-        tFly+=dt;const u=Math.min(1,tFly/6);
-        const s=Math.sin(u*Math.PI);
-        const x=6*Math.sin(u*Math.PI*2);
-        const z=parkZ+s*(HD+22);
-        jet.position.set(x,s*9,z);
-        const dx=12*Math.PI*Math.cos(u*Math.PI*2),dz=(HD+22)*Math.PI*Math.cos(u*Math.PI);
-        jet.rotation.y=Math.atan2(dx,dz);
-        if(u>=1){jstate='landed';jet.position.set(0,0,parkZ);jet.rotation.y=0}
+        tFly+=dt;const T=FLY_T,n=ROUTE.length-1;
+        const f=Math.min(.99999,tFly/T)*n,i=Math.floor(f),u=f-i;
+        const a=ROUTE[i],b=ROUTE[i+1],e=u*u*(3-2*u);      // ease in and out of each leg
+        const wx=a[0]+(b[0]-a[0])*e,wz=a[1]+(b[1]-a[1])*e,wy=a[2]+(b[2]-a[2])*e;
+        jet.position.set(wx-cx,wy,wz-cz);
+        jet.rotation.y=Math.atan2(b[0]-a[0],b[1]-a[1]);
+        if(tFly>=T){jstate='landed';jet.position.set(0,0,parkZ);jet.rotation.y=0}
       }else{
         jet.position.set(0,0,parkZ);
         jet.rotation.y=0;

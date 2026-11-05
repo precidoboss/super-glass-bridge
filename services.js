@@ -5,10 +5,19 @@
 export function createServices({THREE,scene,ROADS,makeCarModel,getFront,pushOut,P,getCar,cars,destinations,toast,policeSpot,traffic}){
   const snap=v=>{let b=ROADS[0],bd=Infinity;for(const r of ROADS){const d=Math.abs(v-r);if(d<bd){bd=d;b=r}}return b};
   // route on the road grid: straight to the nearest crossing, along the grid, then to the target
+  // the West Bridge leaves the island at x=-100 and runs along z=0 to the airport, so anything west of the gate goes that way
+  const GATE=-100;
+  const west=p=>p.x<GATE;
   function routeTo(a,b){
+    if(west(a)&&west(b)){return dedupe([{x:a.x,z:0},{x:b.x,z:0},{x:b.x,z:b.z}],{x:a.x,z:a.z})}
+    if(west(a)){return dedupe([{x:a.x,z:0},{x:GATE,z:0},...routeTo({x:GATE,z:0},b)],{x:a.x,z:a.z})}
+    if(west(b)){return dedupe([...routeTo(a,{x:GATE,z:0}),{x:GATE,z:0},{x:b.x,z:0},{x:b.x,z:b.z}],{x:a.x,z:a.z})}
     const ia={x:snap(a.x),z:snap(a.z)},ib={x:snap(b.x),z:snap(b.z)};
     const pts=[ia,{x:ib.x,z:ia.z},{x:ib.x,z:ib.z},{x:b.x,z:b.z}];
-    const out=[];for(const p of pts){const l=out[out.length-1];if(!l||Math.hypot(p.x-l.x,p.z-l.z)>.3)out.push({x:p.x,z:p.z})}
+    return dedupe(pts,null);
+  }
+  function dedupe(pts,start){
+    const out=[];let l=start;for(const p of pts){if(!l||Math.hypot(p.x-l.x,p.z-l.z)>.3)out.push({x:p.x,z:p.z});l=out[out.length-1]}
     return out;
   }
   // how fast an object may go right now: slow for cars ahead, stop at red lights and for people on a crosswalk

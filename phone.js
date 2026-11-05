@@ -179,7 +179,7 @@ export function createPhone({host,getState,act}){
       const canFly=j==='ready'||j==='landed';
       return `${hdr('Flights')}<div class="card" style="text-align:center"><div style="font-size:40px">✈️</div><div class="v">SUPER ONE</div><small style="opacity:.7">The President's private jet · ${names[j]||j}</small>
         <div style="margin-top:12px"><button class="btn ghost" data-act="jet-fuel" ${j==='ready'||j==='landed'?'':'disabled'}>Fuel up</button> <button class="btn" data-act="jet-fly" ${canFly?'':'disabled'}>Fly the loop</button></div></div>
-        <small style="opacity:.6">Takes off from the airport hangar in the south-west, loops over the town, and lands back in the hangar.</small>`;
+        <small style="opacity:.6">Taxis out of the hangar, takes off on the airport runway, crosses the West Bridge, loops over the town and lands back home.</small>`;
     },
     news(s){
       const list=newsList(s).map((h,i)=>`<div class="row"><div>${esc(h)}<small>Super Town News · ${i===0?'just now':i*4+' min ago'}</small></div></div>`).join('');

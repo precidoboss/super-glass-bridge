@@ -16,6 +16,8 @@ import {createEngine,gearRpm} from './audio.js';
 import {createSpeedo} from './speedo.js';
 import {createPhone} from './phone.js';
 import {makeHangar} from './hangar.js';
+import {makeBridge,BRIDGE} from './bridge.js';
+import {makeAirport,AIRPORT} from './airport.js';
 import {createServices} from './services.js';
 import {makePoliceStation} from './police.js';
 import {makeSchool} from './school.js';
@@ -139,16 +141,16 @@ function create(){
   const abyss=new THREE.Mesh(new THREE.PlaneGeometry(2400,2400),new THREE.ShaderMaterial({uniforms:U,vertexShader:`varying vec3 vW;void main(){vec4 w=modelMatrix*vec4(position,1.);vW=w.xyz;gl_Position=projectionMatrix*viewMatrix*w;}`,
     fragmentShader:`varying vec3 vW;uniform float time;void main(){vec2 p=vec2(vW.x,vW.z+time*2.)/6.;vec2 g=abs(fract(p-.5)-.5)/fwidth(p);float line=1.-min(min(g.x,g.y),1.);float d=length(vW.xz);vec3 col=vec3(.004,.02,.012)+vec3(.45,1.,.2)*line*(.12+.3*sin(d*.05-time))*exp(-d*.0028);col+=vec3(.02,.3,.1)*exp(-d*.006)*.5;gl_FragColor=vec4(col,1.);}`}));abyss.rotation.x=-Math.PI/2;abyss.position.y=-120;scene.add(abyss);
   const rockM=new THREE.MeshStandardMaterial({color:0x0d1a12,roughness:.95,flatShading:true});
-  {const n=110,im=new THREE.InstancedMesh(new THREE.CylinderGeometry(.55,1.2,1,6,1),rockM,n),d=new THREE.Object3D();for(let i=0;i<n;i++){const a=rnd(0,6.283),r=rnd(190,520),top=rnd(-100,40),h=top+130,w=rnd(8,22);d.position.set(Math.cos(a)*r,top-h/2,Math.sin(a)*r);d.scale.set(w,h,w);d.updateMatrix();im.setMatrixAt(i,d.matrix)}scene.add(im)}
-  {const cm=[new THREE.MeshBasicMaterial({color:new THREE.Color(.8,2.8,.4)}),redM];for(let i=0;i<60;i++){const c=new THREE.Mesh(new THREE.OctahedronGeometry(1),cm[i%2]),a=rnd(0,6.283),r=rnd(150,420);c.scale.set(rnd(.8,2),rnd(4,12),rnd(.8,2));c.position.set(Math.cos(a)*r,rnd(-80,10),Math.sin(a)*r);c.rotation.set(rnd(-.3,.3),Math.random()*6,rnd(-.3,.3));scene.add(c)}}
+  {const n=110,im=new THREE.InstancedMesh(new THREE.CylinderGeometry(.55,1.2,1,6,1),rockM,n),d=new THREE.Object3D();for(let i=0;i<n;i++){let a=rnd(0,6.283);if(Math.cos(a)<-.3)a+=Math.PI;const r=rnd(190,520),top=rnd(-100,40),h=top+130,w=rnd(8,22);d.position.set(Math.cos(a)*r,top-h/2,Math.sin(a)*r);d.scale.set(w,h,w);d.updateMatrix();im.setMatrixAt(i,d.matrix)}scene.add(im)}
+  {const cm=[new THREE.MeshBasicMaterial({color:new THREE.Color(.8,2.8,.4)}),redM];for(let i=0;i<60;i++){const c=new THREE.Mesh(new THREE.OctahedronGeometry(1),cm[i%2]),a0=rnd(0,6.283),r=rnd(150,420),a=Math.cos(a0)<-.3?a0+Math.PI:a0;c.scale.set(rnd(.8,2),rnd(4,12),rnd(.8,2));c.position.set(Math.cos(a)*r,rnd(-80,10),Math.sin(a)*r);c.rotation.set(rnd(-.3,.3),Math.random()*6,rnd(-.3,.3));scene.add(c)}}
   scene.add(new THREE.HemisphereLight(0x7fd08f,0x08120c,1.0));
   const moonL=new THREE.DirectionalLight(0xa6e8b8,1.9);moonL.position.set(-60,120,50);scene.add(moonL);
 
   /* ---------- the island: ground, roads, roundabout ---------- */
   {const g=new THREE.Mesh(new THREE.CircleGeometry(ISL,96),new THREE.ShaderMaterial({uniforms:U,vertexShader:`varying vec3 vW;void main(){vec4 w=modelMatrix*vec4(position,1.);vW=w.xyz;gl_Position=projectionMatrix*viewMatrix*w;}`,
      fragmentShader:`varying vec3 vW;uniform float time;void main(){vec2 p=vW.xz/3.;vec2 gr=abs(fract(p-.5)-.5)/fwidth(p);float line=1.-min(min(gr.x,gr.y),1.);float d=length(vW.xz);vec3 col=vec3(.012,.04,.024)+vec3(.3,.9,.2)*line*.07*(.6+.4*sin(d*.1-time*1.4));col+=vec3(.5,1.,.3)*smoothstep(104.,115.,d)*.35;gl_FragColor=vec4(col,1.);}`}));g.rotation.x=-Math.PI/2;scene.add(g);
-   const sk=new THREE.Mesh(new THREE.CylinderGeometry(ISL,ISL*.45,34,64,1,true),new THREE.MeshStandardMaterial({color:0x0f1e16,roughness:.5,metalness:.8,side:THREE.DoubleSide}));sk.position.y=-17;scene.add(sk);
-   const rim=new THREE.Mesh(new THREE.TorusGeometry(ISL,.5,8,160),limeM);rim.rotation.x=Math.PI/2;rim.position.y=.1;scene.add(rim);const rim2=new THREE.Mesh(new THREE.TorusGeometry(ISL-1.4,.2,8,160),redM);rim2.rotation.x=Math.PI/2;rim2.position.y=.1;scene.add(rim2);
+   const sk=new THREE.Mesh(new THREE.CylinderGeometry(ISL,ISL*.45,34,64,1,true,Math.PI*1.5+.06,Math.PI*2-.12),new THREE.MeshStandardMaterial({color:0x0f1e16,roughness:.5,metalness:.8,side:THREE.DoubleSide}));sk.position.y=-17;scene.add(sk);
+   const rim=new THREE.Mesh((()=>{const g=new THREE.TorusGeometry(ISL,.5,8,160,Math.PI*2-.12);g.rotateZ(Math.PI+.06);return g})(),limeM);rim.rotation.x=Math.PI/2;rim.position.y=.1;scene.add(rim);const rim2=new THREE.Mesh((()=>{const g=new THREE.TorusGeometry(ISL-1.4,.2,8,160,Math.PI*2-.12);g.rotateZ(Math.PI+.06);return g})(),redM);rim2.rotation.x=Math.PI/2;rim2.position.y=.1;scene.add(rim2);
    const eng=new THREE.Mesh(new THREE.ConeGeometry(30,26,24,1,true),new THREE.MeshBasicMaterial({color:new THREE.Color(.5,2.2,.9),transparent:true,opacity:.18,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide,fog:false}));eng.position.y=-48;eng.rotation.x=Math.PI;scene.add(eng)}
   const roadM=new THREE.MeshStandardMaterial({color:0x0b1410,roughness:.55,metalness:.4});
   for(const c of ROADS){const a=new THREE.Mesh(new THREE.BoxGeometry(ISL*1.88,.06,RW),roadM);a.position.set(0,.03,c);scene.add(a);const b=new THREE.Mesh(new THREE.BoxGeometry(RW,.06,ISL*1.88),roadM);b.position.set(c,.03,0);scene.add(b)}
@@ -237,12 +239,14 @@ function create(){
    const post=new THREE.Mesh(new THREE.CylinderGeometry(.18,.25,5.5,8),new THREE.MeshStandardMaterial({color:0x2a3035,metalness:.6}));post.position.set(7,2.75,7);scene.add(post);
    B.push({x:7,z:7,hw:.4,hd:.4,h:6,name:null});}
   const GA=makeGarage({THREE,scene,labelSprite,B});   // Super Home garage (west annex, door on the north street)
-  const HG=makeHangar({THREE,scene,labelSprite,B,getFront:v=>fronts[v]});   // airport hangar and the SUPER ONE jet (south-west corridor)
+  makeBridge({THREE,scene,B});                                          // the West Bridge: island west road -> airport platform
+  const AP=makeAirport({THREE,scene,labelSprite,B,getFront:v=>fronts[v]}); // the airport: runway, tower, Super Air terminal
+  const HG=makeHangar({THREE,scene,labelSprite,B,getFront:v=>fronts[v]});  // the SUPER ONE hangar on the airport apron
   specials.officeDoor={x:OF.door.x,z:OF.door.z,label:"OFFICE OF THE PRESIDENT · WALK IN",act:()=>{P.mode='walk';P.x=OF.lobby.x;P.z=OF.lobby.z;P.y=0;P.vx=P.vy=P.vz=0;yaw=Math.PI;pitch=.34;camD=8;toast('WELCOME, MR. PRESIDENT')}};
   specials.officeDesk={x:OF.desk.x,z:OF.desk.z,label:"PRESIDENT'S DESK · TAKE YOUR SEAT",act:()=>{P.mode='walk';P.x=OF.seat.x;P.z=OF.seat.z;P.y=0;P.vx=P.vy=P.vz=0;yaw=0;pitch=.3;camD=6;toast('SEATED · OFFICE OF THE PRESIDENT')}};
   specials.officeLaptop={x:OF.laptop.x,z:OF.laptop.z,label:'MACBOOK · OPEN THE PRESIDENT\'S LAPTOP',act:()=>LAPTOP.open()};
   // the MacBook: zooms in and takes the President's work (documents, mail, calendar, treasury, dispatch, security, press, notes)
-  const LAPTOP=createLaptop({toast:m=>toast(m),onEffect:(type,v)=>{
+  const LAPTOP=createLaptop({toast:m=>toast(m),getJet:()=>HG.status(),onEffect:(type,v)=>{
     if(type==='sign')toast(OF.work(v));
     else if(type==='cop'){copAlarm=8;toast('COP CAR '+v+' DISPATCHED · lights on')}
     else if(type==='bodyguard')services.guardToggle();
@@ -271,10 +275,11 @@ function create(){
   specials.polDoor={x:POLICE.door.x,z:POLICE.door.z,label:'POLICE STATION · WALK IN',act:()=>{P.mode='walk';P.x=POLICE.lobby.x;P.z=POLICE.lobby.z;P.y=0;P.vx=P.vy=P.vz=0;toast('WELCOME TO THE POLICE STATION')}};
   specials.clubDoor={x:CLUB.door.x,z:CLUB.door.z,label:'SUPER CLUB · WALK IN',act:()=>{P.mode='walk';P.x=CLUB.lobby.x;P.z=CLUB.lobby.z;P.y=0;P.vx=P.vy=P.vz=0;toast('WELCOME TO SUPER CLUB')}};
   specials.schDoor={x:SCHOOL.door.x,z:SCHOOL.door.z,label:'SUPER SCHOOL · WALK IN',act:()=>{P.mode='walk';P.x=SCHOOL.lobby.x;P.z=SCHOOL.lobby.z;P.y=0;P.vx=P.vy=P.vz=0;toast('WELCOME TO SUPER SCHOOL')}};
+  specials.airDoor={x:AP.door.x,z:AP.door.z,label:'SUPER AIR · WALK IN',act:()=>{P.mode='walk';P.x=AP.lobby.x;P.z=AP.lobby.z;P.y=0;P.vx=P.vy=P.vz=0;toast('WELCOME TO SUPER TOWN AIRPORT')}};
   specials.hangarDoor={x:HG.door.x,z:HG.door.z,label:'AIRPORT HANGAR · WALK IN',act:()=>{P.mode='walk';P.x=HG.lobby.x;P.z=HG.lobby.z;P.y=0;P.vx=P.vy=P.vz=0;toast('WELCOME TO THE AIRPORT HANGAR')}};
-  for(const [key,V] of[['rest',REST],['mall',MALL],['pol',POLICE],['sch',SCHOOL],['club',CLUB],['hg',HG]])V.points.forEach((p,i)=>{specials[key+i]={x:p.x,z:p.z,label:p.label,act:()=>toast(p.msg||p.label)}});
+  for(const [key,V] of[['rest',REST],['mall',MALL],['pol',POLICE],['sch',SCHOOL],['club',CLUB],['hg',HG],['ap',AP]])V.points.forEach((p,i)=>{specials[key+i]={x:p.x,z:p.z,label:p.label,act:()=>toast(p.msg||p.label)}});
   // footprints of every building, forecourt, queue and car park: no tree may stand inside them
-  const FOOT=[
+  const FOOT=[{x:-200,z:-17,hw:15,hd:9},{x:-240,z:-40,hw:14,hd:17},
     {x:18,z:58,hw:15,hd:22},{x:74,z:22,hw:14,hd:14},{x:84,z:-16,hw:22,hd:16},{x:-88,z:-18,hw:22,hd:22},
     {x:-62,z:56,hw:18,hd:20},{x:62,z:58,hw:17,hd:19},{x:-54,z:18,hw:16,hd:12},{x:-73.2,z:19,hw:11,hd:20},
     {x:18,z:76,hw:20,hd:12},{x:-18,z:-70,hw:14,hd:17},{x:-18,z:-18,hw:11,hd:11},{x:18,z:-18,hw:15,hd:11},{x:-18,z:18,hw:9,hd:9},{x:18,z:18,hw:9,hd:9}
@@ -503,7 +508,7 @@ function create(){
     for(const off of[-1.5,0,1.5]){const o={x:car.x-Math.sin(car.h)*off,z:car.z-Math.cos(car.h)*off};const ax=o.x,az=o.z;pushOut(o,1.15,0);cx+=o.x-ax;cz+=o.z-az}
     for(const b of CAR_SOLIDS){const dx=car.x-b.x,dz=car.z-b.z,ox=b.hw+1.2-Math.abs(dx),oz=b.hd+2.4-Math.abs(dz);if(ox>0&&oz>0){if(ox<oz)cx+=Math.sign(dx||1)*ox;else cz+=Math.sign(dz||1)*oz}}
     const hit=Math.hypot(cx,cz);if(hit>.001){car.x+=cx;car.z+=cz;car.v*=Math.max(.85,1-hit*1.2);if(hit>.12&&car.on)emit(car.x,.6,car.z,8,0xffc83d,3,1,3,.5)}
-    const pr=Math.hypot(car.x,car.z);if(pr>ISL-4){car.x*=(ISL-4)/pr;car.z*=(ISL-4)/pr;car.v*=.6}
+    if(keepInWorld(car,ISL-4))car.v*=.6;
     const accel=(car.v-car._pv)/Math.max(dt,.001);car._pv=car.v;
     car.roll+=((-car.st*sp*.0045)-car.roll)*(1-Math.exp(-dt*6));car.pit+=((clamp(accel*.0035,-.05,.05))-car.pit)*(1-Math.exp(-dt*6));
     benz.group.position.set(car.x,.02,car.z);benz.group.rotation.y=car.h;
@@ -727,8 +732,8 @@ function create(){
    for(const b of B){x.fillStyle=b.name?'#d4ff3a':'#3d6a4a';x.fillRect(75+(b.x-b.hw)*S,75+(b.z-b.hd)*S,b.hw*2*S,b.hd*2*S)}}
   // minimap icons: a badge on each building so you know where to go
   {const x=mapBase.getContext('2d'),S=75/ISL;
-   const ICONS=[[18,56,'PO','#d9b24a'],[-54,18,'HM','#c8ff43'],[-73.2,19,'GA','#c8ff43'],[-18,-18,'HQ','#c8ff43'],[18,-18,'AR','#c8ff43'],[-18,18,'DK','#4dd2ff'],[18,18,'EX','#ffc83d'],[74,22,'DI','#ff6b8a'],[84,-16,'ML','#4dd2ff'],[-88,-18,'PD','#4dd2ff'],[-62,60,'SC','#f2c84b'],[62,64,'CL','#ff2e88'],[7,7,'NW','#c8ff43'],[-18,-70,'HG','#4dd2ff']];
-   for(const [bx,bz,lab,c] of ICONS){const px=75+bx*S,pz=75+bz*S;x.beginPath();x.arc(px,pz,6,0,6.283);x.fillStyle='#0b2416';x.fill();x.strokeStyle=c;x.lineWidth=1.5;x.stroke();x.fillStyle=c;x.font='bold 6px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(lab,px,pz+.3)}}
+   const ICONS=[[18,56,'PO','#d9b24a'],[-54,18,'HM','#c8ff43'],[-73.2,19,'GA','#c8ff43'],[-18,-18,'HQ','#c8ff43'],[18,-18,'AR','#c8ff43'],[-18,18,'DK','#4dd2ff'],[18,18,'EX','#ffc83d'],[74,22,'DI','#ff6b8a'],[84,-16,'ML','#4dd2ff'],[-88,-18,'PD','#4dd2ff'],[-62,60,'SC','#f2c84b'],[62,64,'CL','#ff2e88'],[7,7,'NW','#c8ff43'],[-240,0,'AP','#4dd2ff']];
+   for(const [bx,bz,lab,c] of ICONS){let px=75+bx*S,pz=75+bz*S;if(lab==='AP'){const r=Math.hypot(px-75,pz-75),m=62;if(r>m){px=75+(px-75)*m/r;pz=75+(pz-75)*m/r}}x.beginPath();x.arc(px,pz,6,0,6.283);x.fillStyle='#0b2416';x.fill();x.strokeStyle=c;x.lineWidth=1.5;x.stroke();x.fillStyle=c;x.font='bold 6px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(lab,px,pz+.3)}}
   let mapT=0;function drawMap(dt){mapT-=dt;if(mapT>0)return;mapT=.1;const S=75/ISL;mx.drawImage(mapBase,0,0);
     for(const n of npcs){mx.fillStyle=n.kind==='fly'?'#4dd2ff':'#e9f6ea';mx.fillRect(75+n.x*S-1,75+n.z*S-1,2,2)}for(const c of cars){mx.fillStyle='#ff4d4f';mx.fillRect(75+c.g.position.x*S-1.5,75+c.g.position.z*S-1.5,3,3)}
     mx.save();mx.translate(75+P.x*S,75+P.z*S);mx.rotate(-yaw);mx.fillStyle='#d4ff3a';mx.beginPath();mx.moveTo(0,-6);mx.lineTo(4.5,5);mx.lineTo(-4.5,5);mx.closePath();mx.fill();mx.restore()}
@@ -747,7 +752,7 @@ function create(){
     if(k==='escape'){e.stopImmediatePropagation();if(menu.classList.contains('on'))menu.classList.remove('on');else if(api.onExit)api.onExit()}};
   addEventListener('keydown',kd,true);addEventListener('keyup',e=>{if(visible)keys.delete(e.key.toLowerCase())},true);addEventListener('blur',()=>keys.clear());
   /* ---------- taxi and bodyguard services ---------- */
-  const DESTS=[{name:'Super Diner',x:REST.door.x,z:REST.door.z},{name:'Super Mall',x:MALL.door.x,z:MALL.door.z},{name:'Police Station',x:POLICE.door.x,z:POLICE.door.z},{name:'Super Benz garage',x:PARK.x,z:PARK.z},{name:'Super Club',x:CLUB.door.x,z:CLUB.door.z},{name:'Airport Hangar',x:HG.door.x,z:HG.door.z}];
+  const DESTS=[{name:'Super Diner',x:REST.door.x,z:REST.door.z},{name:'Super Mall',x:MALL.door.x,z:MALL.door.z},{name:'Police Station',x:POLICE.door.x,z:POLICE.door.z},{name:'Super Benz garage',x:PARK.x,z:PARK.z},{name:'Super Club',x:CLUB.door.x,z:CLUB.door.z},{name:'Airport Terminal',x:AP.door.x,z:AP.door.z}];
   const services=createServices({THREE,scene,ROADS,makeCarModel,getFront:v=>fronts[v],pushOut,P,getCar:()=>car,cars,destinations:DESTS,toast,policeSpot:POLICE.spot,traffic:{hGreen:()=>hGreenNow(),walkerNear:(x,z,r)=>walkerNear(x,z,r)}});
   /* ---------- Super Benz engine, speedometer and phone ---------- */
   let engineOn=true,units='kmh';
@@ -789,6 +794,20 @@ function create(){
   let curSpot=null;promptEl.onclick=()=>interact();
   function interact(){if(menu.classList.contains('on')||going)return;if(car.on){exitCar();return}if(curSpot)curSpot.act()}
 
+  /* ---------- the walkable world: the island disc, the West Bridge deck and the airport platform ---------- */
+  const onBridge=(x,z)=>x<=BRIDGE.gate+4&&x>=BRIDGE.end-4&&Math.abs(z)<=BRIDGE.half+.5;
+  const onAirport=(x,z)=>x>=AIRPORT.x0&&x<=AIRPORT.x1&&z>=AIRPORT.z0&&z<=AIRPORT.z1;
+  const inWorld=(x,z,r)=>Math.hypot(x,z)<=r||onBridge(x,z)||onAirport(x,z);
+  // a mover that would leave the walkable world slides along the edge, or stops; lx/lz remember the last good spot
+  function keepInWorld(o,r){
+    if(o.lx===undefined){o.lx=o.x;o.lz=o.z}
+    if(inWorld(o.x,o.z,r)){o.lx=o.x;o.lz=o.z;return false}
+    if(inWorld(o.x,o.lz,r)){o.z=o.lz}
+    else if(inWorld(o.lx,o.z,r)){o.x=o.lx}
+    else{o.x=o.lx;o.z=o.lz}
+    return true;
+  }
+
   /* ---------- simulation ---------- */
   function update(dt){
     time+=dt;U.time.value=time;grade.uniforms.time.value=time%100;
@@ -811,11 +830,11 @@ function create(){
       const sp=boost?11.5:5.6,tx=(rx*ix+fx*-iz)*sp,tz=(rz*ix+fz*-iz)*sp;P.vx+=(tx-P.vx)*k;P.vz+=(tz-P.vz)*k;if(P.riding){P.vx=P.vz=0}
       P.vy-=26*dt;P.x+=P.vx*dt;P.z+=P.vz*dt;P.y+=P.vy*dt;
     }
-    const pr0=Math.hypot(P.x,P.z);if(pr0>ISL+25){P.x*=(ISL+25)/pr0;P.z*=(ISL+25)/pr0}
+    if(keepInWorld(P,ISL+4)){P.vx*=.4;P.vz*=.4}
     pushOut(P,P.mode==='walk'?.8:1,P.y);
     updateCar(dt,cix,ciz,boost,keys.has(' ')&&!frozen);
     services.update(dt);
-    const hs=HS.step(dt,P,time);OF.update(dt,P,time);copUpdate(dt,time);REST.update(dt,P,time);CLUB.update(dt,P,time);MALL.update(dt,P,time);GA.update(dt,P,time);HG.update(dt,P,time);
+    const hs=HS.step(dt,P,time);OF.update(dt,P,time);copUpdate(dt,time);REST.update(dt,P,time);CLUB.update(dt,P,time);MALL.update(dt,P,time);GA.update(dt,P,time);HG.update(dt,P,time);AP.update(dt,P,time);
     if(P.riding)P.floor=Math.round(HS.E.y/HS.FH);
     const inH2=HS.inHouse(P.x,P.z),roofOver=Math.abs(P.x-HS.HX0)<HS.hx+.6&&Math.abs(P.z-HS.HZ0)<HS.hz+.6;
     if(!inH2&&!(roofOver&&P.y>HS.TOP-1))P.floor=0;
